@@ -1,0 +1,27 @@
+{{define "login-content"}}
+<div class="max-w-md mx-auto px-4 py-8 sm:py-12">
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 sm:p-8">
+        <h2 class="text-xl font-bold text-center text-gray-800 mb-6">用户登录</h2>
+        {{if .error}}
+        <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4 text-sm">{{.error}}</div>
+        {{end}}
+        <form method="POST" action="/api/auth/login">
+            <input type="hidden" name="_csrf" value="{{.csrf_token}}">
+            <div class="mb-4">
+                <label class="block text-sm text-gray-600 mb-1">手机号</label>
+                <input type="tel" name="phone" required maxlength="11" placeholder="请输入手机号"
+                       class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            <div class="mb-6">
+                <label class="block text-sm text-gray-600 mb-1">密码</label>
+                <input type="password" name="password" required placeholder="请输入密码"
+                       class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            <button type="submit" class="w-full bg-blue-600 text-white py-2 rounded text-sm hover:bg-blue-700 transition">登 录</button>
+        </form>
+        <div class="text-center mt-4 text-sm text-gray-500">
+            还没有账号？<a href="/register" class="text-blue-600 hover:text-blue-800">立即注册</a>
+        </div>
+    </div>
+</div>
+{{end}}

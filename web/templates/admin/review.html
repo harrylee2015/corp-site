@@ -1,0 +1,20 @@
+{{define "adminreview-content"}}
+<h1 class="text-xl font-bold text-gray-800 mb-4">审核管理</h1>
+{{if .posts}}<div class="space-y-3">{{range .posts}}
+<div class="bg-white rounded-lg shadow-sm border border-gray-200 p-3 sm:p-4" id="post-{{.ID}}">
+<div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2"><div class="flex-1 min-w-0">
+<div class="flex items-center gap-2 mb-1"><span class="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded">{{.Category.Name}}</span><span class="text-xs text-gray-400">{{.CreatedAt.Format "2006-01-02 15:04"}}</span></div>
+<h3 class="font-semibold text-gray-800 text-sm">{{.Title}}</h3><div class="text-sm text-gray-600 mt-1 whitespace-pre-wrap">{{.Content}}</div>
+<div class="text-xs text-gray-400 mt-2">发布人：{{if .User.Nickname}}{{.User.Nickname}}{{else}}{{MaskPhone .User.Phone}}{{end}}{{if .Contact}} | 联系人：{{.Contact}} {{MaskPhone .ContactPhone}}{{end}}</div>
+{{if .Attachments}}<div class="mt-2">{{range .Attachments}}<a href="/uploads/{{.FilePath}}" class="text-xs text-blue-600 hover:text-blue-800 mr-3" download>{{.FileName}}</a>{{end}}</div>{{end}}</div>
+<div class="flex items-center gap-2 shrink-0"><button onclick="review('{{.ID}}','approve')" class="bg-green-600 text-white px-3 py-1 rounded text-xs hover:bg-green-700">通过</button><button onclick="showReject('{{.ID}}')" class="bg-red-500 text-white px-3 py-1 rounded text-xs hover:bg-red-600">驳回</button></div></div>
+<div id="rejectForm-{{.ID}}" class="hidden mt-3 pt-3 border-t border-gray-100"><label class="block text-xs text-gray-600 mb-1">驳回原因</label><textarea id="reason-{{.ID}}" class="w-full border border-gray-300 rounded px-2 py-1 text-xs mb-2" rows="2"></textarea>
+<div class="flex gap-2"><button onclick="review('{{.ID}}','reject')" class="bg-red-500 text-white px-3 py-1 rounded text-xs">确认驳回</button><button onclick="hideReject('{{.ID}}')" class="bg-gray-200 text-gray-600 px-3 py-1 rounded text-xs">取消</button></div></div></div>{{end}}</div>
+{{else}}<div class="text-center py-12 text-gray-400">暂无待审核信息</div>{{end}}
+{{if gt .totalPages 1}}<div class="flex justify-center mt-6 space-x-1">{{range $i := iterate 1 .totalPages}}<a href="/admin/review?page={{$i}}" class="px-3 py-1.5 rounded text-sm {{if eq $i $.page}}bg-blue-600 text-white{{else}}bg-white border border-gray-300 text-gray-600 hover:bg-gray-100{{end}}">{{$i}}</a>{{end}}</div>{{end}}
+<script>
+function review(id,action){var reason=action==='reject'?document.getElementById('reason-'+id).value:'';if(action==='reject'&&!reason){alert('请输入驳回原因');return}var body='action='+action+'&reason='+encodeURIComponent(reason)+'&_csrf={{.csrf_token}}';fetch('/api/admin/posts/'+id+'/review',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:body}).then(function(r){return r.json()}).then(function(d){if(d.error){alert(d.error);return}location.reload()})}
+function showReject(id){document.getElementById('rejectForm-'+id).classList.remove('hidden')}
+function hideReject(id){document.getElementById('rejectForm-'+id).classList.add('hidden')}
+</script>
+{{end}}

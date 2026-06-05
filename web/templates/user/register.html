@@ -1,0 +1,64 @@
+{{define "register-content"}}
+<div class="max-w-md mx-auto px-4 py-8 sm:py-12">
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 sm:p-8">
+        <h2 class="text-xl font-bold text-center text-gray-800 mb-6">用户注册</h2>
+        {{if .error}}
+        <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4 text-sm">{{.error}}</div>
+        {{end}}
+        <form method="POST" action="/api/auth/register" id="registerForm">
+            <input type="hidden" name="_csrf" value="{{.csrf_token}}">
+            <div class="mb-4">
+                <label class="block text-sm text-gray-600 mb-1">手机号</label>
+                <input type="tel" name="phone" required maxlength="11" placeholder="请输入11位手机号"
+                       class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            <div class="mb-4">
+                <label class="block text-sm text-gray-600 mb-1">验证码</label>
+                <div class="flex gap-2">
+                    <input type="text" name="code" required maxlength="6" placeholder="6位验证码"
+                           class="flex-1 border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <button type="button" id="sendSmsBtn" onclick="sendSMS()" 
+                            class="bg-gray-500 text-white px-3 py-2 rounded text-sm whitespace-nowrap hover:bg-gray-600 disabled:opacity-50">获取验证码</button>
+                </div>
+            </div>
+            <div class="mb-4">
+                <label class="block text-sm text-gray-600 mb-1">密码</label>
+                <input type="password" name="password" required minlength="8" maxlength="20" placeholder="8-20位，需包含字母和数字"
+                       class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <p class="text-xs text-gray-400 mt-0.5">密码须包含字母和数字</p>
+            </div>
+            <div class="mb-4">
+                <label class="block text-sm text-gray-600 mb-1">确认密码</label>
+                <input type="password" name="password_confirm" required minlength="8" maxlength="20" placeholder="请再次输入密码"
+                       class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            <div class="mb-4">
+                <label class="block text-sm text-gray-600 mb-1">昵称 <span class="text-gray-400">(选填，2-20字符)</span></label>
+                <input type="text" name="nickname" placeholder="输入昵称" maxlength="50"
+                       class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            <div class="mb-6">
+                <label class="block text-sm text-gray-600 mb-1">公司名称 <span class="text-gray-400">(选填)</span></label>
+                <input type="text" name="company" placeholder="输入公司名称" maxlength="100"
+                       class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            <button type="submit" class="w-full bg-blue-600 text-white py-2 rounded text-sm hover:bg-blue-700 transition">注 册</button>
+        </form>
+        <div class="text-center mt-4 text-sm text-gray-500">
+            已有账号？<a href="/login" class="text-blue-600 hover:text-blue-800">立即登录</a>
+        </div>
+    </div>
+</div>
+<script>
+var smsCountdown = 0;
+function sendSMS() {
+    var phone = document.querySelector('input[name="phone"]').value;
+    if (phone.length !== 11) { alert('请输入正确的手机号'); return; }
+    if (smsCountdown > 0) return;
+    var btn = document.getElementById('sendSmsBtn'); btn.disabled = true;
+    fetch('/api/sms/send', {method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:'phone='+phone+'&scene=register&_csrf={{.csrf_token}}'})
+    .then(r=>r.json()).then(d=>{if(d.code)alert('验证码：'+d.code);else alert(d.message||d.error||'发送失败');}).catch(()=>alert('网络错误'));
+    smsCountdown=60;var timer=setInterval(function(){smsCountdown--;if(smsCountdown<=0){clearInterval(timer);btn.innerText='获取验证码';btn.disabled=false;}else{btn.innerText=smsCountdown+'s';}},1000);
+}
+</script>
+{{end}}

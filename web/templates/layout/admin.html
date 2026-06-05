@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{.Title}}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <nav class="bg-gray-800 text-white">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="flex justify-between h-14 items-center">
+                <span class="font-bold">管理后台</span>
+                <button id="adminMenuBtn" onclick="toggleAdminMenu()" class="lg:hidden text-gray-300 focus:outline-none">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+                </button>
+                <div id="adminNav" class="hidden lg:flex items-center space-x-6">
+                    <a href="/admin" class="text-sm hover:text-gray-300">首页</a>
+                    <a href="/admin/review" class="text-sm hover:text-gray-300">审核管理</a>
+                    <a href="/admin/posts" class="text-sm hover:text-gray-300">信息管理</a>
+                    <a href="/admin/export" class="text-sm hover:text-gray-300">导出报表</a>
+                    <a href="/admin/users" class="text-sm hover:text-gray-300">用户管理</a>
+                    <a href="/logout" class="text-sm hover:text-red-400">退出</a>
+                </div>
+            </div>
+            <div id="adminMobileNav" class="hidden lg:hidden pb-3 space-y-1">
+                <a href="/admin" class="block text-sm py-2 px-1 hover:text-gray-300">首页</a>
+                <a href="/admin/review" class="block text-sm py-2 px-1 hover:text-gray-300">审核管理</a>
+                <a href="/admin/posts" class="block text-sm py-2 px-1 hover:text-gray-300">信息管理</a>
+                <a href="/admin/export" class="block text-sm py-2 px-1 hover:text-gray-300">导出报表</a>
+                <a href="/admin/users" class="block text-sm py-2 px-1 hover:text-gray-300">用户管理</a>
+                <a href="/logout" class="block text-sm py-2 px-1 text-red-400">退出</a>
+            </div>
+        </div>
+    </nav>
+    <main class="max-w-7xl mx-auto px-3 sm:px-4 py-4 sm:py-6">
+        {{.BodyContent}}
+    </main>
+    <script>function toggleAdminMenu(){document.getElementById('adminMobileNav').classList.toggle('hidden')}</script>
+</body>
+</html>

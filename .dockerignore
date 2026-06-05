@@ -1,0 +1,7 @@
+.git
+bin/
+uploads/
+*.md
+docs/
+.vscode/
+.idea/

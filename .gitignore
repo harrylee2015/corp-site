@@ -1,0 +1,31 @@
+# binary
+bin/
+
+# dependencies
+vendor/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# uploads
+uploads/*
+!uploads/.gitkeep
+
+# environment
+.env
+*.local
+
+# logs
+*.log
+
+# test coverage
+*.out
+coverage.html

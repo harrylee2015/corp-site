@@ -1,0 +1,46 @@
+services:
+  app:
+    build: .
+    container_name: corp-site
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    env_file:
+      - .env
+    environment:
+      - CONFIG_PATH=/app/config.yaml
+    volumes:
+      - ./uploads:/app/uploads
+      - ./config.yaml:/app/config.yaml:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - corp-net
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: corp-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-corp_site_2024}
+      POSTGRES_DB: ${DB_NAME:-corp_site}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-postgres} -d ${DB_NAME:-corp_site}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - corp-net
+
+volumes:
+  pgdata:
+
+networks:
+  corp-net:
+    driver: bridge
