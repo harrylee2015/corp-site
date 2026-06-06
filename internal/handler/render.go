@@ -14,6 +14,10 @@ func SetTemplate(t *template.Template) {
 }
 
 func renderPage(c *gin.Context, layout, title, contentName string, data gin.H) {
+	if _, exists := c.Get("user_id"); exists {
+		data["IsLoggedIn"] = true
+		data["UserRole"] = c.GetString("role")
+	}
 	if tmpl == nil {
 		c.String(500, "template not initialized")
 		return

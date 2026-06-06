@@ -74,7 +74,10 @@ func AdminPosts(c *gin.Context) {
 		query = query.Where("category_id = ?", categoryID)
 	}
 	if keyword != "" {
-		query = query.Where("title ILIKE ?", "%"+keyword+"%")
+		for _, word := range strings.Fields(keyword) {
+			like := "%" + word + "%"
+			query = query.Where("(title ILIKE ? OR content ILIKE ? OR contact ILIKE ?)", like, like, like)
+		}
 	}
 	if startDate != "" {
 		query = query.Where("created_at >= ?", startDate)

@@ -1,22 +1,48 @@
 {{define "dashboard-content"}}
-<div class="max-w-5xl mx-auto px-3 sm:px-4 py-4 sm:py-6">
-    {{if .flash}}<div class="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded mb-4 text-sm">{{.flash}}</div>{{end}}
-    <div class="flex justify-between items-center mb-4">
-        <h1 class="text-lg sm:text-xl font-bold text-gray-800">我的发布</h1>
-        <a href="/my/posts/new" class="bg-blue-600 text-white px-3 py-1.5 rounded text-sm hover:bg-blue-700">+ 发布信息</a>
+<div class="max-w-5xl mx-auto px-3 sm:px-4 py-4 sm:py-8">
+    {{if .flash}}<div class="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-xl mb-4 text-sm animate-pulse">{{.flash}}</div>{{end}}
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-xl sm:text-2xl font-extrabold text-gray-800">&#128195; 我的发布</h1>
+        <a href="/my/posts/new" class="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 py-2 rounded-xl text-sm font-bold hover:shadow-lg hover:scale-105 transition-all">+ 发布信息</a>
     </div>
     {{if .posts}}<div class="space-y-3">{{range .posts}}
-        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-3 sm:p-4"><div class="flex items-start justify-between"><div class="flex-1 min-w-0">
-            <div class="flex items-center gap-2 mb-1"><span class="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded">{{.Category.Name}}</span>
-                {{if eq .Status "pending"}}<span class="text-xs bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded">待审核</span>{{else if eq .Status "approved"}}<span class="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded">已通过</span>{{else}}<span class="text-xs bg-red-100 text-red-700 px-2 py-0.5 rounded">已驳回</span>{{end}}</div>
-            <h3 class="font-semibold text-gray-800 text-sm truncate">{{.Title}}</h3>
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 sm:p-5 hover:shadow-md transition-all duration-300" id="post-{{.ID}}"><div class="flex items-start justify-between"><div class="flex-1 min-w-0">
+            <div class="flex items-center gap-2 mb-1.5">
+                <span class="text-xs bg-gray-100 text-gray-600 px-2.5 py-1 rounded-full font-medium">{{.Category.Name}}</span>
+                {{if eq .Status "pending"}}<span class="text-xs bg-yellow-100 text-yellow-700 px-2.5 py-1 rounded-full font-medium animate-pulse status-badge">&#9203; 待审核</span>{{else if eq .Status "approved"}}<span class="text-xs bg-emerald-100 text-emerald-700 px-2.5 py-1 rounded-full font-medium status-badge">&#10003; 已通过</span>{{else if eq .Status "delisted"}}<span class="text-xs bg-gray-100 text-gray-500 px-2.5 py-1 rounded-full font-medium status-badge">&#128274; 已下架</span>{{else}}<span class="text-xs bg-red-100 text-red-700 px-2.5 py-1 rounded-full font-medium status-badge">&#10007; 已驳回</span>{{end}}</div>
+            <h3 class="font-bold text-gray-800 text-sm truncate">{{.Title}}</h3>
             <p class="text-xs text-gray-400 mt-1">{{.CreatedAt.Format "2006-01-02 15:04"}}</p>
-            {{if and (eq .Status "rejected") .RejectReason}}<p class="text-xs text-red-500 mt-1">驳回原因：{{.RejectReason}}</p>{{end}}
+            {{if and (eq .Status "rejected") .RejectReason}}<div class="mt-2 bg-red-50 border border-red-100 rounded-xl px-3 py-2"><p class="text-xs text-red-600"><span class="font-semibold">驳回原因：</span>{{.RejectReason}}</p></div>{{end}}
         </div>
-        {{if eq .Status "pending"}}<form method="POST" action="/api/posts/{{.ID}}/delete" onsubmit="return confirm('确认删除？')" style="display:inline"><input type="hidden" name="_csrf" value="{{$.csrf_token}}"><button type="submit" class="text-xs text-red-500 hover:text-red-700 ml-2">删除</button></form>{{end}}
+        <div class="flex items-center gap-2 ml-2 shrink-0">
+        {{if eq .Status "pending"}}<form method="POST" action="/api/posts/{{.ID}}/delete" onsubmit="return confirm('确认删除？')" style="display:inline"><input type="hidden" name="_csrf" value="{{$.csrf_token}}"><button type="submit" class="text-xs text-red-500 hover:text-red-700 font-medium transition-colors">删除</button></form>{{end}}
+        {{if eq .Status "approved"}}<button onclick="toggleList('{{.ID}}',this)" class="text-xs text-amber-600 hover:text-amber-800 font-medium transition-colors">下架</button>{{end}}
+        {{if eq .Status "delisted"}}<button onclick="toggleList('{{.ID}}',this)" class="text-xs text-emerald-600 hover:text-emerald-800 font-medium transition-colors">上架</button>{{end}}
+        </div>
         </div></div>
     {{end}}</div>
-    {{if gt .totalPages 1}}<div class="flex justify-center mt-6 space-x-1">{{range $i := iterate 1 .totalPages}}<a href="/my/posts?page={{$i}}" class="px-3 py-1.5 rounded text-sm {{if eq $i $.page}}bg-blue-600 text-white{{else}}bg-white border border-gray-300 text-gray-600 hover:bg-gray-100{{end}}">{{$i}}</a>{{end}}</div>{{end}}
-    {{else}}<div class="text-center py-12 text-gray-400"><p>还没有发布任何信息</p><a href="/my/posts/new" class="text-blue-600 hover:text-blue-800 text-sm mt-2 inline-block">立即发布</a></div>{{end}}
+    {{if gt .totalPages 1}}<div class="flex justify-center mt-8 space-x-1">{{range $i := iterate 1 .totalPages}}<a href="/my/posts?page={{$i}}" class="w-9 h-9 flex items-center justify-center rounded-lg text-sm font-medium transition-all {{if eq $i $.page}}bg-blue-600 text-white shadow-md{{else}}bg-white border border-gray-200 text-gray-600 hover:bg-gray-50{{end}}">{{$i}}</a>{{end}}</div>{{end}}
+    {{else}}<div class="text-center py-16 sm:py-20"><div class="text-5xl mb-4">&#128221;</div><p class="text-lg font-semibold text-gray-500 mb-1">还没有发布任何信息</p><p class="text-sm text-gray-400 mb-4">发布你的第一条商业信息，让更多人看到</p><a href="/my/posts/new" class="inline-block bg-gradient-to-r from-blue-600 to-purple-600 text-white px-5 py-2.5 rounded-xl text-sm font-bold hover:shadow-lg transition-all">立即发布</a></div>{{end}}
 </div>
+<script>
+function toggleList(id,btn){
+  fetch('/api/posts/'+id+'/toggle-list',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:'_csrf={{.csrf_token}}'})
+  .then(function(r){return r.json()}).then(function(d){
+    if(d.error){alert(d.error);return}
+    var parent=btn.parentElement.parentElement;
+    var badge=parent.querySelector('.status-badge');
+    if(d.status==='delisted'){
+      badge.className='text-xs bg-gray-100 text-gray-500 px-2.5 py-1 rounded-full font-medium status-badge';
+      badge.innerHTML='&#128274; 已下架';
+      btn.textContent='上架';
+      btn.className='text-xs text-emerald-600 hover:text-emerald-800 font-medium transition-colors';
+    }else{
+      badge.className='text-xs bg-emerald-100 text-emerald-700 px-2.5 py-1 rounded-full font-medium status-badge';
+      badge.innerHTML='&#10003; 已通过';
+      btn.textContent='下架';
+      btn.className='text-xs text-amber-600 hover:text-amber-800 font-medium transition-colors';
+    }
+  })
+}
+</script>
 {{end}}

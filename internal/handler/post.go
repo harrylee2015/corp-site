@@ -21,7 +21,7 @@ import (
 func Index(c *gin.Context) {
 	db := database.DB()
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
-	pageSize := 20
+	pageSize := 12
 	categoryID := c.Query("category_id")
 	keyword := c.Query("keyword")
 
@@ -32,8 +32,10 @@ func Index(c *gin.Context) {
 		query = query.Where("category_id = ?", categoryID)
 	}
 	if keyword != "" {
-		like := fmt.Sprintf("%%%s%%", keyword)
-		query = query.Where("title ILIKE ? OR content ILIKE ?", like, like)
+		for _, word := range strings.Fields(keyword) {
+			like := "%" + word + "%"
+			query = query.Where("(title ILIKE ? OR content ILIKE ? OR contact ILIKE ?)", like, like, like)
+		}
 	}
 
 	var total int64
@@ -47,7 +49,7 @@ func Index(c *gin.Context) {
 
 	totalPages := int(math.Ceil(float64(total) / float64(pageSize)))
 
-	renderPage(c, "layout/base.html", "首页 - 信息收集平台", "index-content", gin.H{
+	renderPage(c, "layout/base.html", "首页 - 金筹网", "index-content", gin.H{
 		"posts":      posts,
 		"categories": categories,
 		"page":       page,
@@ -62,11 +64,25 @@ func Index(c *gin.Context) {
 func PostDetail(c *gin.Context) {
 	db := database.DB()
 	var post model.Post
-	if err := db.Where("status = ?", "approved").Preload("Category").Preload("User").
+	if err := db.Preload("Category").Preload("User").
 		Preload("Attachments").First(&post, "id = ?", c.Param("id")).Error; err != nil {
 		renderPage(c, "layout/base.html", "信息不存在", "postdetail-content", gin.H{"error": "信息不存在", "csrf_token": c.GetString("csrf_token")})
 		return
 	}
+
+	visible := post.Status == "approved"
+	if !visible {
+		userIDStr, _ := c.Get("user_id")
+		role, _ := c.Get("role")
+		if userIDStr != nil && (userIDStr.(string) == post.UserID.String() || role == "admin") {
+			visible = true
+		}
+	}
+	if !visible {
+		renderPage(c, "layout/base.html", "信息不存在", "postdetail-content", gin.H{"error": "信息已下架", "csrf_token": c.GetString("csrf_token")})
+		return
+	}
+
 	renderPage(c, "layout/base.html", "信息详情", "postdetail-content", gin.H{"post": post, "csrf_token": c.GetString("csrf_token")})
 }
 
@@ -130,16 +146,35 @@ func CreatePost(cfg *config.Config) gin.HandlerFunc {
 			AttachIDs    string `form:"attach_ids"`
 		}
 		if err := c.ShouldBind(&req); err != nil {
+			var categories []model.Category
+			database.DB().Order("sort_order ASC").Find(&categories)
+			errMsg := "请填写完整信息（分类、标题5-100字、内容必填）"
+			candidate := err.Error()
+			if strings.Contains(candidate, "category_id") {
+				errMsg = "请选择信息分类"
+			} else if strings.Contains(candidate, "Title") {
+				if strings.Contains(candidate, "min") {
+					errMsg = "标题至少需要5个字"
+				} else {
+					errMsg = "标题需5-100字"
+				}
+			} else if strings.Contains(candidate, "Content") {
+				errMsg = "请输入信息内容"
+			}
 			renderPage(c, "layout/base.html", "发布信息", "postcreate-content", gin.H{
-				"error":      "请填写完整信息，标题需5-100字",
+				"error":      errMsg,
+				"categories": categories,
 				"csrf_token": c.GetString("csrf_token"),
 			})
 			return
 		}
 
 		if req.ContactPhone != "" && len(req.ContactPhone) != 11 {
+			var categories []model.Category
+			database.DB().Order("sort_order ASC").Find(&categories)
 			renderPage(c, "layout/base.html", "发布信息", "postcreate-content", gin.H{
 				"error":      "联系电话格式不正确，需为11位数字",
+				"categories": categories,
 				"csrf_token": c.GetString("csrf_token"),
 			})
 			return
@@ -158,8 +193,11 @@ func CreatePost(cfg *config.Config) gin.HandlerFunc {
 
 		tx := db.Begin()
 		if tx.Error != nil {
+			var categories []model.Category
+			database.DB().Order("sort_order ASC").Find(&categories)
 			renderPage(c, "layout/base.html", "发布信息", "postcreate-content", gin.H{
 				"error":      "发布失败，请重试",
+				"categories": categories,
 				"csrf_token": c.GetString("csrf_token"),
 			})
 			return
@@ -167,8 +205,11 @@ func CreatePost(cfg *config.Config) gin.HandlerFunc {
 
 		if err := tx.Create(&post).Error; err != nil {
 			tx.Rollback()
+			var categories []model.Category
+			database.DB().Order("sort_order ASC").Find(&categories)
 			renderPage(c, "layout/base.html", "发布信息", "postcreate-content", gin.H{
 				"error":      "发布失败，请重试",
+				"categories": categories,
 				"csrf_token": c.GetString("csrf_token"),
 			})
 			return
@@ -184,8 +225,11 @@ func CreatePost(cfg *config.Config) gin.HandlerFunc {
 				if err := tx.Model(&model.Attachment{}).Where("id = ? AND post_id IS NULL", attachID).
 					Update("post_id", post.ID).Error; err != nil {
 					tx.Rollback()
+					var categories []model.Category
+					database.DB().Order("sort_order ASC").Find(&categories)
 					renderPage(c, "layout/base.html", "发布信息", "postcreate-content", gin.H{
 						"error":      "发布失败，请重试",
+						"categories": categories,
 						"csrf_token": c.GetString("csrf_token"),
 					})
 					return
@@ -329,5 +373,108 @@ func UploadFile(cfg *config.Config) gin.HandlerFunc {
 			"url":      publicURL,
 			"size":     file.Size,
 		})
+	}
+}
+
+func PostList(c *gin.Context) {
+	db := database.DB()
+	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
+	pageSize := 12
+	categoryID := c.Query("category_id")
+	keyword := c.Query("keyword")
+
+	query := db.Model(&model.Post{}).Where("status = ?", "approved").
+		Preload("Category").Preload("User").Preload("Attachments")
+
+	if categoryID != "" {
+		query = query.Where("category_id = ?", categoryID)
+	}
+	if keyword != "" {
+		for _, word := range strings.Fields(keyword) {
+			like := "%" + word + "%"
+			query = query.Where("(title ILIKE ? OR content ILIKE ? OR contact ILIKE ?)", like, like, like)
+		}
+	}
+
+	var total int64
+	query.Count(&total)
+
+	var posts []model.Post
+	query.Order("created_at DESC").Offset((page - 1) * pageSize).Limit(pageSize).Find(&posts)
+
+	hasMore := int64(page*pageSize) < total
+
+	type row struct {
+		ID           string `json:"id"`
+		Title        string `json:"title"`
+		Content      string `json:"content"`
+		CategoryName string `json:"category"`
+		CategoryCls  string `json:"category_cls"`
+		Nickname     string `json:"nickname"`
+		Date         string `json:"date"`
+		HasAttach    bool   `json:"has_attach"`
+		AttachCount  int    `json:"attach_count"`
+	}
+
+	rows := make([]row, len(posts))
+	for i, p := range posts {
+		nickname := p.User.Nickname
+		if nickname == "" {
+			nickname = MaskPhone(p.User.Phone)
+		}
+		cls := catColorClass(p.Category.Name)
+		rows[i] = row{
+			ID:           p.ID.String(),
+			Title:        p.Title,
+			Content:      p.Content,
+			CategoryName: p.Category.Name,
+			CategoryCls:  cls,
+			Nickname:     nickname,
+			Date:         p.CreatedAt.Format("01-02"),
+			HasAttach:    len(p.Attachments) > 0,
+			AttachCount:  len(p.Attachments),
+		}
+	}
+
+	c.JSON(200, gin.H{"posts": rows, "has_more": hasMore})
+}
+
+func ToggleListStatus(c *gin.Context) {
+	user := authUserFromContext(c)
+	if user == nil {
+		c.JSON(401, gin.H{"error": "请先登录"})
+		return
+	}
+	db := database.DB()
+	var post model.Post
+	if err := db.Where("user_id = ?", user.ID).First(&post, "id = ?", c.Param("id")).Error; err != nil {
+		c.JSON(404, gin.H{"error": "信息不存在"})
+		return
+	}
+	if post.Status == "approved" {
+		db.Model(&post).Update("status", "delisted")
+		c.JSON(200, gin.H{"message": "已下架", "status": "delisted"})
+	} else if post.Status == "delisted" {
+		db.Model(&post).Update("status", "approved")
+		c.JSON(200, gin.H{"message": "已上架", "status": "approved"})
+	} else {
+		c.JSON(400, gin.H{"error": "当前状态不支持此操作"})
+	}
+}
+
+func catColorClass(name string) string {
+	switch name {
+	case "新能源":
+		return "bg-emerald-100 text-emerald-700"
+	case "融资":
+		return "bg-amber-100 text-amber-700"
+	case "租赁":
+		return "bg-sky-100 text-sky-700"
+	case "技术合作":
+		return "bg-violet-100 text-violet-700"
+	case "项目转让":
+		return "bg-orange-100 text-orange-700"
+	default:
+		return "bg-gray-100 text-gray-600"
 	}
 }

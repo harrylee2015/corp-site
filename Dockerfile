@@ -1,8 +1,8 @@
 FROM golang:1.25-alpine AS builder
 
 ENV GOPROXY=https://goproxy.cn,direct
-ENV GOPRIVATE=git.tongyuan.cc
-ENV GONOSUMDB=git.tongyuan.cc
+# ENV GOPRIVATE=git.tongyuan.cc
+# ENV GONOSUMDB=git.tongyuan.cc
 ENV GONOSUMCHECK=1
 ENV GOTOOLCHAIN=auto
 

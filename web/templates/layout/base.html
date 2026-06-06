@@ -5,31 +5,69 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{.Title}}</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @keyframes float {0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+        .animate-float{animation:float 3s ease-in-out infinite}
+        .bg-grid{background-image:radial-gradient(circle,#e5e7eb 1px,transparent 1px);background-size:24px 24px}
+    </style>
 </head>
 <body class="bg-gray-50 min-h-screen flex flex-col">
-    <nav class="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50">
+    <nav class="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-200/50 shadow-sm">
         <div class="max-w-7xl mx-auto px-3 sm:px-4">
             <div class="flex justify-between h-14 items-center">
-                <a href="/" class="text-lg font-bold text-blue-600">信息收集平台</a>
+                <a href="/" class="text-lg font-extrabold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">金筹网</a>
                 <button id="menuBtn" onclick="toggleMenu()" class="sm:hidden text-gray-600 focus:outline-none">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
                 </button>
                 <div id="navMenu" class="hidden sm:flex items-center space-x-3 sm:space-x-4">
-                    <a href="/login" class="text-sm text-gray-600 hover:text-blue-600">登录</a>
-                    <a href="/register" class="text-sm bg-blue-600 text-white px-3 py-1.5 rounded hover:bg-blue-700">注册</a>
+                    {{if .IsLoggedIn}}
+                    {{if eq .UserRole "admin"}}<a href="/admin" class="text-sm font-medium text-purple-600 hover:text-purple-700 transition-colors">管理后台</a>{{end}}
+                    <a href="/my/posts" class="text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors">我的发布</a>
+                    <a href="/logout" class="text-sm font-medium text-red-500 hover:text-red-600 transition-colors">退出</a>
+                    {{else}}
+                    <a href="/login" class="text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors">登录</a>
+                    <a href="/register" class="text-sm font-medium bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 py-2 rounded-full hover:shadow-lg hover:shadow-blue-500/25 transition-all">注册</a>
+                    {{end}}
                 </div>
             </div>
             <div id="mobileMenu" class="hidden sm:hidden pb-3 border-t border-gray-100 mt-1 pt-2 space-y-2">
-                <a href="/login" class="block text-sm text-gray-600 py-2 px-1">登录</a>
-                <a href="/register" class="block text-sm text-blue-600 py-2 px-1">注册</a>
+                {{if .IsLoggedIn}}
+                {{if eq .UserRole "admin"}}<a href="/admin" class="block text-sm font-medium text-purple-600 py-2 px-1">管理后台</a>{{end}}
+                <a href="/my/posts" class="block text-sm font-medium text-gray-600 py-2 px-1">我的发布</a>
+                <a href="/logout" class="block text-sm font-medium text-red-500 py-2 px-1">退出</a>
+                {{else}}
+                <a href="/login" class="block text-sm font-medium text-gray-600 py-2 px-1">登录</a>
+                <a href="/register" class="block text-sm font-medium text-blue-600 py-2 px-1">注册</a>
+                {{end}}
             </div>
         </div>
     </nav>
     <main class="flex-1">
         {{.BodyContent}}
     </main>
-    <footer class="bg-white border-t border-gray-200 py-4 mt-8">
-        <div class="max-w-7xl mx-auto px-4 text-center text-sm text-gray-500">&copy; 2024 信息收集平台</div>
+    <footer class="bg-gradient-to-r from-gray-900 to-gray-800 text-white mt-12">
+        <div class="max-w-7xl mx-auto px-4 py-8 sm:py-10">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 text-center sm:text-left">
+                <div>
+                    <h3 class="text-lg font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">金筹网</h3>
+                    <p class="text-sm text-gray-400 mt-2">商业信息聚合 · 高效资源对接</p>
+                </div>
+                <div>
+                    <h4 class="text-sm font-semibold text-gray-300 mb-2">快速链接</h4>
+                    <div class="flex gap-4 justify-center sm:justify-start text-sm text-gray-400">
+                        <a href="/" class="hover:text-white transition-colors">首页广场</a>
+                        <a href="/login" class="hover:text-white transition-colors">用户登录</a>
+                        <a href="/register" class="hover:text-white transition-colors">立即注册</a>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="text-sm font-semibold text-gray-300 mb-2">联系我们</h4>
+                    <p class="text-sm text-gray-400">如有合作意向，请通过平台发布信息，我们将协助双方对接。</p>
+                    <p class="text-sm text-gray-400 mt-2">联系电话：0512-88982355</p>
+                </div>
+            </div>
+            <div class="border-t border-gray-700 mt-6 pt-4 text-center text-xs text-gray-500">&copy; 2026 苏州金筹控股集团有限公司 保留所有权利</div>
+        </div>
     </footer>
     <script>function toggleMenu(){document.getElementById('mobileMenu').classList.toggle('hidden')}</script>
 </body>

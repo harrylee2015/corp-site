@@ -62,7 +62,7 @@ func (j *JWTMiddleware) SetTokenCookies(c *gin.Context, accessToken, refreshToke
 	}
 }
 
-func (j *JWTMiddleware) clearTokenCookies(c *gin.Context) {
+func (j *JWTMiddleware) ClearTokenCookies(c *gin.Context) {
 	c.SetCookie("access_token", "", -1, "/", "", j.secure, true)
 	c.SetCookie("refresh_token", "", -1, "/", "", j.secure, true)
 }
@@ -94,7 +94,7 @@ func (j *JWTMiddleware) AuthRequired(allowedRoles ...string) gin.HandlerFunc {
 				if parseErr == nil {
 					newAccess, genErr := j.GenerateToken(refreshClaims.UserID, refreshClaims.Role, 2*time.Hour)
 					if genErr != nil {
-						j.clearTokenCookies(c)
+						j.ClearTokenCookies(c)
 						c.Redirect(http.StatusFound, j.loginRedirect(allowedRoles))
 						c.Abort()
 						return
@@ -106,7 +106,7 @@ func (j *JWTMiddleware) AuthRequired(allowedRoles ...string) gin.HandlerFunc {
 					return
 				}
 			}
-			j.clearTokenCookies(c)
+			j.ClearTokenCookies(c)
 			c.Redirect(http.StatusFound, j.loginRedirect(allowedRoles))
 			c.Abort()
 			return
@@ -124,6 +124,50 @@ func (j *JWTMiddleware) AuthRequired(allowedRoles ...string) gin.HandlerFunc {
 				c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "permission denied"})
 				return
 			}
+		}
+
+		c.Set("user_id", claims.UserID)
+		c.Set("role", claims.Role)
+		c.Next()
+	}
+}
+
+func (j *JWTMiddleware) OptionalAuth() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		tokenStr := ""
+		if cookie, err := c.Cookie("access_token"); err == nil {
+			tokenStr = cookie
+		}
+		if tokenStr == "" {
+			header := c.GetHeader("Authorization")
+			if strings.HasPrefix(header, "Bearer ") {
+				tokenStr = strings.TrimPrefix(header, "Bearer ")
+			}
+		}
+		if tokenStr == "" {
+			c.Next()
+			return
+		}
+
+		claims, err := j.ParseToken(tokenStr)
+		if err != nil {
+			refreshCookie, refreshErr := c.Cookie("refresh_token")
+			if refreshErr == nil {
+				refreshClaims, parseErr := j.ParseToken(refreshCookie)
+				if parseErr == nil {
+					newAccess, genErr := j.GenerateToken(refreshClaims.UserID, refreshClaims.Role, 2*time.Hour)
+					if genErr == nil {
+						j.SetTokenCookies(c, newAccess, refreshCookie, 2*time.Hour, 0)
+						c.Set("user_id", refreshClaims.UserID)
+						c.Set("role", refreshClaims.Role)
+						c.Next()
+						return
+					}
+				}
+			}
+			j.ClearTokenCookies(c)
+			c.Next()
+			return
 		}
 
 		c.Set("user_id", claims.UserID)

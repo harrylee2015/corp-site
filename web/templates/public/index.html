@@ -1,47 +1,119 @@
 {{define "index-content"}}
 <div class="max-w-7xl mx-auto px-3 sm:px-4 py-4 sm:py-6">
     {{if .error}}
-    <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4">{{.error}}</div>
+    <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl mb-4 text-sm">{{.error}}</div>
     {{end}}
-    <form method="GET" action="/" class="mb-4">
-        <div class="flex flex-col sm:flex-row gap-2">
-            <input type="text" name="keyword" value="{{.keyword}}" placeholder="搜索信息..." 
-                   class="flex-1 border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-            <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded text-sm hover:bg-blue-700">搜索</button>
+    <div class="bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-700 rounded-2xl sm:rounded-3xl px-4 sm:px-8 py-8 sm:py-12 mb-6 sm:mb-8 shadow-xl shadow-blue-500/20 relative overflow-hidden">
+        <div class="absolute inset-0 bg-grid opacity-10"></div>
+        <div class="relative z-10 text-center">
+            <h1 class="text-2xl sm:text-4xl font-extrabold text-white mb-2 sm:mb-3">发现优质商业信息</h1>
+            <p class="text-blue-100 text-sm sm:text-base mb-6 sm:mb-8 max-w-xl mx-auto">覆盖新能源、融资、租赁等技术合作领域，高效连接商业资源</p>
+            <form method="GET" action="/" class="max-w-xl mx-auto">
+                <div class="flex gap-2">
+                    <input type="text" name="keyword" value="{{.keyword}}" placeholder="搜索你感兴趣的信息..." 
+                           class="flex-1 border-0 rounded-xl px-4 py-3 text-sm bg-white/95 focus:outline-none focus:ring-2 focus:ring-white/50 placeholder-gray-400 shadow-inner">
+                    <button type="submit" class="bg-white text-blue-600 px-5 py-3 rounded-xl text-sm font-bold hover:bg-blue-50 transition-all hover:scale-105 shadow-lg">搜索</button>
+                </div>
+            </form>
         </div>
-    </form>
-    <div class="flex flex-wrap gap-1.5 sm:gap-2 mb-4 overflow-x-auto pb-1">
-        <a href="/" class="px-3 py-1.5 rounded-full text-xs sm:text-sm {{if not .categoryID}}bg-blue-600 text-white{{else}}bg-gray-200 text-gray-700 hover:bg-gray-300{{end}}">全部</a>
+    </div>
+    {{if gt (len .posts) 6}}
+    <div id="heroCarousel" class="relative mb-6 sm:mb-8 rounded-2xl sm:rounded-3xl overflow-hidden shadow-xl bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900" onmouseenter="pauseCarousel()" onmouseleave="resumeCarousel()" onfocusin="pauseCarousel()" onfocusout="resumeCarousel()">
+        <div id="carouselTrack" class="flex transition-transform duration-500 ease-in-out">
+            {{range $i, $post := .posts}}
+            {{if lt $i 6}}
+            <a href="/posts/{{$post.ID}}" class="min-w-full flex-shrink-0 px-6 sm:px-14 py-8 sm:py-10 text-white block no-underline group cursor-pointer">
+                <div class="max-w-2xl mx-auto">
+                    <span class="inline-block text-xs px-3 py-1 rounded-full font-medium mb-3 {{if eq $post.Category.Name "新能源"}}bg-emerald-500/20 text-emerald-300{{else if eq $post.Category.Name "融资"}}bg-amber-500/20 text-amber-300{{else if eq $post.Category.Name "租赁"}}bg-sky-500/20 text-sky-300{{else if eq $post.Category.Name "技术合作"}}bg-violet-500/20 text-violet-300{{else if eq $post.Category.Name "项目转让"}}bg-orange-500/20 text-orange-300{{else}}bg-gray-500/20 text-gray-300{{end}}">{{$post.Category.Name}}</span>
+                    <h2 class="text-xl sm:text-2xl font-bold mb-3 leading-snug group-hover:text-blue-300 transition-colors">{{$post.Title}}</h2>
+                    <p class="text-sm text-gray-300 line-clamp-2 leading-relaxed mb-4 opacity-80">{{$post.Content}}</p>
+                    <div class="flex items-center justify-between text-xs text-gray-400 border-t border-gray-700/50 pt-3">
+                        <span>{{if $post.User.Nickname}}{{$post.User.Nickname}}{{else}}{{MaskPhone $post.User.Phone}}{{end}}</span>
+                        <span>{{$post.CreatedAt.Format "2006-01-02"}}</span>
+                    </div>
+                </div>
+            </a>
+            {{end}}
+            {{end}}
+        </div>
+        <button onclick="prevSlide();event.preventDefault()" class="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-white/10 hover:bg-white/25 text-white flex items-center justify-center transition-colors backdrop-blur-sm" aria-label="上一页">
+            <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg>
+        </button>
+        <button onclick="nextSlide();event.preventDefault()" class="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-white/10 hover:bg-white/25 text-white flex items-center justify-center transition-colors backdrop-blur-sm" aria-label="下一页">
+            <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
+        </button>
+        <div id="carouselDots" class="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-2">
+            {{range $i, $post := .posts}}
+            {{if lt $i 6}}
+            <button onclick="goToSlide({{$i}});event.preventDefault()" class="w-2.5 h-2.5 rounded-full {{if eq $i 0}}bg-white{{else}}bg-white/40{{end}} transition-all hover:bg-white/70" aria-label="第{{$i}}条"></button>
+            {{end}}
+            {{end}}
+        </div>
+    </div>
+    {{end}}
+    <div class="flex flex-wrap gap-2 sm:gap-2.5 mb-5">
+        <a href="/" class="px-3.5 py-2 rounded-full text-xs sm:text-sm font-medium transition-all shrink-0 {{if not .categoryID}}bg-gray-800 text-white shadow{{else}}bg-gray-200 text-gray-600 hover:bg-gray-300{{end}}">全部</a>
         {{range .categories}}
-        <a href="/?category_id={{.ID}}{{if $.keyword}}&keyword={{$.keyword}}{{end}}" class="px-3 py-1.5 rounded-full text-xs sm:text-sm {{if eq (printf "%d" .ID) $.categoryID}}bg-blue-600 text-white{{else}}bg-gray-200 text-gray-700 hover:bg-gray-300{{end}}">{{.Name}}</a>
+        {{$isActive := eq (printf "%d" .ID) $.categoryID}}
+        <a href="/?category_id={{.ID}}{{if $.keyword}}&keyword={{$.keyword}}{{end}}" class="flex-1 min-w-[80px] text-center px-3 py-2 rounded-full text-xs sm:text-sm font-medium transition-all {{if $isActive}}{{if eq .Name "新能源"}}bg-emerald-500{{else if eq .Name "融资"}}bg-amber-500{{else if eq .Name "租赁"}}bg-sky-500{{else if eq .Name "技术合作"}}bg-violet-500{{else if eq .Name "项目转让"}}bg-orange-500{{else}}bg-gray-500{{end}} text-white shadow-md{{else}}bg-gray-200 text-gray-600 hover:bg-gray-300{{end}}">{{.Name}}</a>
         {{end}}
     </div>
     {{if .posts}}
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-        {{range .posts}}
-        <a href="/posts/{{.ID}}" class="bg-white rounded-lg shadow-sm border border-gray-200 p-3 sm:p-4 hover:shadow-md transition block">
-            <div class="flex items-center justify-between mb-2">
-                <span class="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded">{{.Category.Name}}</span>
-                <span class="text-xs text-gray-400">{{.CreatedAt.Format "01-02"}}</span>
+    <div id="postGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
+        {{range $i, $post := .posts}}
+        {{if or (le (len $.posts) 6) (ge $i 6)}}
+        <a href="/posts/{{$post.ID}}" class="post-card group bg-white rounded-2xl shadow-sm border border-gray-100 p-4 sm:p-5 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 block">
+            <div class="flex items-center justify-between mb-3">
+                <span class="text-xs px-2.5 py-1 rounded-full font-medium {{if eq $post.Category.Name "新能源"}}bg-emerald-100 text-emerald-700{{else if eq $post.Category.Name "融资"}}bg-amber-100 text-amber-700{{else if eq $post.Category.Name "租赁"}}bg-sky-100 text-sky-700{{else if eq $post.Category.Name "技术合作"}}bg-violet-100 text-violet-700{{else if eq $post.Category.Name "项目转让"}}bg-orange-100 text-orange-700{{else}}bg-gray-100 text-gray-600{{end}}">{{$post.Category.Name}}</span>
+                <span class="text-xs text-gray-400">{{$post.CreatedAt.Format "01-02"}}</span>
             </div>
-            <h3 class="font-semibold text-gray-800 text-sm mb-1 line-clamp-2">{{.Title}}</h3>
-            <p class="text-xs text-gray-500 line-clamp-2 mb-2">{{.Content}}</p>
-            <div class="flex items-center justify-between text-xs text-gray-400">
-                <span>{{if .User.Nickname}}{{.User.Nickname}}{{else}}{{MaskPhone .User.Phone}}{{end}}</span>
-                {{if .Attachments}}<span class="text-blue-500">{{len .Attachments}}个附件</span>{{end}}
+            <h3 class="font-bold text-gray-800 text-sm mb-2 line-clamp-2 group-hover:text-blue-600 transition-colors">{{$post.Title}}</h3>
+            <p class="text-xs text-gray-500 line-clamp-2 mb-3 leading-relaxed">{{$post.Content}}</p>
+            <div class="flex items-center justify-between text-xs text-gray-400 pt-3 border-t border-gray-50">
+                <span class="font-medium text-gray-500">{{if $post.User.Nickname}}{{$post.User.Nickname}}{{else}}{{MaskPhone $post.User.Phone}}{{end}}</span>
+                {{if $post.Attachments}}<span class="text-blue-500 flex items-center gap-1">&#128206; {{len $post.Attachments}}</span>{{end}}
             </div>
         </a>
         {{end}}
-    </div>
-    {{if gt .totalPages 1}}
-    <div class="flex justify-center mt-6 space-x-1">
-        {{range $i := iterate 1 .totalPages}}
-        <a href="/?page={{$i}}{{if $.categoryID}}&category_id={{$.categoryID}}{{end}}{{if $.keyword}}&keyword={{$.keyword}}{{end}}" class="px-3 py-1.5 rounded text-sm {{if eq $i $.page}}bg-blue-600 text-white{{else}}bg-white border border-gray-300 text-gray-600 hover:bg-gray-100{{end}}">{{$i}}</a>
         {{end}}
     </div>
-    {{end}}
+    <div id="loadMore" class="text-center py-6 {{if le .totalPages 1}}hidden{{end}}">
+        <div class="inline-block w-8 h-8 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin"></div>
+    </div>
+    <div id="noMore" class="text-center py-8 text-gray-400 text-sm {{if gt .totalPages 1}}hidden{{end}}">已加载全部信息</div>
     {{else}}
-    <div class="text-center py-12 text-gray-400"><p class="text-lg">暂无信息</p><p class="text-sm mt-1">还没有审核通过的信息发布</p></div>
+    <div class="text-center py-16 sm:py-20">
+        <div class="text-5xl mb-4">&#128269;</div>
+        <p class="text-lg font-semibold text-gray-500 mb-1">暂无信息</p>
+        <p class="text-sm text-gray-400">还没有审核通过的信息发布，请稍后再来</p>
+    </div>
     {{end}}
 </div>
+<script>
+var carouselTotal = {{if gt (len .posts) 6}}Math.min({{len .posts}}, 6){{else}}0{{end}};
+var carouselIndex=0;var carouselTimer=null;
+function goToSlide(idx){carouselIndex=((idx%carouselTotal)+carouselTotal)%carouselTotal;var el=document.getElementById('carouselTrack');if(el)el.style.transform='translateX(-'+carouselIndex+'00%)';var d=document.querySelectorAll('#carouselDots button');for(var i=0;i<d.length;i++)d[i].className=i===carouselIndex?'w-2.5 h-2.5 rounded-full bg-white transition-all':'w-2.5 h-2.5 rounded-full bg-white/40 hover:bg-white/70 transition-all'}
+function nextSlide(){goToSlide(carouselIndex+1)}
+function prevSlide(){goToSlide(carouselIndex-1)}
+function startCarousel(){clearInterval(carouselTimer);carouselTimer=setInterval(nextSlide,3000)}
+function pauseCarousel(){clearInterval(carouselTimer)}
+function resumeCarousel(){startCarousel()}
+if(carouselTotal>1)startCarousel();
+
+var scrollPage={{.page}};var hasCat='{{.categoryID}}';var hasKw='{{.keyword}}';var scrollURL='/api/posts/list?'+(hasCat?'category_id='+hasCat+'&':'')+(hasKw?'keyword='+encodeURIComponent(hasKw):'');
+function loadMore(){
+  if(document.getElementById('loadMore').classList.contains('hidden'))return;
+  scrollPage++;fetch(scrollURL+'&page='+scrollPage).then(function(r){return r.json()}).then(function(d){
+    if(!d.posts||d.posts.length===0){document.getElementById('loadMore').classList.add('hidden');document.getElementById('noMore').classList.remove('hidden');return}
+    var grid=document.getElementById('postGrid');d.posts.forEach(function(p){var a=document.createElement('a');a.href='/posts/'+p.id;a.className='post-card group bg-white rounded-2xl shadow-sm border border-gray-100 p-4 sm:p-5 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 block';
+      a.innerHTML='<div class="flex items-center justify-between mb-3"><span class="text-xs px-2.5 py-1 rounded-full font-medium '+p.category_cls+'">'+p.category+'</span><span class="text-xs text-gray-400">'+p.date+'</span></div>'
+        +'<h3 class="font-bold text-gray-800 text-sm mb-2 line-clamp-2 group-hover:text-blue-600 transition-colors">'+p.title+'</h3>'
+        +'<p class="text-xs text-gray-500 line-clamp-2 mb-3 leading-relaxed">'+p.content+'</p>'
+        +'<div class="flex items-center justify-between text-xs text-gray-400 pt-3 border-t border-gray-50"><span class="font-medium text-gray-500">'+p.nickname+'</span>'+(p.has_attach?'<span class="text-blue-500 flex items-center gap-1">&#128206; '+p.attach_count+'</span>':'')+'</div>';
+      grid.appendChild(a)});
+    if(!d.has_more){document.getElementById('loadMore').classList.add('hidden');document.getElementById('noMore').classList.remove('hidden')}
+  })
+}
+var obs=new IntersectionObserver(function(entries){if(entries[0].isIntersecting)loadMore()});obs.observe(document.getElementById('loadMore'));
+</script>
 {{end}}

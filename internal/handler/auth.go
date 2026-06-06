@@ -13,8 +13,13 @@ import (
 	"github.com/google/uuid"
 )
 
-func Login(cfg *config.Config) gin.HandlerFunc {
+func Login(cfg *config.Config, limiter *middleware.RateLimiter) gin.HandlerFunc {
 	return func(c *gin.Context) {
+		if !limiter.Allow(c.ClientIP()) {
+			renderPage(c, "layout/base.html", "用户登录", "login-content", gin.H{"error": "登录尝试过于频繁，请稍后再试", "csrf_token": c.GetString("csrf_token")})
+			return
+		}
+
 		var req struct {
 			Phone    string `json:"phone" form:"phone" binding:"required"`
 			Password string `json:"password" form:"password" binding:"required"`
@@ -146,8 +151,13 @@ func Register(cfg *config.Config) gin.HandlerFunc {
 	}
 }
 
-func AdminLogin(cfg *config.Config) gin.HandlerFunc {
+func AdminLogin(cfg *config.Config, limiter *middleware.RateLimiter) gin.HandlerFunc {
 	return func(c *gin.Context) {
+		if !limiter.Allow(c.ClientIP()) {
+			renderPage(c, "layout/admin.html", "管理员登录", "adminlogin-content", gin.H{"error": "登录尝试过于频繁，请稍后再试", "csrf_token": c.GetString("csrf_token")})
+			return
+		}
+
 		var req struct {
 			Phone    string `json:"phone" form:"phone" binding:"required"`
 			Password string `json:"password" form:"password" binding:"required"`
@@ -245,14 +255,18 @@ func SendSMS(cfg *config.Config) gin.HandlerFunc {
 	}
 }
 
-func Logout(c *gin.Context) {
-	c.SetCookie("access_token", "", -1, "/", "", false, true)
-	c.SetCookie("refresh_token", "", -1, "/", "", false, true)
-	c.Redirect(302, "/")
+func Logout(jwtMW *middleware.JWTMiddleware) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		jwtMW.ClearTokenCookies(c)
+		c.Redirect(302, "/")
+	}
 }
 
 func authUserFromContext(c *gin.Context) *model.User {
-	userIDStr, _ := c.Get("user_id")
+	userIDStr, ok := c.Get("user_id")
+	if !ok {
+		return nil
+	}
 	userID, err := uuid.Parse(userIDStr.(string))
 	if err != nil {
 		return nil

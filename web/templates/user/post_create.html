@@ -1,21 +1,21 @@
 {{define "postcreate-content"}}
-<div class="max-w-3xl mx-auto px-3 sm:px-4 py-4 sm:py-6">
-    <h1 class="text-lg sm:text-xl font-bold text-gray-800 mb-4">发布信息</h1>
-    {{if .error}}<div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4 text-sm">{{.error}}</div>{{end}}
-    <form method="POST" action="/api/posts" id="postForm" class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6 space-y-4">
+<div class="max-w-3xl mx-auto px-3 sm:px-4 py-4 sm:py-8">
+    <h1 class="text-xl sm:text-2xl font-extrabold text-gray-800 mb-6">&#9997;&#65039; 发布信息</h1>
+    {{if .error}}<div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl mb-4 text-sm">{{.error}}</div>{{end}}
+    <form method="POST" action="/api/posts" id="postForm" class="bg-white rounded-2xl shadow-lg border border-gray-100 p-4 sm:p-6 space-y-5">
         <input type="hidden" name="_csrf" value="{{.csrf_token}}">
-        <div><label class="block text-sm text-gray-600 mb-1">分类 <span class="text-red-500">*</span></label>
-            <select name="category_id" required class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"><option value="">请选择分类</option>{{range .categories}}<option value="{{.ID}}">{{.Name}}</option>{{end}}</select></div>
-        <div><label class="block text-sm text-gray-600 mb-1">标题 <span class="text-red-500">*</span></label>
-            <input type="text" name="title" required maxlength="100" placeholder="请输入信息标题（5-100字）" class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"></div>
-        <div><label class="block text-sm text-gray-600 mb-1">内容 <span class="text-red-500">*</span></label>
-            <textarea name="content" required rows="8" placeholder="请输入信息详细内容" class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-y"></textarea></div>
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div><label class="block text-sm text-gray-600 mb-1">联系人</label><input type="text" name="contact" maxlength="100" placeholder="联系人姓名" class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"></div>
-            <div><label class="block text-sm text-gray-600 mb-1">联系电话</label><input type="tel" name="contact_phone" maxlength="11" placeholder="11位联系电话" class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"></div></div>
-        <div><label class="block text-sm text-gray-600 mb-1">附件上传</label><input type="file" id="fileInput" multiple accept=".jpg,.jpeg,.png,.pdf,.doc,.docx,.xls,.xlsx" class="w-full text-sm text-gray-500 file:mr-3 file:py-1.5 file:px-3 file:rounded file:border-0 file:text-sm file:bg-blue-50 file:text-blue-600 hover:file:bg-blue-100"><div id="attachList" class="mt-2 space-y-1"></div></div>
+        <div><label class="block text-sm font-medium text-gray-600 mb-1.5">分类 <span class="text-red-500">*</span></label>
+            <select name="category_id" required class="w-full border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition bg-white"><option value="">请选择分类</option>{{range .categories}}<option value="{{.ID}}">{{.Name}}</option>{{end}}</select></div>
+        <div><label class="block text-sm font-medium text-gray-600 mb-1.5">标题 <span class="text-red-500">*</span></label>
+            <input type="text" name="title" required maxlength="100" placeholder="请输入信息标题（5-100字）" class="w-full border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"></div>
+        <div><label class="block text-sm font-medium text-gray-600 mb-1.5">内容 <span class="text-red-500">*</span></label>
+            <textarea name="content" required rows="8" placeholder="请输入信息详细内容" class="w-full border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition resize-y"></textarea></div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div><label class="block text-sm font-medium text-gray-600 mb-1.5">联系人</label><input type="text" name="contact" maxlength="100" placeholder="联系人姓名" class="w-full border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"></div>
+            <div><label class="block text-sm font-medium text-gray-600 mb-1.5">联系电话</label><input type="tel" name="contact_phone" maxlength="11" placeholder="11位联系电话" class="w-full border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"></div></div>
+        <div><label class="block text-sm font-medium text-gray-600 mb-1.5">附件上传</label><input type="file" id="fileInput" multiple accept=".jpg,.jpeg,.png,.pdf,.doc,.docx,.xls,.xlsx" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-600 hover:file:bg-blue-100 transition"><div id="attachList" class="mt-2 space-y-1"></div></div>
         <input type="hidden" name="attach_ids" id="attachIds">
-        <button type="submit" class="w-full bg-blue-600 text-white py-2.5 rounded text-sm hover:bg-blue-700 transition">提 交 发 布</button>
+        <button type="submit" class="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 rounded-xl text-sm font-bold hover:shadow-lg hover:shadow-blue-500/25 hover:scale-[1.01] transition-all">&#128640; 提 交 发 布</button>
     </form>
 </div>
 <script>

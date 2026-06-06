@@ -88,7 +88,7 @@ func main() {
 	r.GET("/health", func(c *gin.Context) { c.JSON(200, gin.H{"status": "ok"}) })
 
 	// == public (CSRF applied) ==
-	pub := r.Group("", middleware.CSRFToken())
+	pub := r.Group("", jwtMW.OptionalAuth(), middleware.CSRFToken())
 	{
 		pub.GET("/", handler.Index)
 		pub.GET("/posts/:id", handler.PostDetail)
@@ -96,8 +96,9 @@ func main() {
 		pub.GET("/register", handler.UserRegisterPage)
 		pub.POST("/api/sms/send", handler.SendSMS(cfg))
 		pub.POST("/api/auth/register", handler.Register(cfg))
-		pub.POST("/api/auth/login", middleware.LoginRateLimit(loginLimiter), handler.Login(cfg))
-		pub.GET("/logout", handler.Logout)
+		pub.POST("/api/auth/login", handler.Login(cfg, loginLimiter))
+		pub.GET("/logout", handler.Logout(jwtMW))
+		pub.GET("/api/posts/list", handler.PostList)
 	}
 
 	// == user (JWT required + CSRF) ==
@@ -108,6 +109,7 @@ func main() {
 		userGroup.POST("/api/posts", handler.CreatePost(cfg))
 		userGroup.GET("/api/posts/:id", handler.MyPostDetail)
 		userGroup.POST("/api/posts/:id/delete", handler.DeletePost(cfg))
+		userGroup.POST("/api/posts/:id/toggle-list", handler.ToggleListStatus)
 		userGroup.POST("/api/upload", handler.UploadFile(cfg))
 	}
 
@@ -115,7 +117,7 @@ func main() {
 	adminPub := r.Group("", middleware.CSRFToken())
 	{
 		adminPub.GET("/admin/login", handler.AdminLoginPage)
-		adminPub.POST("/api/admin/login", middleware.LoginRateLimit(loginLimiter), handler.AdminLogin(cfg))
+		adminPub.POST("/api/admin/login", handler.AdminLogin(cfg, loginLimiter))
 	}
 
 	// == admin (JWT required + CSRF) ==

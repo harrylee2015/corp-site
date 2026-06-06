@@ -207,8 +207,10 @@ func buildExportQuery(db *gorm.DB, req struct {
 		query = query.Where("created_at <= ?", req.EndDate+" 23:59:59")
 	}
 	if req.Keyword != "" {
-		like := "%" + req.Keyword + "%"
-		query = query.Where("title ILIKE ? OR content ILIKE ?", like, like)
+		for _, word := range strings.Fields(req.Keyword) {
+			like := "%" + word + "%"
+			query = query.Where("(title ILIKE ? OR content ILIKE ? OR contact ILIKE ?)", like, like, like)
+		}
 	}
 	return query
 }
