@@ -22,7 +22,7 @@
         <div id="carouselTrack" class="flex transition-transform duration-500 ease-in-out">
             {{range $i, $post := .posts}}
             {{if lt $i 6}}
-            <a href="/posts/{{$post.ID}}" class="w-full flex-shrink-0 overflow-hidden px-6 sm:px-14 py-8 sm:py-10 text-white block no-underline group cursor-pointer">
+            <a href="/posts/{{$post.ID}}" class="min-w-full max-w-full flex-shrink-0 px-6 sm:px-14 py-8 sm:py-10 text-white block no-underline group cursor-pointer">
                 <div class="max-w-2xl mx-auto">
                     <span class="inline-block text-xs px-3 py-1 rounded-full font-medium mb-3 {{if eq $post.Category.Name "新能源"}}bg-emerald-500/20 text-emerald-300{{else if eq $post.Category.Name "融资"}}bg-amber-500/20 text-amber-300{{else if eq $post.Category.Name "租赁"}}bg-sky-500/20 text-sky-300{{else if eq $post.Category.Name "技术合作"}}bg-violet-500/20 text-violet-300{{else if eq $post.Category.Name "项目转让"}}bg-orange-500/20 text-orange-300{{else}}bg-gray-500/20 text-gray-300{{end}}">{{$post.Category.Name}}</span>
                     <h2 class="text-xl sm:text-2xl font-bold mb-3 leading-snug group-hover:text-blue-300 transition-colors">{{$post.Title}}</h2>
