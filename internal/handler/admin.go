@@ -271,6 +271,83 @@ func AdminDeletePost(cfg *config.Config) gin.HandlerFunc {
 	}
 }
 
+func AdminPasswordPage(c *gin.Context) {
+	renderPage(c, "layout/admin.html", "修改密码", "adminpassword-content", gin.H{
+		"csrf_token": c.GetString("csrf_token"),
+	})
+}
+
+func ChangePassword(c *gin.Context) {
+	var req struct {
+		OldPassword        string `form:"old_password" binding:"required"`
+		NewPassword        string `form:"new_password" binding:"required,min=8,max=20"`
+		NewPasswordConfirm string `form:"new_password_confirm" binding:"required"`
+	}
+	if err := c.ShouldBind(&req); err != nil {
+		renderPage(c, "layout/admin.html", "修改密码", "adminpassword-content", gin.H{
+			"error":      "请填写完整信息",
+			"csrf_token": c.GetString("csrf_token"),
+		})
+		return
+	}
+
+	if req.NewPassword != req.NewPasswordConfirm {
+		renderPage(c, "layout/admin.html", "修改密码", "adminpassword-content", gin.H{
+			"error":      "两次密码输入不一致",
+			"csrf_token": c.GetString("csrf_token"),
+		})
+		return
+	}
+
+	hasLetter := false
+	hasDigit := false
+	for _, ch := range req.NewPassword {
+		if ch >= 'a' && ch <= 'z' || ch >= 'A' && ch <= 'Z' {
+			hasLetter = true
+		}
+		if ch >= '0' && ch <= '9' {
+			hasDigit = true
+		}
+	}
+	if !hasLetter || !hasDigit {
+		renderPage(c, "layout/admin.html", "修改密码", "adminpassword-content", gin.H{
+			"error":      "密码需包含字母和数字",
+			"csrf_token": c.GetString("csrf_token"),
+		})
+		return
+	}
+
+	user := authUserFromContext(c)
+	if user == nil {
+		c.JSON(401, gin.H{"error": "请先登录"})
+		return
+	}
+
+	if !user.CheckPassword(req.OldPassword) {
+		renderPage(c, "layout/admin.html", "修改密码", "adminpassword-content", gin.H{
+			"error":      "当前密码错误",
+			"csrf_token": c.GetString("csrf_token"),
+		})
+		return
+	}
+
+	if err := user.SetPassword(req.NewPassword); err != nil {
+		renderPage(c, "layout/admin.html", "修改密码", "adminpassword-content", gin.H{
+			"error":      "系统错误，请重试",
+			"csrf_token": c.GetString("csrf_token"),
+		})
+		return
+	}
+
+	db := database.DB()
+	db.Model(user).Update("password_hash", user.PasswordHash)
+
+	renderPage(c, "layout/admin.html", "修改密码", "adminpassword-content", gin.H{
+		"flash":      "密码修改成功",
+		"csrf_token": c.GetString("csrf_token"),
+	})
+}
+
 func MaskPhone(phone string) string {
 	if len(phone) < 7 {
 		return phone
