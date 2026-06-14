@@ -2,7 +2,18 @@
 
 ## 1. 项目概述
 
-构建一个信息收集与发布平台(类似猪八戒)，支持用户发布各类商业信息，管理员审核后对外展示，并提供数据导出功能。
+构建一个信息收集与发布平台（类似猪八戒），品牌 **金筹设备租赁**。支持：
+
+- 用户按**业务身份**（需求方 / 设备供应商 / 资金方）注册，进入**用户中心**管理公司信息与项目
+- **企业认证**：上传企业证明照片即可发布项目（无需后台审核）
+- **管理统计**：按一级/二级分类统计信息与项目数量
+- **数据导出**：信息 Excel 导出 + 用户 Excel 导出
+- **公开页隐私**：联系人匿名、附件不可下载、上传文件鉴权访问
+- 保留原有 **posts 信息发布**流程，与新 **projects 项目**体系并行
+- 两级**分类导航**（6 个一级 + 悬停下拉二级），启动时自动从旧分类迁移
+- 管理员审核、Excel 导出、用户管理
+
+> 用户中心详细设计见 [user-center.md](./user-center.md)
 
 ## 2. 技术选型
 
@@ -39,7 +50,9 @@
 │  │  auth    │  auth    │  user    │  RateLimit /      │  │
 │  │  post    │  post    │  category│  CSRF             │  │
 │  │  admin   │  admin   │  post    │                   │  │
-│  │  export  │  export  │  sms_log │                   │  │
+│  │  user_   │  export  │  shop    │                   │  │
+│  │  center  │  export  │  product │                   │  │
+│  │  export  │  sms     │  sms_log │                   │  │
 │  │  upload  │  sms     │  attach  │                   │  │
 │  └──────────┴──────────┴──────────┴──────────────────┘  │
 │  ┌──────────────────────────────────────────────────┐   │
@@ -48,9 +61,9 @@
 │  └──────────────────────────────────────────────────┘   │
 ├─────────────────────────────────────────────────────────┤
 │                    PostgreSQL 15+                        │
-│  ┌────────┬────────┬──────┬──────┬───────────────┐     │
-│  │ users  │ posts  │ cats │ sms  │ attachments   │     │
-│  └────────┴────────┴──────┴──────┴───────────────┘     │
+│  ┌────────┬────────┬──────┬──────┬────────┬───────────┐     │
+│  │ users  │ posts  │ cats │ sms  │ shops  │ products  │     │
+│  └────────┴────────┴──────┴──────┴────────┴───────────┘     │
 ├─────────────────────────────────────────────────────────┤
 │                    文件系统 (/uploads)                    │
 └─────────────────────────────────────────────────────────┘
@@ -86,7 +99,7 @@
 
 ```
 # ===== 公开路由(无需认证) =====
-GET    /                          # 首页(已审核信息列表+分类筛选+搜索)
+GET    /                          # 首页(已审核信息列表+分类导航筛选+搜索)
 GET    /posts/:id                 # 信息详情页
 GET    /login                     # 用户登录页
 GET    /register                  # 用户注册页
@@ -94,7 +107,22 @@ POST   /api/sms/send              # 发送短信验证码
 POST   /api/auth/register         # 用户注册
 POST   /api/auth/login            # 用户登录
 
-# ===== 用户端(需 JWT, role=user) =====
+# ===== 用户中心(需 JWT, role=user) =====
+GET    /my                        # 用户中心首页
+GET    /my/company                # 公司信息
+POST   /api/my/company            # 保存公司信息
+GET    /my/projects/new           # 添加项目
+GET    /my/projects               # 项目列表
+POST   /api/my/projects           # 创建项目
+POST   /api/my/projects/:id/delete # 删除项目
+GET    /projects/:id              # 项目详情（公开）
+GET    /api/projects/list         # 项目分页 API
+# 旧路径 /my/shop、/my/products/*、/products/:id 302 重定向至新路径
+GET    /my/profile                # 基本信息
+POST   /api/my/password           # 修改密码
+POST   /api/my/verify             # 提交企业认证
+
+# ===== 用户端-旧版 posts(需 JWT, role=user) =====
 GET    /my/posts                  # 我的发布列表
 GET    /my/posts/new              # 发布新信息表单
 POST   /api/posts                 # 提交新信息
@@ -107,18 +135,21 @@ GET    /logout                    # 登出
 GET    /admin/login               # 管理员登录页
 
 # ===== 管理端(需 JWT, role=admin) =====
-GET    /admin                     # 管理后台首页(统计)
-GET    /admin/review              # 待审核列表
+GET    /admin                     # 管理后台首页(汇总统计+分类明细统计)
+GET    /admin/review              # 信息待审核列表
+GET    /admin/project-review      # 项目待审核列表
 GET    /admin/posts               # 全部信息管理
 GET    /admin/export              # 导出筛选页
 GET    /admin/users               # 用户列表
 POST   /api/admin/login           # 管理员登录
-POST   /api/admin/posts/:id/review # 审核操作
-POST   /api/admin/export          # 生成并下载 Excel
+POST   /api/admin/posts/:id/review   # 信息审核
+POST   /api/admin/projects/:id/review # 项目审核
+GET    /api/admin/users/export   # 导出用户 Excel
+POST   /api/admin/export          # 导出信息 Excel
 PUT    /api/admin/users/:id/status # 启用/禁用用户
 
-# ===== 静态文件 =====
-GET    /uploads/:filename         # 访问上传文件
+# ===== 上传与静态 =====
+GET    /uploads/*filepath        # 鉴权访问上传文件（OptionalAuth + 所有权校验）
 GET    /static/*filepath          # 静态资源
 ```
 
@@ -172,62 +203,79 @@ GET    /static/*filepath          # 静态资源
 │    users     │       │  categories  │
 ├──────────────┤       ├──────────────┤
 │ id       PK  │       │ id       PK  │
-│ phone        │       │ name         │
-│ password_hash│       │ sort_order   │
-│ role         │       │ created_at   │
-│ nickname     │       └──────┬───────┘
-│ company      │              │
+│ phone        │       │ parent_id FK │──┐ 自引用(两级树)
+│ password_hash│       │ name         │  │
+│ role         │       │ sort_order   │  │
+│ nickname     │       │ created_at   │  │
+│ real_name    │       └──────┬───────┘  │
+│ company      │              │◄─────────┘
+│ identity     │              │
+│ verify_status│              │
+│ verify_doc   │              │
 │ status       │              │
 │ created_at   │              │
 │ updated_at   │              │
 └──────┬───────┘              │
        │                      │
-       │  ┌───────────────────┘
-       │  │
-       ▼  ▼
+       │ 1:1                  │
+       ▼                      │
+┌──────────────┐              │
+│    shops     │              │
+├──────────────┤              │
+│ id       PK  │              │
+│ user_id  FK  │              │
+│ shop_name    │              │
+│ regions JSON │              │
+│ category_ids │              │
+│ contact...   │              │
+│ banner_path  │              │
+└──────────────┘              │
+       │                      │
+       │ 1:N                  │
+       ▼                      ▼
+┌──────────────────────────────────────────┐
+│                 products                  │
+├──────────────────────────────────────────┤
+│ id           PK                          │
+│ user_id      FK → users.id              │
+│ category_id  FK → categories.id         │
+│ name, image_path, amount_wan, rate_*    │
+│ period_*, repay_method, regions         │
+│ intro, status, reject_reason            │
+│ reviewed_by, reviewed_at                │
+└──────────────────────────────────────────┘
+
+       │ 1:N (posts 旧版)
+       ▼
 ┌──────────────────────────────────────────┐
 │                 posts                     │
 ├──────────────────────────────────────────┤
 │ id           PK                          │
 │ user_id      FK → users.id              │
 │ category_id  FK → categories.id         │
-│ title                                    │
-│ content                                  │
-│ contact                                  │
-│ contact_phone                            │
-│ status       (pending/approved/rejected) │
-│ reject_reason                            │
-│ reviewed_by  FK → users.id (nullable)    │
-│ reviewed_at  (nullable)                  │
-│ created_at                               │
-│ updated_at                               │
+│ title, content, contact, contact_phone  │
+│ status, reject_reason, reviewed_*       │
 └──────────────────┬───────────────────────┘
-                   │
                    │ 1:N
                    ▼
 ┌──────────────────────────────────────────┐
 │              attachments                  │
-├──────────────────────────────────────────┤
-│ id           PK                          │
-│ post_id      FK → posts.id ON DELETE     │
-│ file_name                                │
-│ file_path                                │
-│ file_size                                │
-│ created_at                               │
 └──────────────────────────────────────────┘
 
 ┌──────────────────────────────────────────┐
 │               sms_logs                    │
-├──────────────────────────────────────────┤
-│ id           PK                          │
-│ phone                                    │
-│ code                                     │
-│ scene        (register/login/reset)      │
-│ expired_at                               │
-│ used                                     │
-│ created_at                               │
 └──────────────────────────────────────────┘
 ```
+
+### 身份与分类映射
+
+业务身份（`users.identity`）决定店铺/产品可选分类，配置于 `internal/identity/identity.go`：
+
+| 身份 | 可选一级分类 |
+|------|-------------|
+| demander（需求方） | 新能源项目、企业类项目、其他类 |
+| supplier（设备供应商） | 新能源项目、企业类项目、电站出售方、其他类 |
+| funder（资金方） | 租赁公司、企业类项目、电站收购方、其他类 |
 
 ## 8. 部署架构
 
@@ -274,19 +322,29 @@ corp-site/
 │   │   └── config.go                # 配置结构体 + viper 加载
 │   ├── database/
 │   │   ├── postgres.go              # GORM 连接单例
-│   │   └── migrate.go               # AutoMigrate + 初始化数据
+│   │   ├── migrate.go               # AutoMigrate + 初始化数据
+│   │   └── categories.go            # 分类树 Seed + 旧分类迁移
+│   ├── identity/
+│   │   └── identity.go              # 业务身份枚举 + 分类映射
+│   ├── data/
+│   │   └── regions.go               # 省份列表
 │   ├── model/
 │   │   ├── user.go                  # User GORM 模型
-│   │   ├── category.go              # Category GORM 模型
+│   │   ├── category.go              # Category GORM 模型(两级树)
+│   │   ├── shop.go                  # Shop GORM 模型
+│   │   ├── product.go               # Product GORM 模型
 │   │   ├── post.go                  # Post GORM 模型
 │   │   ├── attachment.go            # Attachment GORM 模型
 │   │   └── sms_log.go               # SmsLog GORM 模型
 │   ├── handler/
 │   │   ├── auth.go                  # 认证 Handler
 │   │   ├── post.go                  # 信息发布 Handler
+│   │   ├── user_center.go           # 用户中心 Handler
 │   │   ├── admin.go                 # 管理端 Handler
-│   │   ├── export.go                # 导出 Handler
-│   │   └── upload.go                # 上传 Handler
+│   │   ├── export.go                # 信息/用户 Excel 导出
+│   │   ├── stats.go                 # 分类维度统计
+│   │   ├── upload_serve.go          # 上传文件鉴权访问
+│   │   └── render.go                # 页面渲染辅助
 │   ├── middleware/
 │   │   ├── jwt.go                   # JWT 校验中间件
 │   │   ├── role.go                  # 角色校验中间件
@@ -301,7 +359,8 @@ corp-site/
 ├── web/
 │   ├── templates/
 │   │   ├── layout/
-│   │   │   ├── base.html            # 用户端公共布局
+│   │   │   ├── base.html            # 用户端公共布局(含分类导航)
+│   │   │   ├── user.html            # 用户中心布局(左侧导航)
 │   │   │   └── admin.html           # 管理端公共布局
 │   │   ├── public/
 │   │   │   ├── index.html           # 首页
@@ -309,12 +368,18 @@ corp-site/
 │   │   ├── user/
 │   │   │   ├── login.html           # 用户登录
 │   │   │   ├── register.html        # 用户注册
-│   │   │   ├── dashboard.html       # 我的发布
-│   │   │   └── post_create.html     # 发布信息
+│   │   │   ├── center_home.html     # 用户中心首页
+│   │   │   ├── shop.html            # 店铺信息
+│   │   │   ├── product_create.html  # 添加产品
+│   │   │   ├── product_list.html    # 产品列表
+│   │   │   ├── profile.html         # 基本信息
+│   │   │   ├── dashboard.html       # 我的发布(旧版)
+│   │   │   └── post_create.html     # 发布信息(旧版)
 │   │   └── admin/
 │   │       ├── login.html           # 管理员登录
 │   │       ├── dashboard.html       # 管理首页
-│   │       ├── review.html          # 待审核列表
+│   │       ├── review.html          # 信息待审核
+│   │       ├── product_review.html  # 产品待审核
 │   │       ├── posts.html           # 全部信息管理
 │   │       └── export.html          # 导出筛选
 │   └── static/
@@ -323,7 +388,8 @@ corp-site/
 ├── uploads/                          # 上传文件存储目录
 ├── docs/
 │   ├── architecture.md              # 本文档
-│   └── features.md                  # 功能点文档
+│   ├── features.md                  # 功能点文档
+│   └── user-center.md               # 用户中心与产品管理设计
 ├── config.yaml                      # 配置文件
 ├── go.mod
 ├── go.sum
@@ -340,8 +406,25 @@ corp-site/
 | SQL 注入防护 | GORM 参数化查询 |
 | XSS 防护 | Go 模板自动 HTML 转义 |
 | 短信防刷 | 同一手机号 N分钟内限制发送次数 |
-| 文件上传安全 | 校验文件类型白名单 + 大小限制 + 随机文件名 |
-| CSRF | 表单提交使用 CSRF Token(可选) |
+| 文件上传安全 | 类型白名单 + 大小限制 + UUID 文件名 + 路径遍历防护 |
+| **文件访问控制** | `/uploads/*` 鉴权访问；管理员全权；普通用户仅本人资源 |
+| **公开页隐私** | 联系人/电话/发布者匿名（`MaskName`/`MaskPhone`）；公开页不展示附件 |
+| CSRF | 表单提交使用 CSRF Token |
+
+### 10.1 管理端分类统计
+
+`LoadCategoryStats()`（`internal/handler/stats.go`）按一级、二级分类分别统计 **posts** 与 **products** 数量，在管理首页表格展示。
+
+### 10.2 上传文件访问规则
+
+| 资源类型 | 允许访问 |
+|---------|---------|
+| 信息附件 | 发布者本人、管理员 |
+| 企业认证照 | 用户本人、管理员 |
+| 店铺 Banner | 店铺所属用户、管理员 |
+| 产品图片 | 产品所属用户、管理员 |
+| 未关联 post 的上传 | 任意已登录用户（发布流程中的临时文件） |
+| 未登录 | 全部拒绝 |
 
 ## 11. 性能优化
 

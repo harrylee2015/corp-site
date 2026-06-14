@@ -2,7 +2,7 @@
 <h1 class="text-xl font-bold text-gray-800 mb-4">信息管理</h1>
 <form method="GET" class="bg-white rounded-lg shadow-sm border border-gray-200 p-3 sm:p-4 mb-4">
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
-        <select name="category_id" class="border border-gray-300 rounded px-2 py-1.5 text-xs"><option value="">全部分类</option>{{range .categories}}<option value="{{.ID}}" {{if eq (printf "%d" .ID) $.categoryID}}selected{{end}}>{{.Name}}</option>{{end}}</select>
+        <select name="category_id" class="border border-gray-300 rounded px-2 py-1.5 text-xs"><option value="">全部分类</option>{{range .navCategories}}{{if .Children}}<optgroup label="{{.Name}}">{{range .Children}}<option value="{{.ID}}" {{if eq (printf "%d" .ID) $.categoryID}}selected{{end}}>{{.Name}}</option>{{end}}</optgroup>{{else}}<option value="{{.ID}}" {{if eq (printf "%d" .ID) $.categoryID}}selected{{end}}>{{.Name}}</option>{{end}}{{end}}</select>
         <select name="status" class="border border-gray-300 rounded px-2 py-1.5 text-xs"><option value="">全部状态</option><option value="pending" {{if eq .status "pending"}}selected{{end}}>待审核</option><option value="approved" {{if eq .status "approved"}}selected{{end}}>已通过</option><option value="rejected" {{if eq .status "rejected"}}selected{{end}}>已驳回</option></select>
         <input type="date" name="start_date" value="{{.startDate}}" class="border border-gray-300 rounded px-2 py-1.5 text-xs" placeholder="开始日期">
         <input type="date" name="end_date" value="{{.endDate}}" class="border border-gray-300 rounded px-2 py-1.5 text-xs" placeholder="结束日期">

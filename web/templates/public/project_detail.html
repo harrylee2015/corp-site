@@ -1,0 +1,82 @@
+{{define "projectdetail-content"}}
+<div class="max-w-4xl mx-auto px-3 sm:px-4 py-4 sm:py-8">
+    {{if .error}}
+    <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl mb-4">{{.error}}</div>
+    {{else if .project}}
+    <div class="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
+        <div class="bg-gradient-to-r from-blue-600 to-blue-800 px-4 sm:px-6 py-3 flex items-center justify-between">
+            <span class="text-white text-xs bg-white/20 px-3 py-1 rounded-full">{{if .project.Category.Parent}}{{.project.Category.Parent.Name}} · {{.project.Category.Name}}{{else}}{{.project.Category.Name}}{{end}}</span>
+            <span class="text-white/80 text-sm">{{.project.CreatedAt.Format "2006-01-02"}}</span>
+        </div>
+        <div class="p-4 sm:p-6">
+            <h1 class="text-xl sm:text-2xl font-bold text-gray-800 mb-4">{{.project.Name}}</h1>
+            {{if and .showPrivate .project.ImagePath}}
+            <img src="/uploads/{{.project.ImagePath}}" alt="" class="w-full max-h-48 object-cover rounded-xl mb-4 border border-gray-100">
+            {{end}}
+            {{if .isFunder}}
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+                <div class="bg-blue-50 rounded-xl p-3 text-center border border-blue-100">
+                    <div class="text-lg font-bold text-blue-700">{{if .project.AmountWan}}{{printf "%.0f" (derefFloat .project.AmountWan)}}{{else}}—{{end}}<span class="text-sm font-normal">万</span></div>
+                    <div class="text-xs text-blue-500 mt-0.5">额度</div>
+                </div>
+                <div class="bg-green-50 rounded-xl p-3 text-center border border-green-100">
+                    <div class="text-sm font-bold text-green-700">{{FormatProjectRate .project}}</div>
+                    <div class="text-xs text-green-500 mt-0.5">利率</div>
+                </div>
+                <div class="bg-amber-50 rounded-xl p-3 text-center border border-amber-100">
+                    <div class="text-lg font-bold text-amber-700">{{if .project.PeriodCount}}{{.project.PeriodCount}}{{else}}—{{end}}<span class="text-sm font-normal">期</span></div>
+                    <div class="text-xs text-amber-500 mt-0.5">还款期数</div>
+                </div>
+                <div class="bg-purple-50 rounded-xl p-3 text-center border border-purple-100">
+                    <div class="text-sm font-bold text-purple-700">{{if .project.RepayMethod}}{{FormatRepayMethod .project.RepayMethod}}{{else}}—{{end}}</div>
+                    <div class="text-xs text-purple-500 mt-0.5">还款方式</div>
+                </div>
+            </div>
+             {{end}}
+            {{if .project.BudgetAmountWan}}
+            <div class="bg-indigo-50 rounded-xl p-3 text-center border border-indigo-100 mb-4">
+                <div class="text-lg font-bold text-indigo-700">{{printf "%.0f" (derefFloat .project.BudgetAmountWan)}}<span class="text-sm font-normal"> 万元</span></div>
+                <div class="text-xs text-indigo-500 mt-0.5">项目预算额度</div>
+            </div>
+            {{end}}
+            {{if .regions}}
+            <div class="mb-4">
+                <h3 class="text-sm font-semibold text-gray-700 mb-2">项目区域</h3>
+                <div class="flex flex-wrap gap-1.5">{{range .regions}}<span class="text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-600">{{.}}</span>{{end}}</div>
+            </div>
+            {{end}}
+            {{if .project.Intro}}
+            <div class="text-sm sm:text-base text-gray-600 whitespace-pre-wrap mb-6 leading-relaxed">{{.project.Intro}}</div>
+            {{end}}
+            {{if .company}}
+            <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-4">
+                <div class="text-sm font-semibold text-amber-700 mb-2">发布方信息</div>
+                <div class="text-sm text-amber-800 space-y-1">
+                    {{if .company.ShopName}}<div>公司：{{.company.ShopName}}</div>{{end}}
+                    {{if .company.EstablishedAt}}<div>成立时间：{{.company.EstablishedAt}}</div>{{end}}
+                    {{if .project.User.Company}}<div>企业：{{.project.User.Company}}</div>{{end}}
+                     {{if .company.Contact}}<div>联系人：{{if .showPrivate}}{{.company.Contact}}{{else}}{{.maskedShopContact}}{{end}}</div>{{end}}
+                     {{if .company.Phone}}<div>手机：{{if .showPrivate}}{{.company.Phone}}{{else}}{{.maskedShopPhone}}{{end}}</div>{{end}}
+                    {{if .project.ContactPerson}}<div>项目联系人：{{if .showPrivate}}{{.project.ContactPerson}}{{else}}{{MaskName .project.ContactPerson}}{{end}}</div>{{end}}
+                    {{if .project.ContactPhone}}<div>项目联系电话：{{if .showPrivate}}{{.project.ContactPhone}}{{else}}{{MaskPhone .project.ContactPhone}}{{end}}</div>{{end}}
+                </div>
+                {{if not .showPrivate}}
+                <p class="text-xs text-amber-600/70 mt-3 pt-2 border-t border-amber-200">联系方式已匿名展示</p>
+                {{end}}
+            </div>
+            {{else if .project.User.Company}}
+            <div class="border-t border-gray-100 pt-3 text-sm text-gray-500">发布企业：{{.project.User.Company}}</div>
+            {{end}}
+            <div class="border-t border-gray-100 pt-3 text-sm text-gray-400">
+                发布者：{{if .showPrivate}}{{if .project.User.RealName}}{{.project.User.RealName}}{{else if .project.User.Nickname}}{{.project.User.Nickname}}{{else}}{{MaskPhone .project.User.Phone}}{{end}}{{else}}{{if .project.User.RealName}}{{MaskName .project.User.RealName}}{{else if .project.User.Nickname}}{{MaskName .project.User.Nickname}}{{else}}{{MaskPhone .project.User.Phone}}{{end}}{{end}}
+            </div>
+        </div>
+    </div>
+    <div class="mt-4">
+        <a href="/" class="inline-flex items-center gap-1 text-sm text-blue-600 hover:text-blue-800 bg-white px-4 py-2 rounded-xl shadow-sm border border-gray-100 hover:shadow transition-all">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>返回首页
+        </a>
+    </div>
+    {{end}}
+</div>
+{{end}}

@@ -129,6 +129,76 @@ func ExportExcel(c *gin.Context) {
 	}
 }
 
+func ExportUsersExcel(c *gin.Context) {
+	db := database.DB()
+	keyword := c.Query("keyword")
+	status := c.Query("status")
+
+	query := db.Model(&model.User{}).Where("role = ?", "user")
+	if keyword != "" {
+		like := "%" + keyword + "%"
+		query = query.Where("phone ILIKE ? OR real_name ILIKE ? OR company ILIKE ? OR nickname ILIKE ?",
+			like, like, like, like)
+	}
+	if status != "" {
+		query = query.Where("status = ?", status)
+	}
+
+	var users []model.User
+	query.Order("created_at DESC").Find(&users)
+
+	shopMap := map[string]model.Shop{}
+	var shops []model.Shop
+	db.Find(&shops)
+	for _, s := range shops {
+		shopMap[s.UserID.String()] = s
+	}
+
+	f := excelize.NewFile()
+	defer f.Close()
+	sheet := "用户列表"
+	f.SetSheetName("Sheet1", sheet)
+
+	headers := []string{"手机号", "真实姓名", "企业名称", "身份", "认证状态", "账号状态", "公司名称", "公司联系人", "公司手机", "注册时间"}
+	for i, h := range headers {
+		cell, _ := excelize.CoordinatesToCellName(i+1, 1)
+		f.SetCellValue(sheet, cell, h)
+	}
+
+	identityMap := map[string]string{"demander": "需求方", "supplier": "设备供应商", "funder": "资金方"}
+	verifyMap := map[string]string{"none": "未认证", "approved": "已认证", "pending": "审核中", "rejected": "未通过"}
+	statusMap := map[string]string{"active": "正常", "disabled": "已禁用"}
+
+	for i, u := range users {
+		row := i + 2
+		shop := shopMap[u.ID.String()]
+		values := []string{
+			u.Phone,
+			u.RealName,
+			u.Company,
+			identityMap[u.Identity],
+			verifyMap[u.VerifyStatus],
+			statusMap[u.Status],
+			shop.ShopName,
+			shop.Contact,
+			shop.Phone,
+			u.CreatedAt.Format("2006-01-02 15:04:05"),
+		}
+		for j, v := range values {
+			cell, _ := excelize.CoordinatesToCellName(j+1, row)
+			f.SetCellValue(sheet, cell, v)
+		}
+	}
+
+	filename := fmt.Sprintf("用户导出_%s.xlsx", time.Now().Format("20060102_150405"))
+	c.Header("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+	c.Header("Content-Disposition", fmt.Sprintf(`attachment; filename="%s"`, filename))
+	c.Header("Content-Transfer-Encoding", "binary")
+	if err := f.Write(c.Writer); err != nil {
+		c.JSON(500, gin.H{"error": "生成Excel失败"})
+	}
+}
+
 func ExportPreview(c *gin.Context) {
 	var req struct {
 		CategoryID string `form:"category_id"`

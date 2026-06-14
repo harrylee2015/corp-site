@@ -51,6 +51,9 @@ func main() {
 	r := gin.Default()
 
 	r.SetFuncMap(template.FuncMap{
+		"safeJS":   func(s string) template.JS { return template.JS(s) },
+		"derefStr":   func(s *string) string { if s == nil { return "" }; return *s },
+		"derefFloat": func(f *float64) float64 { if f == nil { return 0 }; return *f },
 		"iterate": func(start, end int) []int {
 			var result []int
 			for i := start; i <= end; i++ {
@@ -66,7 +69,12 @@ func main() {
 			}
 			return fmt.Sprintf("%.1f MB", float64(size)/1048576)
 		},
-		"MaskPhone": handler.MaskPhone,
+		"MaskPhone":           handler.MaskPhone,
+		"MaskName":            handler.MaskName,
+		"FormatProductRate":   handler.FormatProductRate,
+		"FormatProjectRate":   handler.FormatProjectRate,
+		"FormatRepayMethod":   handler.FormatRepayMethod,
+		"FormatRegionsForUser": handler.FormatRegionsForUser,
 	})
 
 	t, err := loadTemplates("web/templates", r.FuncMap)
@@ -80,7 +88,7 @@ func main() {
 	jwtMW := middleware.NewJWTMiddleware(cfg.JWT.Secret, secure)
 
 	r.Static("/static", "./web/static")
-	r.Static("/uploads", cfg.Upload.Path)
+	r.GET("/uploads/*filepath", jwtMW.OptionalAuth(), handler.ServeUpload(cfg))
 
 	loginLimiter := middleware.NewRateLimiter(time.Minute, 10)
 
@@ -91,6 +99,10 @@ func main() {
 	pub := r.Group("", jwtMW.OptionalAuth(), middleware.CSRFToken())
 	{
 		pub.GET("/", handler.Index)
+		pub.GET("/projects/:id", handler.ProjectDetail)
+		pub.GET("/products/:id", func(c *gin.Context) {
+			c.Redirect(http.StatusFound, "/projects/"+c.Param("id"))
+		})
 		pub.GET("/posts/:id", handler.PostDetail)
 		pub.GET("/login", handler.UserLoginPage)
 		pub.GET("/register", handler.UserRegisterPage)
@@ -98,12 +110,30 @@ func main() {
 		pub.POST("/api/auth/register", handler.Register(cfg))
 		pub.POST("/api/auth/login", handler.Login(cfg, loginLimiter))
 		pub.GET("/logout", handler.Logout(jwtMW))
+		pub.GET("/api/projects/list", handler.ProjectList)
+		pub.GET("/api/products/list", handler.ProductList)
 		pub.GET("/api/posts/list", handler.PostList)
 	}
 
 	// == user (JWT required + CSRF) ==
 	userGroup := r.Group("", jwtMW.AuthRequired("user"), middleware.CSRFToken())
 	{
+		userGroup.GET("/my", handler.UserCenterHome)
+		userGroup.GET("/my/company", handler.UserCompanyPage)
+		userGroup.POST("/api/my/company", handler.SaveCompany(cfg))
+		userGroup.GET("/my/shop", handler.UserShopPage)
+		userGroup.POST("/api/my/shop", handler.SaveShop(cfg))
+		userGroup.GET("/my/projects/new", handler.UserProjectNew)
+		userGroup.POST("/api/my/projects", handler.CreateProject)
+		userGroup.GET("/my/projects", handler.UserProjectList)
+		userGroup.POST("/api/my/projects/:id/delete", handler.DeleteProject)
+		userGroup.GET("/my/products", func(c *gin.Context) { c.Redirect(http.StatusFound, "/my/projects") })
+		userGroup.GET("/my/products/new", func(c *gin.Context) { c.Redirect(http.StatusFound, "/my/projects/new") })
+		userGroup.POST("/api/my/products", handler.CreateProduct)
+		userGroup.POST("/api/my/products/:id/delete", handler.DeleteProduct)
+		userGroup.GET("/my/profile", handler.UserProfilePage)
+		userGroup.POST("/api/my/password", handler.ChangeUserPassword(cfg))
+		userGroup.POST("/api/my/verify", handler.UploadVerifyDoc(cfg))
 		userGroup.GET("/my/posts", handler.MyPosts)
 		userGroup.GET("/my/posts/new", handler.NewPost)
 		userGroup.POST("/api/posts", handler.CreatePost(cfg))
@@ -130,12 +160,17 @@ func main() {
 		adminGroup.GET("/admin/users", handler.AdminUsers)
 		adminGroup.GET("/admin/password", handler.AdminPasswordPage)
 		adminGroup.GET("/api/admin/posts/:id", handler.AdminPostDetail)
-		adminGroup.POST("/api/admin/posts/:id/review", handler.ReviewPost)
+		adminGroup.POST("/api/admin/projects/:id/review", handler.ReviewProject)
+		adminGroup.POST("/api/admin/products/:id/review", handler.ReviewProduct)
+		adminGroup.GET("/admin/project-review", handler.AdminProjectReview)
+		adminGroup.GET("/admin/product-review", handler.AdminProductReview)
 		adminGroup.POST("/api/admin/posts/:id/delete", handler.AdminDeletePost(cfg))
 		adminGroup.POST("/api/admin/password", handler.ChangePassword)
 		adminGroup.GET("/api/admin/export", handler.ExportExcel)
 		adminGroup.GET("/api/admin/export/preview", handler.ExportPreview)
+		adminGroup.GET("/api/admin/users/export", handler.ExportUsersExcel)
 		adminGroup.PUT("/api/admin/users/:id/status", handler.UpdateUserStatus)
+		adminGroup.PUT("/api/admin/users/:id/verify", handler.UpdateUserVerify)
 	}
 
 	srv := &http.Server{
