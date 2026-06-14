@@ -74,7 +74,7 @@
             <p class="text-xs text-gray-500 line-clamp-2 mb-2 leading-relaxed">{{if $p.Intro}}{{$p.Intro}}{{else}}—{{end}}</p>
             {{if eq $p.User.Identity "funder"}}
             <div class="flex flex-wrap gap-2 text-xs text-blue-600 mb-2">
-                {{if $p.AmountWan}}<span class="bg-blue-50 px-2 py-0.5 rounded">{{printf "%.0f" $p.AmountWan}}万</span>{{end}}
+                {{if $p.AmountWan}}<span class="bg-blue-50 px-2 py-0.5 rounded">{{printf "%.0f" (derefFloat $p.AmountWan)}}万</span>{{end}}
                 <span class="bg-green-50 text-green-700 px-2 py-0.5 rounded">{{FormatProjectRate $p}}</span>
                 {{if $p.PeriodCount}}<span class="bg-amber-50 text-amber-700 px-2 py-0.5 rounded">{{$p.PeriodCount}}期</span>{{end}}
             </div>

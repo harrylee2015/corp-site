@@ -239,6 +239,23 @@ func CreateProject(c *gin.Context) {
 		Status:     "pending",
 	}
 
+	contactPerson := strings.TrimSpace(c.PostForm("contact_person"))
+	contactPhone := strings.TrimSpace(c.PostForm("contact_phone"))
+	if contactPerson == "" || contactPhone == "" {
+		renderProjectFormError(c, user, "请填写联系人和联系电话")
+		return
+	}
+	project.ContactPerson = contactPerson
+	project.ContactPhone = contactPhone
+
+	budgetStr := strings.TrimSpace(c.PostForm("budget_amount_wan"))
+	if budgetStr != "" {
+		budget, _ := strconv.ParseFloat(budgetStr, 64)
+		if budget > 0 {
+			project.BudgetAmountWan = &budget
+		}
+	}
+
 	if user.Identity == identity.Funder {
 		amountWan, _ := strconv.ParseFloat(c.PostForm("amount_wan"), 64)
 		ratePercent, _ := strconv.ParseFloat(c.PostForm("rate_percent"), 64)
@@ -269,11 +286,15 @@ func CreateProject(c *gin.Context) {
 func CreateProduct(c *gin.Context) { CreateProject(c) }
 
 func renderProjectFormError(c *gin.Context, user *model.User, msg string) {
-	data := userCenterBase(c, user)
-	data["ActiveNav"] = "project"
-	data["ActiveSub"] = "new"
-	data["error"] = msg
-	renderUserPage(c, "添加项目", "project-create-content", data)
+	d := userCenterBase(c, user)
+	d["ActiveNav"] = "project"
+	d["ActiveSub"] = "new"
+	d["error"] = msg
+	if !data.IsMultiProvince(user.Identity) {
+		d["selectedProvince"] = c.PostForm("province")
+		d["selectedCity"] = c.PostForm("city")
+	}
+	renderUserPage(c, "添加项目", "project-create-content", d)
 }
 
 func UserProjectList(c *gin.Context) {

@@ -16,7 +16,7 @@
             {{if .isFunder}}
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
                 <div class="bg-blue-50 rounded-xl p-3 text-center border border-blue-100">
-                    <div class="text-lg font-bold text-blue-700">{{if .project.AmountWan}}{{printf "%.0f" .project.AmountWan}}{{else}}—{{end}}<span class="text-sm font-normal">万</span></div>
+                    <div class="text-lg font-bold text-blue-700">{{if .project.AmountWan}}{{printf "%.0f" (derefFloat .project.AmountWan)}}{{else}}—{{end}}<span class="text-sm font-normal">万</span></div>
                     <div class="text-xs text-blue-500 mt-0.5">额度</div>
                 </div>
                 <div class="bg-green-50 rounded-xl p-3 text-center border border-green-100">
@@ -31,6 +31,12 @@
                     <div class="text-sm font-bold text-purple-700">{{if .project.RepayMethod}}{{FormatRepayMethod .project.RepayMethod}}{{else}}—{{end}}</div>
                     <div class="text-xs text-purple-500 mt-0.5">还款方式</div>
                 </div>
+            </div>
+             {{end}}
+            {{if .project.BudgetAmountWan}}
+            <div class="bg-indigo-50 rounded-xl p-3 text-center border border-indigo-100 mb-4">
+                <div class="text-lg font-bold text-indigo-700">{{printf "%.0f" (derefFloat .project.BudgetAmountWan)}}<span class="text-sm font-normal"> 万元</span></div>
+                <div class="text-xs text-indigo-500 mt-0.5">项目预算额度</div>
             </div>
             {{end}}
             {{if .regions}}
@@ -49,8 +55,10 @@
                     {{if .company.ShopName}}<div>公司：{{.company.ShopName}}</div>{{end}}
                     {{if .company.EstablishedAt}}<div>成立时间：{{.company.EstablishedAt}}</div>{{end}}
                     {{if .project.User.Company}}<div>企业：{{.project.User.Company}}</div>{{end}}
-                    {{if .company.Contact}}<div>联系人：{{if .showPrivate}}{{.company.Contact}}{{else}}{{.maskedShopContact}}{{end}}</div>{{end}}
-                    {{if .company.Phone}}<div>手机：{{if .showPrivate}}{{.company.Phone}}{{else}}{{.maskedShopPhone}}{{end}}</div>{{end}}
+                     {{if .company.Contact}}<div>联系人：{{if .showPrivate}}{{.company.Contact}}{{else}}{{.maskedShopContact}}{{end}}</div>{{end}}
+                     {{if .company.Phone}}<div>手机：{{if .showPrivate}}{{.company.Phone}}{{else}}{{.maskedShopPhone}}{{end}}</div>{{end}}
+                    {{if .project.ContactPerson}}<div>项目联系人：{{if .showPrivate}}{{.project.ContactPerson}}{{else}}{{MaskName .project.ContactPerson}}{{end}}</div>{{end}}
+                    {{if .project.ContactPhone}}<div>项目联系电话：{{if .showPrivate}}{{.project.ContactPhone}}{{else}}{{MaskPhone .project.ContactPhone}}{{end}}</div>{{end}}
                 </div>
                 {{if not .showPrivate}}
                 <p class="text-xs text-amber-600/70 mt-3 pt-2 border-t border-amber-200">联系方式已匿名展示</p>

@@ -125,17 +125,20 @@ func serveProjectListAPI(c *gin.Context) {
 	hasMore := int64(page*pageSize) < total
 
 	type row struct {
-		ID       string `json:"id"`
-		Name     string `json:"name"`
-		Intro    string `json:"intro"`
-		Category string `json:"category"`
-		Amount   string `json:"amount"`
-		Rate     string `json:"rate"`
-		Period   string `json:"period"`
-		Region   string `json:"region"`
-		IsFunder bool   `json:"is_funder"`
-		Nickname string `json:"nickname"`
-		Date     string `json:"date"`
+		ID           string `json:"id"`
+		Name         string `json:"name"`
+		Intro        string `json:"intro"`
+		Category     string `json:"category"`
+		Amount       string `json:"amount"`
+		Rate         string `json:"rate"`
+		Period       string `json:"period"`
+		Budget       string `json:"budget"`
+		ContactPerson string `json:"contact_person"`
+		ContactPhone  string `json:"contact_phone"`
+		Region       string `json:"region"`
+		IsFunder     bool   `json:"is_funder"`
+		Nickname     string `json:"nickname"`
+		Date         string `json:"date"`
 	}
 
 	rows := make([]row, len(projects))
@@ -149,6 +152,15 @@ func serveProjectListAPI(c *gin.Context) {
 			IsFunder: p.User.Identity == identity.Funder,
 			Nickname: maskPublisherName(p.User),
 			Date:     p.CreatedAt.Format("01-02"),
+		}
+		if p.BudgetAmountWan != nil && *p.BudgetAmountWan > 0 {
+			r.Budget = fmt.Sprintf("%.0f万", *p.BudgetAmountWan)
+		}
+		if p.ContactPerson != "" {
+			r.ContactPerson = MaskName(p.ContactPerson)
+		}
+		if p.ContactPhone != "" {
+			r.ContactPhone = MaskPhone(p.ContactPhone)
 		}
 		if p.IsFunderProject() {
 			r.Amount = fmt.Sprintf("%.0f万", *p.AmountWan)

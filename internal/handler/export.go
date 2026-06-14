@@ -159,7 +159,7 @@ func ExportUsersExcel(c *gin.Context) {
 	sheet := "用户列表"
 	f.SetSheetName("Sheet1", sheet)
 
-	headers := []string{"手机号", "真实姓名", "企业名称", "身份", "认证状态", "账号状态", "店铺名称", "店铺联系人", "店铺手机", "注册时间"}
+	headers := []string{"手机号", "真实姓名", "企业名称", "身份", "认证状态", "账号状态", "公司名称", "公司联系人", "公司手机", "注册时间"}
 	for i, h := range headers {
 		cell, _ := excelize.CoordinatesToCellName(i+1, 1)
 		f.SetCellValue(sheet, cell, h)

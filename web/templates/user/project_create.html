@@ -32,7 +32,7 @@
                 <label class="block text-sm font-medium text-gray-700 mb-1">项目所在省 <span class="text-red-500">*</span></label>
                 <select name="province" id="regionProvince" required class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none">
                     <option value="">请选择省份</option>
-                    {{range .provinces}}<option value="{{.}}">{{.}}</option>{{end}}
+                    {{range .provinces}}<option value="{{.}}" {{if eq $.selectedProvince .}}selected{{end}}>{{.}}</option>{{end}}
                 </select>
             </div>
             <div>
@@ -43,6 +43,22 @@
             </div>
         </div>
         {{end}}
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {{if not .isFunder}}
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">项目预算额度（万元）</label>
+                <input type="number" name="budget_amount_wan" min="0.01" step="0.01" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="表名该项目规模多大">
+            </div>
+            {{end}}
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">联系人 <span class="text-red-500">*</span></label>
+                <input type="text" name="contact_person" required maxlength="50" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">联系电话 <span class="text-red-500">*</span></label>
+                <input type="tel" name="contact_phone" required maxlength="11" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
+            </div>
+        </div>
         <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">项目图片</label>
             <input type="file" id="projectImg" accept="image/*" class="text-sm">
@@ -87,10 +103,11 @@
     </form>
 </div>
 <script>
-var citiesData={{.citiesJSON}};
-function fillCities(prov){var el=document.getElementById('regionCity');if(!el)return;el.innerHTML='<option value="">请选择城市</option>';(citiesData[prov]||[]).forEach(function(c){var o=document.createElement('option');o.value=c;o.textContent=c;el.appendChild(o);});}
+var citiesData={{.citiesJSON | safeJS}};
+var initCity='{{.selectedCity}}';
+function fillCities(prov){var el=document.getElementById('regionCity');if(!el)return;el.innerHTML='<option value="">请选择城市</option>';(citiesData[prov]||[]).forEach(function(c){var o=document.createElement('option');o.value=c;o.textContent=c;if(c===initCity)o.selected=true;el.appendChild(o);});}
 var provEl=document.getElementById('regionProvince');
-if(provEl){provEl.addEventListener('change',function(){fillCities(this.value);});}
+if(provEl){fillCities(provEl.value);provEl.addEventListener('change',function(){initCity='';fillCities(this.value);});}
 document.getElementById('projectImg').addEventListener('change',function(){
   if(!this.files[0])return;
   var f=new FormData();f.append('file',this.files[0]);f.append('_csrf','{{.csrf_token}}');

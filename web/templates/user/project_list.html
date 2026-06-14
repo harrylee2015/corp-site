@@ -23,7 +23,10 @@
                     <th class="text-left px-3 py-2 font-medium">项目名称</th>
                     <th class="text-left px-3 py-2 font-medium">分类</th>
                     <th class="text-left px-3 py-2 font-medium">区域</th>
-                    {{if $.isFunder}}<th class="text-left px-3 py-2 font-medium">额度(万)</th><th class="text-left px-3 py-2 font-medium">利率</th>{{end}}
+                     {{if $.isFunder}}<th class="text-left px-3 py-2 font-medium">额度(万)</th><th class="text-left px-3 py-2 font-medium">利率</th>{{end}}
+                     <th class="text-left px-3 py-2 font-medium">预算(万)</th>
+                     <th class="text-left px-3 py-2 font-medium">联系人</th>
+                     <th class="text-left px-3 py-2 font-medium">电话</th>
                     <th class="text-left px-3 py-2 font-medium">状态</th>
                     <th class="text-left px-3 py-2 font-medium">时间</th>
                     <th class="text-left px-3 py-2 font-medium">操作</th>
@@ -35,10 +38,13 @@
                     <td class="px-3 py-2.5 font-medium text-gray-800">{{.Name}}</td>
                     <td class="px-3 py-2.5 text-xs text-gray-500">{{if .Category.Parent}}{{.Category.Parent.Name}} · {{end}}{{.Category.Name}}</td>
                     <td class="px-3 py-2.5 text-xs text-gray-500">{{FormatRegionsForUser .Regions $.user.Identity}}</td>
-                    {{if $.isFunder}}
-                    <td class="px-3 py-2.5">{{if .AmountWan}}{{printf "%.0f" .AmountWan}}{{else}}—{{end}}</td>
-                    <td class="px-3 py-2.5 text-xs">{{if and .RateType .RatePercent}}{{if eq .RateType "daily"}}日{{else}}年{{end}}{{.RatePercent}}%{{else}}—{{end}}</td>
-                    {{end}}
+                     {{if $.isFunder}}
+                     <td class="px-3 py-2.5">{{if .AmountWan}}{{printf "%.0f" (derefFloat .AmountWan)}}{{else}}—{{end}}</td>
+                     <td class="px-3 py-2.5 text-xs">{{if and .RateType .RatePercent}}{{if eq (derefStr .RateType) "daily"}}日{{else}}年{{end}}{{.RatePercent}}%{{else}}—{{end}}</td>
+                     {{end}}
+                     <td class="px-3 py-2.5">{{if .BudgetAmountWan}}{{printf "%.0f" (derefFloat .BudgetAmountWan)}}{{else}}—{{end}}</td>
+                     <td class="px-3 py-2.5 text-xs text-gray-600">{{.ContactPerson}}</td>
+                     <td class="px-3 py-2.5 text-xs text-gray-600">{{.ContactPhone}}</td>
                     <td class="px-3 py-2.5">
                         {{if eq .Status "pending"}}<span class="text-amber-600">待审核</span>
                         {{else if eq .Status "approved"}}<span class="text-green-600">已发布</span>

@@ -51,6 +51,9 @@ func main() {
 	r := gin.Default()
 
 	r.SetFuncMap(template.FuncMap{
+		"safeJS":   func(s string) template.JS { return template.JS(s) },
+		"derefStr":   func(s *string) string { if s == nil { return "" }; return *s },
+		"derefFloat": func(f *float64) float64 { if f == nil { return 0 }; return *f },
 		"iterate": func(start, end int) []int {
 			var result []int
 			for i := start; i <= end; i++ {

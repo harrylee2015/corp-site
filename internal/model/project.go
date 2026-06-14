@@ -20,8 +20,11 @@ type Project struct {
 	PeriodCount  *int       `json:"period_count,omitempty"`
 	PeriodUnit   string     `gorm:"type:varchar(10);default:month" json:"period_unit"`
 	RepayMethod  *string    `gorm:"type:varchar(30)" json:"repay_method,omitempty"`
-	Regions      string     `gorm:"type:text" json:"regions"`
-	Intro        string     `gorm:"type:text" json:"intro"`
+	Regions        string     `gorm:"type:text" json:"regions"`
+	BudgetAmountWan *float64 `json:"budget_amount_wan,omitempty"`
+	ContactPerson   string   `gorm:"type:varchar(50)" json:"contact_person"`
+	ContactPhone    string   `gorm:"type:varchar(11)" json:"contact_phone"`
+	Intro           string   `gorm:"type:text" json:"intro"`
 	Status       string     `gorm:"type:varchar(15);not null;default:pending;index" json:"status"`
 	RejectReason string     `gorm:"type:text" json:"reject_reason,omitempty"`
 	ReviewedBy   *uuid.UUID `gorm:"type:uuid" json:"reviewed_by,omitempty"`

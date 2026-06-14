@@ -17,12 +17,17 @@
 </div>
 {{if eq .User.Identity "funder"}}
 <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs text-gray-600 mb-3">
-<div>额度：{{if .AmountWan}}<b>{{printf "%.0f" .AmountWan}}</b> 万元{{else}}—{{end}}</div>
+<div>额度：{{if .AmountWan}}<b>{{printf "%.0f" (derefFloat .AmountWan)}}</b> 万元{{else}}—{{end}}</div>
 <div>利率：{{FormatProjectRate .}}</div>
 <div>期数：{{if .PeriodCount}}<b>{{.PeriodCount}}</b> 期{{else}}—{{end}}</div>
 <div>还款：{{if .RepayMethod}}{{FormatRepayMethod .RepayMethod}}{{else}}—{{end}}</div>
 </div>
 {{end}}
+<div class="flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-600 mb-3">
+<span>预算：{{if .BudgetAmountWan}}<b>{{printf "%.0f" (derefFloat .BudgetAmountWan)}}</b> 万元{{else}}未填写{{end}}</span>
+<span>联系人：<b>{{.ContactPerson}}</b></span>
+<span>联系电话：<b>{{.ContactPhone}}</b></span>
+</div>
 <p class="text-sm text-gray-700 whitespace-pre-wrap mb-3">{{.Intro}}</p>
 <div class="flex gap-2">
 <button onclick="reviewProject('{{.ID}}','approve')" class="px-4 py-1.5 bg-green-600 text-white rounded text-sm hover:bg-green-700">通过</button>

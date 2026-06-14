@@ -92,7 +92,7 @@
     </form>
 </div>
 <script>
-var citiesData={{.citiesJSON}};
+var citiesData={{.citiesJSON | safeJS}};
 var initCity='{{.selectedCity}}';
 function fillCities(prov,sel){
   var el=document.getElementById('regionCity');if(!el)return;
