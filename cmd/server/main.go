@@ -66,8 +66,10 @@ func main() {
 			}
 			return fmt.Sprintf("%.1f MB", float64(size)/1048576)
 		},
-		"MaskPhone": handler.MaskPhone,
-		"MaskName":  handler.MaskName,
+		"MaskPhone":        handler.MaskPhone,
+		"MaskName":         handler.MaskName,
+		"FormatProductRate": handler.FormatProductRate,
+		"FormatRepayMethod": handler.FormatRepayMethod,
 	})
 
 	t, err := loadTemplates("web/templates", r.FuncMap)
@@ -92,6 +94,7 @@ func main() {
 	pub := r.Group("", jwtMW.OptionalAuth(), middleware.CSRFToken())
 	{
 		pub.GET("/", handler.Index)
+		pub.GET("/products/:id", handler.ProductDetail)
 		pub.GET("/posts/:id", handler.PostDetail)
 		pub.GET("/login", handler.UserLoginPage)
 		pub.GET("/register", handler.UserRegisterPage)
@@ -99,6 +102,7 @@ func main() {
 		pub.POST("/api/auth/register", handler.Register(cfg))
 		pub.POST("/api/auth/login", handler.Login(cfg, loginLimiter))
 		pub.GET("/logout", handler.Logout(jwtMW))
+		pub.GET("/api/products/list", handler.ProductList)
 		pub.GET("/api/posts/list", handler.PostList)
 	}
 

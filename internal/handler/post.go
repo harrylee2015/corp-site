@@ -18,45 +18,6 @@ import (
 	"github.com/google/uuid"
 )
 
-func Index(c *gin.Context) {
-	db := database.DB()
-	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
-	pageSize := 12
-	categoryID := c.Query("category_id")
-	keyword := c.Query("keyword")
-
-	query := db.Model(&model.Post{}).Where("status = ?", "approved").
-		Preload("Category.Parent").Preload("User").Preload("Attachments")
-
-	if categoryID != "" {
-		query = query.Where("category_id = ?", categoryID)
-	}
-	if keyword != "" {
-		for _, word := range strings.Fields(keyword) {
-			like := "%" + word + "%"
-			query = query.Where("(title ILIKE ? OR content ILIKE ? OR contact ILIKE ?)", like, like, like)
-		}
-	}
-
-	var total int64
-	query.Count(&total)
-
-	var posts []model.Post
-	query.Order("created_at DESC").Offset((page - 1) * pageSize).Limit(pageSize).Find(&posts)
-
-	totalPages := int(math.Ceil(float64(total) / float64(pageSize)))
-
-	renderPage(c, "layout/base.html", "首页 - 金筹设备租赁", "index-content", gin.H{
-		"posts":      posts,
-		"page":       page,
-		"totalPages": totalPages,
-		"categoryID": categoryID,
-		"keyword":    keyword,
-		"total":      total,
-		"csrf_token": c.GetString("csrf_token"),
-	})
-}
-
 func PostDetail(c *gin.Context) {
 	db := database.DB()
 	var post model.Post

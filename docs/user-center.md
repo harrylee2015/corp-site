@@ -321,7 +321,7 @@ approved → delisted（下架，预留）
 |------|------|------|
 | posts 信息发布 | 保留 | `/my/posts` 旧流程仍可用 |
 | products 产品 | 新增 | 用户中心主流程 |
-| 首页列表 | posts | 产品审核通过后首页展示待后续迭代 |
+| 首页列表 | **products**（status=approved） | 旧版 posts 仍可通过 `/posts/:id` 访问 |
 | 文章管理 | 未做 | 需求中未纳入本期范围 |
 
 ---
@@ -335,6 +335,7 @@ approved → delisted（下架，预留）
 | 分类统计 | `internal/handler/stats.go` |
 | 用户/信息导出 | `internal/handler/export.go` |
 | 上传鉴权 | `internal/handler/upload_serve.go` |
+| 首页/产品公开页 | `internal/handler/product_public.go` |
 | 用户中心 Handler | `internal/handler/user_center.go` |
 | 用户中心布局 | `web/templates/layout/user.html` |
 | 店铺/产品/资料页 | `web/templates/user/` |
@@ -346,6 +347,6 @@ approved → delisted（下架，预留）
 
 ## 17. 待办（后续迭代）
 
-- [ ] 已审核产品展示到首页广场
-- [ ] 店铺/产品在公开页的详情页
+- [x] 已审核产品展示到首页广场
+- [ ] 店铺/产品在公开页的详情页（产品详情页已实现 `/products/:id`）
 - [ ] 文章管理模块（如需要）

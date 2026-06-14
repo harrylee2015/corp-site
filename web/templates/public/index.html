@@ -6,12 +6,12 @@
     <div class="bg-gradient-to-br from-blue-600 via-blue-700 to-blue-800 rounded-2xl px-4 sm:px-8 py-6 sm:py-8 mb-4 sm:mb-5 shadow-lg shadow-blue-500/20 relative overflow-hidden">
         <div class="absolute inset-0 bg-grid opacity-10"></div>
         <div class="relative z-10 text-center">
-            <h1 class="text-xl sm:text-3xl font-extrabold text-white mb-2">发现优质商业信息</h1>
+            <h1 class="text-xl sm:text-3xl font-extrabold text-white mb-2">发现优质金融产品</h1>
             <p class="text-blue-100 text-sm mb-4 sm:mb-5 max-w-xl mx-auto">覆盖新能源、融资、租赁等领域，高效连接商业资源</p>
             <form method="GET" action="/" class="max-w-xl mx-auto">
                 {{if .categoryID}}<input type="hidden" name="category_id" value="{{.categoryID}}">{{end}}
                 <div class="flex gap-2">
-                    <input type="text" name="keyword" value="{{.keyword}}" placeholder="搜索你感兴趣的信息..."
+                    <input type="text" name="keyword" value="{{.keyword}}" placeholder="搜索产品名称或介绍..."
                            class="flex-1 border-0 rounded-xl px-4 py-2.5 text-sm bg-white/95 focus:outline-none focus:ring-2 focus:ring-white/50 placeholder-gray-400 shadow-inner">
                     <button type="submit" class="bg-white text-blue-700 px-5 py-2.5 rounded-xl text-sm font-bold hover:bg-blue-50 transition-all shadow-lg">搜索</button>
                 </div>
@@ -25,19 +25,19 @@
         <a href="/{{if .keyword}}?keyword={{.keyword}}{{end}}" class="text-xs text-blue-500 hover:text-blue-700">清除筛选</a>
     </div>
     {{end}}
-    {{if gt (len .posts) 6}}
+    {{if gt (len .products) 6}}
     <div id="heroCarousel" class="relative mb-4 sm:mb-5 rounded-xl overflow-hidden shadow-lg bg-gradient-to-br from-blue-900 via-blue-800 to-blue-900" onmouseenter="pauseCarousel()" onmouseleave="resumeCarousel()" onfocusin="pauseCarousel()" onfocusout="resumeCarousel()">
         <div id="carouselTrack" class="flex transition-transform duration-500 ease-in-out">
-            {{range $i, $post := .posts}}
+            {{range $i, $p := .products}}
             {{if lt $i 6}}
-            <a href="/posts/{{$post.ID}}" class="min-w-full flex-shrink-0 px-5 sm:px-10 py-4 sm:py-5 text-white block no-underline group cursor-pointer" style="max-width:100%;overflow:hidden">
+            <a href="/products/{{$p.ID}}" class="min-w-full flex-shrink-0 px-5 sm:px-10 py-4 sm:py-5 text-white block no-underline group cursor-pointer" style="max-width:100%;overflow:hidden">
                 <div class="max-w-2xl mx-auto">
-                    <span class="inline-block text-xs px-2.5 py-0.5 rounded-full font-medium mb-2 bg-blue-400/20 text-blue-200">{{if $post.Category.Parent}}{{$post.Category.Parent.Name}} · {{$post.Category.Name}}{{else}}{{$post.Category.Name}}{{end}}</span>
-                    <h2 class="text-lg sm:text-xl font-bold mb-2 leading-snug group-hover:text-blue-200 transition-colors line-clamp-1">{{$post.Title}}</h2>
-                    <p class="text-xs sm:text-sm text-blue-100/80 line-clamp-1 leading-relaxed mb-2">{{$post.Content}}</p>
+                    <span class="inline-block text-xs px-2.5 py-0.5 rounded-full font-medium mb-2 bg-blue-400/20 text-blue-200">{{if $p.Category.Parent}}{{$p.Category.Parent.Name}} · {{$p.Category.Name}}{{else}}{{$p.Category.Name}}{{end}}</span>
+                    <h2 class="text-lg sm:text-xl font-bold mb-2 leading-snug group-hover:text-blue-200 transition-colors line-clamp-1">{{$p.Name}}</h2>
+                    <p class="text-xs sm:text-sm text-blue-100/80 line-clamp-1 leading-relaxed mb-2">{{if $p.Intro}}{{$p.Intro}}{{else}}额度 {{printf "%.0f" $p.AmountWan}} 万 · {{FormatProductRate $p.RateType $p.RatePercent}}{{end}}</p>
                     <div class="flex items-center justify-between text-xs text-blue-300/70 border-t border-blue-700/40 pt-2">
-                        <span>{{if $post.User.RealName}}{{MaskName $post.User.RealName}}{{else if $post.User.Nickname}}{{MaskName $post.User.Nickname}}{{else}}{{MaskPhone $post.User.Phone}}{{end}}</span>
-                        <span>{{$post.CreatedAt.Format "2006-01-02"}}</span>
+                        <span>{{printf "%.0f" $p.AmountWan}}万 · {{$p.PeriodCount}}期</span>
+                        <span>{{$p.CreatedAt.Format "2006-01-02"}}</span>
                     </div>
                 </div>
             </a>
@@ -51,7 +51,7 @@
             <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
         </button>
         <div id="carouselDots" class="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1.5">
-            {{range $i, $post := .posts}}
+            {{range $i, $p := .products}}
             {{if lt $i 6}}
             <button onclick="goToSlide({{$i}});event.preventDefault()" class="w-2 h-2 rounded-full {{if eq $i 0}}bg-white{{else}}bg-white/40{{end}} transition-all hover:bg-white/70" aria-label="第{{$i}}条"></button>
             {{end}}
@@ -59,19 +59,25 @@
         </div>
     </div>
     {{end}}
-    {{if .posts}}
-    <div id="postGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-        {{range $i, $post := .posts}}
-        {{if or (le (len $.posts) 6) (ge $i 6)}}
-        <a href="/posts/{{$post.ID}}" class="post-card group bg-white/90 backdrop-blur-sm rounded-xl shadow-sm border border-blue-100 p-4 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 block">
+    {{if .products}}
+    <div id="productGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+        {{range $i, $p := .products}}
+        {{if or (le (len $.products) 6) (ge $i 6)}}
+        <a href="/products/{{$p.ID}}" class="product-card group bg-white/90 backdrop-blur-sm rounded-xl shadow-sm border border-blue-100 p-4 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 block">
             <div class="flex items-center justify-between mb-2">
-                <span class="text-xs px-2 py-0.5 rounded-full font-medium bg-blue-100 text-blue-700">{{if $post.Category.Parent}}{{$post.Category.Parent.Name}} · {{$post.Category.Name}}{{else}}{{$post.Category.Name}}{{end}}</span>
-                <span class="text-xs text-gray-400">{{$post.CreatedAt.Format "01-02"}}</span>
+                <span class="text-xs px-2 py-0.5 rounded-full font-medium bg-blue-100 text-blue-700">{{if $p.Category.Parent}}{{$p.Category.Parent.Name}} · {{$p.Category.Name}}{{else}}{{$p.Category.Name}}{{end}}</span>
+                <span class="text-xs text-gray-400">{{$p.CreatedAt.Format "01-02"}}</span>
             </div>
-            <h3 class="font-bold text-gray-800 text-sm mb-1.5 line-clamp-2 group-hover:text-blue-700 transition-colors">{{$post.Title}}</h3>
-            <p class="text-xs text-gray-500 line-clamp-2 mb-2 leading-relaxed">{{$post.Content}}</p>
+            <h3 class="font-bold text-gray-800 text-sm mb-1.5 line-clamp-2 group-hover:text-blue-700 transition-colors">{{$p.Name}}</h3>
+            <p class="text-xs text-gray-500 line-clamp-2 mb-2 leading-relaxed">{{if $p.Intro}}{{$p.Intro}}{{else}}—{{end}}</p>
+            <div class="flex flex-wrap gap-2 text-xs text-blue-600 mb-2">
+                <span class="bg-blue-50 px-2 py-0.5 rounded">{{printf "%.0f" $p.AmountWan}}万</span>
+                <span class="bg-green-50 text-green-700 px-2 py-0.5 rounded">{{FormatProductRate $p.RateType $p.RatePercent}}</span>
+                <span class="bg-amber-50 text-amber-700 px-2 py-0.5 rounded">{{$p.PeriodCount}}期</span>
+            </div>
             <div class="flex items-center justify-between text-xs text-gray-400 pt-2 border-t border-blue-50">
-                <span class="font-medium text-gray-500">{{if $post.User.RealName}}{{MaskName $post.User.RealName}}{{else if $post.User.Nickname}}{{MaskName $post.User.Nickname}}{{else}}{{MaskPhone $post.User.Phone}}{{end}}</span>
+                <span class="font-medium text-gray-500">{{if $p.User.RealName}}{{MaskName $p.User.RealName}}{{else if $p.User.Nickname}}{{MaskName $p.User.Nickname}}{{else}}{{MaskPhone $p.User.Phone}}{{end}}</span>
+                <span class="text-gray-400">{{FormatRepayMethod $p.RepayMethod}}</span>
             </div>
         </a>
         {{end}}
@@ -80,17 +86,17 @@
     <div id="loadMore" class="text-center py-5 {{if le .totalPages 1}}hidden{{end}}">
         <div class="inline-block w-7 h-7 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin"></div>
     </div>
-    <div id="noMore" class="text-center py-6 text-gray-400 text-sm {{if gt .totalPages 1}}hidden{{end}}">已加载全部信息</div>
+    <div id="noMore" class="text-center py-6 text-gray-400 text-sm {{if gt .totalPages 1}}hidden{{end}}">已加载全部产品</div>
     {{else}}
     <div class="text-center py-12 sm:py-16">
         <div class="text-4xl mb-3">&#128269;</div>
-        <p class="text-base font-semibold text-gray-500 mb-1">暂无信息</p>
-        <p class="text-sm text-gray-400">还没有审核通过的信息发布，请稍后再来</p>
+        <p class="text-base font-semibold text-gray-500 mb-1">暂无产品</p>
+        <p class="text-sm text-gray-400">还没有审核通过的产品发布，请稍后再来</p>
     </div>
     {{end}}
 </div>
 <script>
-var carouselTotal = {{if gt (len .posts) 6}}Math.min({{len .posts}}, 6){{else}}0{{end}};
+var carouselTotal = {{if gt (len .products) 6}}Math.min({{len .products}}, 6){{else}}0{{end}};
 var carouselIndex=0;var carouselTimer=null;
 function goToSlide(idx){carouselIndex=((idx%carouselTotal)+carouselTotal)%carouselTotal;var el=document.getElementById('carouselTrack');if(el)el.style.transform='translateX(-'+carouselIndex+'00%)';var d=document.querySelectorAll('#carouselDots button');for(var i=0;i<d.length;i++)d[i].className=i===carouselIndex?'w-2 h-2 rounded-full bg-white transition-all':'w-2 h-2 rounded-full bg-white/40 hover:bg-white/70 transition-all'}
 function nextSlide(){goToSlide(carouselIndex+1)}
@@ -100,15 +106,16 @@ function pauseCarousel(){clearInterval(carouselTimer)}
 function resumeCarousel(){startCarousel()}
 if(carouselTotal>1)startCarousel();
 
-var scrollPage={{.page}};var hasCat='{{.categoryID}}';var hasKw='{{.keyword}}';var scrollURL='/api/posts/list?'+(hasCat?'category_id='+hasCat+'&':'')+(hasKw?'keyword='+encodeURIComponent(hasKw):'');
+var scrollPage={{.page}};var hasCat='{{.categoryID}}';var hasKw='{{.keyword}}';var scrollURL='/api/products/list?'+(hasCat?'category_id='+hasCat+'&':'')+(hasKw?'keyword='+encodeURIComponent(hasKw):'');
 function loadMore(){
   if(document.getElementById('loadMore').classList.contains('hidden'))return;
   scrollPage++;fetch(scrollURL+'&page='+scrollPage).then(function(r){return r.json()}).then(function(d){
-    if(!d.posts||d.posts.length===0){document.getElementById('loadMore').classList.add('hidden');document.getElementById('noMore').classList.remove('hidden');return}
-    var grid=document.getElementById('postGrid');d.posts.forEach(function(p){var a=document.createElement('a');a.href='/posts/'+p.id;a.className='post-card group bg-white/90 backdrop-blur-sm rounded-xl shadow-sm border border-blue-100 p-4 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 block';
+    if(!d.products||d.products.length===0){document.getElementById('loadMore').classList.add('hidden');document.getElementById('noMore').classList.remove('hidden');return}
+    var grid=document.getElementById('productGrid');d.products.forEach(function(p){var a=document.createElement('a');a.href='/products/'+p.id;a.className='product-card group bg-white/90 backdrop-blur-sm rounded-xl shadow-sm border border-blue-100 p-4 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 block';
       a.innerHTML='<div class="flex items-center justify-between mb-2"><span class="text-xs px-2 py-0.5 rounded-full font-medium bg-blue-100 text-blue-700">'+p.category+'</span><span class="text-xs text-gray-400">'+p.date+'</span></div>'
-        +'<h3 class="font-bold text-gray-800 text-sm mb-1.5 line-clamp-2 group-hover:text-blue-700 transition-colors">'+p.title+'</h3>'
-        +'<p class="text-xs text-gray-500 line-clamp-2 mb-2 leading-relaxed">'+p.content+'</p>'
+        +'<h3 class="font-bold text-gray-800 text-sm mb-1.5 line-clamp-2 group-hover:text-blue-700 transition-colors">'+p.name+'</h3>'
+        +'<p class="text-xs text-gray-500 line-clamp-2 mb-2 leading-relaxed">'+(p.intro||'—')+'</p>'
+        +'<div class="flex flex-wrap gap-2 text-xs text-blue-600 mb-2"><span class="bg-blue-50 px-2 py-0.5 rounded">'+p.amount+'</span><span class="bg-green-50 text-green-700 px-2 py-0.5 rounded">'+p.rate+'</span><span class="bg-amber-50 text-amber-700 px-2 py-0.5 rounded">'+p.period+'</span></div>'
         +'<div class="flex items-center justify-between text-xs text-gray-400 pt-2 border-t border-blue-50"><span class="font-medium text-gray-500">'+p.nickname+'</span></div>';
       grid.appendChild(a)});
     if(!d.has_more){document.getElementById('loadMore').classList.add('hidden');document.getElementById('noMore').classList.remove('hidden')}
