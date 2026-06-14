@@ -26,7 +26,7 @@ func Index(c *gin.Context) {
 	keyword := c.Query("keyword")
 
 	query := db.Model(&model.Post{}).Where("status = ?", "approved").
-		Preload("Category").Preload("User").Preload("Attachments")
+		Preload("Category.Parent").Preload("User").Preload("Attachments")
 
 	if categoryID != "" {
 		query = query.Where("category_id = ?", categoryID)
@@ -44,14 +44,10 @@ func Index(c *gin.Context) {
 	var posts []model.Post
 	query.Order("created_at DESC").Offset((page - 1) * pageSize).Limit(pageSize).Find(&posts)
 
-	var categories []model.Category
-	db.Order("sort_order ASC").Find(&categories)
-
 	totalPages := int(math.Ceil(float64(total) / float64(pageSize)))
 
-	renderPage(c, "layout/base.html", "首页 - 金筹网", "index-content", gin.H{
+	renderPage(c, "layout/base.html", "首页 - 金筹设备租赁", "index-content", gin.H{
 		"posts":      posts,
-		"categories": categories,
 		"page":       page,
 		"totalPages": totalPages,
 		"categoryID": categoryID,
@@ -64,7 +60,7 @@ func Index(c *gin.Context) {
 func PostDetail(c *gin.Context) {
 	db := database.DB()
 	var post model.Post
-	if err := db.Preload("Category").Preload("User").
+	if err := db.Preload("Category.Parent").Preload("User").
 		Preload("Attachments").First(&post, "id = ?", c.Param("id")).Error; err != nil {
 		renderPage(c, "layout/base.html", "信息不存在", "postdetail-content", gin.H{"error": "信息不存在", "csrf_token": c.GetString("csrf_token")})
 		return
@@ -120,12 +116,9 @@ func MyPosts(c *gin.Context) {
 }
 
 func NewPost(c *gin.Context) {
-	db := database.DB()
-	var categories []model.Category
-	db.Order("sort_order ASC").Find(&categories)
 	renderPage(c, "layout/base.html", "发布信息", "postcreate-content", gin.H{
-		"categories": categories,
-		"csrf_token": c.GetString("csrf_token"),
+		"navCategories": LoadCategoryNav(),
+		"csrf_token":    c.GetString("csrf_token"),
 	})
 }
 
@@ -146,8 +139,6 @@ func CreatePost(cfg *config.Config) gin.HandlerFunc {
 			AttachIDs    string `form:"attach_ids"`
 		}
 		if err := c.ShouldBind(&req); err != nil {
-			var categories []model.Category
-			database.DB().Order("sort_order ASC").Find(&categories)
 			errMsg := "请填写完整信息（分类、标题5-100字、内容必填）"
 			candidate := err.Error()
 			if strings.Contains(candidate, "category_id") {
@@ -162,20 +153,18 @@ func CreatePost(cfg *config.Config) gin.HandlerFunc {
 				errMsg = "请输入信息内容"
 			}
 			renderPage(c, "layout/base.html", "发布信息", "postcreate-content", gin.H{
-				"error":      errMsg,
-				"categories": categories,
-				"csrf_token": c.GetString("csrf_token"),
+				"error":         errMsg,
+				"navCategories": LoadCategoryNav(),
+				"csrf_token":    c.GetString("csrf_token"),
 			})
 			return
 		}
 
 		if req.ContactPhone != "" && len(req.ContactPhone) != 11 {
-			var categories []model.Category
-			database.DB().Order("sort_order ASC").Find(&categories)
 			renderPage(c, "layout/base.html", "发布信息", "postcreate-content", gin.H{
-				"error":      "联系电话格式不正确，需为11位数字",
-				"categories": categories,
-				"csrf_token": c.GetString("csrf_token"),
+				"error":         "联系电话格式不正确，需为11位数字",
+				"navCategories": LoadCategoryNav(),
+				"csrf_token":    c.GetString("csrf_token"),
 			})
 			return
 		}
@@ -193,24 +182,20 @@ func CreatePost(cfg *config.Config) gin.HandlerFunc {
 
 		tx := db.Begin()
 		if tx.Error != nil {
-			var categories []model.Category
-			database.DB().Order("sort_order ASC").Find(&categories)
 			renderPage(c, "layout/base.html", "发布信息", "postcreate-content", gin.H{
-				"error":      "发布失败，请重试",
-				"categories": categories,
-				"csrf_token": c.GetString("csrf_token"),
+				"error":         "发布失败，请重试",
+				"navCategories": LoadCategoryNav(),
+				"csrf_token":    c.GetString("csrf_token"),
 			})
 			return
 		}
 
 		if err := tx.Create(&post).Error; err != nil {
 			tx.Rollback()
-			var categories []model.Category
-			database.DB().Order("sort_order ASC").Find(&categories)
 			renderPage(c, "layout/base.html", "发布信息", "postcreate-content", gin.H{
-				"error":      "发布失败，请重试",
-				"categories": categories,
-				"csrf_token": c.GetString("csrf_token"),
+				"error":         "发布失败，请重试",
+				"navCategories": LoadCategoryNav(),
+				"csrf_token":    c.GetString("csrf_token"),
 			})
 			return
 		}
@@ -225,12 +210,10 @@ func CreatePost(cfg *config.Config) gin.HandlerFunc {
 				if err := tx.Model(&model.Attachment{}).Where("id = ? AND post_id IS NULL", attachID).
 					Update("post_id", post.ID).Error; err != nil {
 					tx.Rollback()
-					var categories []model.Category
-					database.DB().Order("sort_order ASC").Find(&categories)
 					renderPage(c, "layout/base.html", "发布信息", "postcreate-content", gin.H{
-						"error":      "发布失败，请重试",
-						"categories": categories,
-						"csrf_token": c.GetString("csrf_token"),
+						"error":         "发布失败，请重试",
+						"navCategories": LoadCategoryNav(),
+						"csrf_token":    c.GetString("csrf_token"),
 					})
 					return
 				}
@@ -384,7 +367,7 @@ func PostList(c *gin.Context) {
 	keyword := c.Query("keyword")
 
 	query := db.Model(&model.Post{}).Where("status = ?", "approved").
-		Preload("Category").Preload("User").Preload("Attachments")
+		Preload("Category.Parent").Preload("User").Preload("Attachments")
 
 	if categoryID != "" {
 		query = query.Where("category_id = ?", categoryID)
@@ -422,12 +405,12 @@ func PostList(c *gin.Context) {
 		if nickname == "" {
 			nickname = MaskPhone(p.User.Phone)
 		}
-		cls := catColorClass(p.Category.Name)
+		cls := catColorClass(catParentName(p.Category))
 		rows[i] = row{
 			ID:           p.ID.String(),
 			Title:        p.Title,
 			Content:      p.Content,
-			CategoryName: p.Category.Name,
+			CategoryName: formatPostCategory(p.Category),
 			CategoryCls:  cls,
 			Nickname:     nickname,
 			Date:         p.CreatedAt.Format("01-02"),
@@ -459,22 +442,5 @@ func ToggleListStatus(c *gin.Context) {
 		c.JSON(200, gin.H{"message": "已上架", "status": "approved"})
 	} else {
 		c.JSON(400, gin.H{"error": "当前状态不支持此操作"})
-	}
-}
-
-func catColorClass(name string) string {
-	switch name {
-	case "新能源":
-		return "bg-emerald-100 text-emerald-700"
-	case "融资":
-		return "bg-amber-100 text-amber-700"
-	case "租赁":
-		return "bg-sky-100 text-sky-700"
-	case "技术合作":
-		return "bg-violet-100 text-violet-700"
-	case "项目转让":
-		return "bg-orange-100 text-orange-700"
-	default:
-		return "bg-gray-100 text-gray-600"
 	}
 }

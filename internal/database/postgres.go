@@ -77,20 +77,7 @@ func AutoMigrate() error {
 }
 
 func Seed() {
-	var count int64
-	db.Model(&model.Category{}).Count(&count)
-	if count == 0 {
-		categories := []model.Category{
-			{Name: "新能源", SortOrder: 1},
-			{Name: "融资", SortOrder: 2},
-			{Name: "租赁", SortOrder: 3},
-			{Name: "技术合作", SortOrder: 4},
-			{Name: "项目转让", SortOrder: 5},
-			{Name: "其他", SortOrder: 99},
-		}
-		db.Create(&categories)
-		fmt.Println("[DB] default categories seeded")
-	}
+	SeedCategories()
 
 	var adminCount int64
 	db.Model(&model.User{}).Where("role = ?", "admin").Count(&adminCount)

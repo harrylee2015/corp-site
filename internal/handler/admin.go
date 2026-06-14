@@ -92,14 +92,11 @@ func AdminPosts(c *gin.Context) {
 	var posts []model.Post
 	query.Order("created_at DESC").Offset((page - 1) * pageSize).Limit(pageSize).Find(&posts)
 
-	var categories []model.Category
-	db.Order("sort_order ASC").Find(&categories)
-
 	totalPages := int(math.Ceil(float64(total) / float64(pageSize)))
 
 	renderPage(c, "layout/admin.html", "信息管理", "adminposts-content", gin.H{
-		"posts":      posts,
-		"categories": categories,
+		"posts":         posts,
+		"navCategories": LoadCategoryNav(),
 		"page":       page,
 		"totalPages": totalPages,
 		"status":     status,
@@ -112,13 +109,9 @@ func AdminPosts(c *gin.Context) {
 }
 
 func AdminExportPage(c *gin.Context) {
-	db := database.DB()
-	var categories []model.Category
-	db.Order("sort_order ASC").Find(&categories)
-
 	renderPage(c, "layout/admin.html", "导出报表", "adminexport-content", gin.H{
-		"categories": categories,
-		"csrf_token": c.GetString("csrf_token"),
+		"navCategories": LoadCategoryNav(),
+		"csrf_token":    c.GetString("csrf_token"),
 	})
 }
 
