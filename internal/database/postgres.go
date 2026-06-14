@@ -67,15 +67,20 @@ func DB() *gorm.DB {
 }
 
 func AutoMigrate() error {
-	return db.AutoMigrate(
+	MigrateTableNames()
+	if err := db.AutoMigrate(
 		&model.User{},
 		&model.Category{},
 		&model.Post{},
 		&model.Attachment{},
 		&model.SmsLog{},
-		&model.Shop{},
-		&model.Product{},
-	)
+		&model.Company{},
+		&model.Project{},
+	); err != nil {
+		return err
+	}
+	MigrateRegionFormats()
+	return nil
 }
 
 func Seed() {

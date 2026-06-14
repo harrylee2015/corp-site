@@ -80,13 +80,13 @@ func canAccessUpload(userID uuid.UUID, relPath string) bool {
 		return true
 	}
 
-	var shop model.Shop
-	if db.Where("user_id = ? AND banner_path = ?", userID, norm).First(&shop).Error == nil {
+	var company model.Company
+	if db.Where("user_id = ? AND banner_path = ?", userID, norm).First(&company).Error == nil {
 		return true
 	}
 
-	var product model.Product
-	if db.Where("user_id = ? AND image_path = ?", userID, norm).First(&product).Error == nil {
+	var project model.Project
+	if db.Where("user_id = ? AND image_path = ?", userID, norm).First(&project).Error == nil {
 		return true
 	}
 

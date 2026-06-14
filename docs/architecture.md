@@ -4,12 +4,12 @@
 
 构建一个信息收集与发布平台（类似猪八戒），品牌 **金筹设备租赁**。支持：
 
-- 用户按**业务身份**（需求方 / 设备供应商 / 资金方）注册，进入**用户中心**管理店铺与金融产品
-- **企业认证**：上传企业证明照片即可发布产品（无需后台审核）
-- **管理统计**：按一级/二级分类统计信息与产品数量
+- 用户按**业务身份**（需求方 / 设备供应商 / 资金方）注册，进入**用户中心**管理公司信息与项目
+- **企业认证**：上传企业证明照片即可发布项目（无需后台审核）
+- **管理统计**：按一级/二级分类统计信息与项目数量
 - **数据导出**：信息 Excel 导出 + 用户 Excel 导出
 - **公开页隐私**：联系人匿名、附件不可下载、上传文件鉴权访问
-- 保留原有 **posts 信息发布**流程，与新 **products 产品**体系并行
+- 保留原有 **posts 信息发布**流程，与新 **projects 项目**体系并行
 - 两级**分类导航**（6 个一级 + 悬停下拉二级），启动时自动从旧分类迁移
 - 管理员审核、Excel 导出、用户管理
 
@@ -109,12 +109,15 @@ POST   /api/auth/login            # 用户登录
 
 # ===== 用户中心(需 JWT, role=user) =====
 GET    /my                        # 用户中心首页
-GET    /my/shop                   # 店铺信息
-POST   /api/my/shop               # 保存店铺
-GET    /my/products/new           # 添加产品
-GET    /my/products               # 产品列表
-POST   /api/my/products           # 创建产品
-POST   /api/my/products/:id/delete # 删除产品
+GET    /my/company                # 公司信息
+POST   /api/my/company            # 保存公司信息
+GET    /my/projects/new           # 添加项目
+GET    /my/projects               # 项目列表
+POST   /api/my/projects           # 创建项目
+POST   /api/my/projects/:id/delete # 删除项目
+GET    /projects/:id              # 项目详情（公开）
+GET    /api/projects/list         # 项目分页 API
+# 旧路径 /my/shop、/my/products/*、/products/:id 302 重定向至新路径
 GET    /my/profile                # 基本信息
 POST   /api/my/password           # 修改密码
 POST   /api/my/verify             # 提交企业认证
@@ -134,13 +137,13 @@ GET    /admin/login               # 管理员登录页
 # ===== 管理端(需 JWT, role=admin) =====
 GET    /admin                     # 管理后台首页(汇总统计+分类明细统计)
 GET    /admin/review              # 信息待审核列表
-GET    /admin/product-review      # 产品待审核列表
+GET    /admin/project-review      # 项目待审核列表
 GET    /admin/posts               # 全部信息管理
 GET    /admin/export              # 导出筛选页
 GET    /admin/users               # 用户列表
 POST   /api/admin/login           # 管理员登录
 POST   /api/admin/posts/:id/review   # 信息审核
-POST   /api/admin/products/:id/review # 产品审核
+POST   /api/admin/projects/:id/review # 项目审核
 GET    /api/admin/users/export   # 导出用户 Excel
 POST   /api/admin/export          # 导出信息 Excel
 PUT    /api/admin/users/:id/status # 启用/禁用用户

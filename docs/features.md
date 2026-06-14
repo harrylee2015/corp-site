@@ -60,40 +60,38 @@
 #### 1.5.1 用户首页 (/my)
 | 功能点 | 详细说明 |
 |-------|---------|
-| 统计卡片 | 全部产品数、已发布数、待审核数 |
-| 状态提示 | 企业认证状态、店铺是否已完善 |
-| 快捷入口 | 完善店铺、添加产品、产品列表 |
+| 统计卡片 | 全部项目数、已发布数、待审核数 |
+| 状态提示 | 企业认证状态、公司信息是否已完善 |
+| 快捷入口 | 完善公司信息、添加项目、项目列表 |
 
-#### 1.5.2 店铺信息 (/my/shop)
+#### 1.5.2 公司信息 (/my/company)
 | 功能点 | 详细说明 |
 |-------|---------|
-| 店铺名称 | 必填 |
-| 可做区域 | 省份多选（`internal/data/regions.go`） |
+| 公司名称 | 必填 |
+| 成立时间 | YYYY-MM（month 输入） |
+| 可做区域 | 资金方多选省；需求方/供应商单选省市 |
 | 可做类型 | 根据用户身份过滤的二级分类多选 |
 | 联系信息 | 联系人、手机、电话、公司地址 |
 | 公司介绍 | 文本域 |
 | Banner | 图片上传 |
-| 操作 | 重置 / 确认保存 → POST `/api/my/shop` |
+| 操作 | 重置 / 确认保存 → POST `/api/my/company` |
 
-#### 1.5.3 添加产品 (/my/products/new)
+#### 1.5.3 添加项目 (/my/projects/new)
 | 功能点 | 详细说明 |
 |-------|---------|
 | 前置条件 | 企业认证 `verify_status=approved` |
-| 产品名称 | 必填 |
+| 项目名称 | 必填 |
 | 分类 | 二级分类单选（按身份过滤） |
-| 产品图片 | 上传 |
-| 额度 | 万元 |
-| 利率 | 日利率 / 年利率 + 数值(%) |
-| 还款期数 | 按月，如 12 = 1 年 12 期 |
-| 还款方式 | 等额本息 / 等额本金 |
-| 可做区域 | 省份多选 |
-| 产品介绍 | 文本域 |
+| 项目图片 | 上传（可选） |
+| 地区 | 规则同公司信息 |
+| 金融字段 | 仅资金方：额度、利率、期数、还款方式 |
+| 项目介绍 | 文本域 |
 | 提交 | status=pending，等待管理员审核 |
 
-#### 1.5.4 产品列表 (/my/products)
+#### 1.5.4 项目列表 (/my/projects)
 | 功能点 | 详细说明 |
 |-------|---------|
-| 列表字段 | 产品名称、分类、额度、利率、期数、状态、时间 |
+| 列表字段 | 项目名称、分类、区域/金融信息（按身份）、状态、时间 |
 | 状态筛选 | 待审核 / 已发布 / 已驳回 / 已下架 |
 | 删除 | 待审核、已驳回状态可删除 |
 
@@ -113,7 +111,7 @@
 | 删除操作 | 仅 pending 状态可删除 |
 | 新建发布 | "发布信息"按钮，跳转发布表单 |
 
-> 路径：`/my/posts`，与新版产品管理并行保留。
+> 路径：`/my/posts`，与新版项目管理并行保留。
 
 ### 1.7 发布信息
 | 功能点 | 详细说明 |
@@ -148,10 +146,10 @@
 ### 2.2 管理后台首页
 | 功能点 | 详细说明 |
 |-------|---------|
-| 汇总统计 | 用户总数、信息总数、信息待审、产品总数、产品待审、今日新增信息 |
-| **分类统计** | 按一级分类汇总信息数/产品数，并展开各二级分类明细 |
-| 快捷入口 | 信息审核、产品审核、信息管理、导出报表、用户管理 |
-| 导航栏 | 首页 / 信息审核 / 产品审核 / 信息管理 / 导出报表 / 用户管理 |
+| 汇总统计 | 用户总数、信息总数、信息待审、项目总数、项目待审、今日新增信息 |
+| **分类统计** | 按一级分类汇总信息数/项目数，并展开各二级分类明细 |
+| 快捷入口 | 信息审核、项目审核、信息管理、导出报表、用户管理 |
+| 导航栏 | 首页 / 信息审核 / 项目审核 / 信息管理 / 导出报表 / 用户管理 |
 
 ### 2.3 信息审核（posts）
 | 功能点 | 详细说明 |
@@ -163,12 +161,12 @@
 | 驳回操作 | 弹出驳回原因输入框(必填)，设置 status=rejected，记录 reject_reason |
 | 审核日志 | 记录审核人、审核时间、审核结果 |
 
-### 2.4 产品审核（products）
+### 2.4 项目审核（projects）
 | 功能点 | 详细说明 |
 |-------|---------|
-| 待审核列表 | GET `/admin/product-review`，展示 status=pending 的产品 |
-| 列表字段 | 产品名称、分类、发布人、额度、利率、期数、提交时间 |
-| 通过操作 | POST `/api/admin/products/:id/review`，status=approved |
+| 待审核列表 | GET `/admin/project-review`，展示 status=pending 的项目 |
+| 列表字段 | 项目名称、分类、发布人、区域/金融信息（按身份）、提交时间 |
+| 通过操作 | POST `/api/admin/projects/:id/review`，status=approved |
 | 驳回操作 | 填写驳回原因，status=rejected |
 
 ### 2.5 用户导出
@@ -323,7 +321,7 @@
 | used | BOOLEAN | NOT NULL, DEFAULT FALSE | 是否已使用 |
 | created_at | TIMESTAMPTZ | NOT NULL | 发送时间 |
 
-### 4.6 店铺 (shops)
+### 4.6 公司信息 (companies)
 | 字段 | 类型 | 约束 | 说明 |
 |------|------|------|------|
 | id | UUID | PK | 主键 |
@@ -428,12 +426,14 @@ none → approved（用户上传企业证明照片，即时完成，无需管理
 | POST | /api/auth/register | 无 | 用户注册 |
 | POST | /api/auth/login | 无 | 用户登录 |
 | GET | /my | 用户 | 用户中心首页 |
-| GET | /my/shop | 用户 | 店铺信息页 |
-| POST | /api/my/shop | 用户 | 保存店铺 |
-| GET | /my/products/new | 用户 | 添加产品页 |
-| GET | /my/products | 用户 | 产品列表 |
-| POST | /api/my/products | 用户 | 创建产品 |
-| POST | /api/my/products/:id/delete | 用户 | 删除产品 |
+| GET | /my/company | 用户 | 公司信息页 |
+| POST | /api/my/company | 用户 | 保存公司信息 |
+| GET | /my/projects/new | 用户 | 添加项目页 |
+| GET | /my/projects | 用户 | 项目列表 |
+| POST | /api/my/projects | 用户 | 创建项目 |
+| POST | /api/my/projects/:id/delete | 用户 | 删除项目 |
+| GET | /projects/:id | 公开 | 项目详情 |
+| GET | /api/projects/list | 公开 | 项目分页 API |
 | GET | /my/profile | 用户 | 基本信息页 |
 | POST | /api/my/password | 用户 | 修改密码 |
 | POST | /api/my/verify | 用户 | 上传企业证明照片（即时认证） |
@@ -448,12 +448,12 @@ none → approved（用户上传企业证明照片，即时完成，无需管理
 | POST | /api/admin/login | 无 | 管理员登录 |
 | GET | /admin | 管理员 | 管理首页 |
 | GET | /admin/review | 管理员 | 信息待审核列表 |
-| GET | /admin/product-review | 管理员 | 产品待审核列表 |
+| GET | /admin/project-review | 管理员 | 项目待审核列表 |
 | GET | /admin/posts | 管理员 | 全部信息 |
 | GET | /admin/export | 管理员 | 导出筛选页 |
 | GET | /admin/users | 管理员 | 用户列表 |
 | POST | /api/admin/posts/:id/review | 管理员 | 信息审核 |
-| POST | /api/admin/products/:id/review | 管理员 | 产品审核 |
+| POST | /api/admin/projects/:id/review | 管理员 | 项目审核 |
 | GET | /api/admin/users/export | 管理员 | 导出用户 Excel |
 | POST | /api/admin/export | 管理员 | 导出信息 Excel |
 | PUT | /api/admin/users/:id/status | 管理员 | 用户状态 |

@@ -4,8 +4,8 @@
     <p class="text-sm text-gray-500 mb-6">欢迎回来，{{if .user.RealName}}{{.user.RealName}}{{else}}{{.user.Company}}{{end}}（{{.identityLabel}}）</p>
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
         <div class="bg-blue-50 rounded-xl p-4 border border-blue-100">
-            <div class="text-2xl font-bold text-blue-700">{{.productCount}}</div>
-            <div class="text-xs text-blue-600 mt-1">全部产品</div>
+            <div class="text-2xl font-bold text-blue-700">{{.projectCount}}</div>
+            <div class="text-xs text-blue-600 mt-1">全部项目</div>
         </div>
         <div class="bg-green-50 rounded-xl p-4 border border-green-100">
             <div class="text-2xl font-bold text-green-700">{{.approvedCount}}</div>
@@ -18,18 +18,18 @@
     </div>
     {{if ne .verifyStatus "approved"}}
     <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-4 text-sm text-amber-800">
-        发布产品前需上传企业证明照片，请前往<a href="/my/profile" class="underline font-medium">基本信息</a>完成认证。
+        发布项目前需上传企业证明照片，请前往<a href="/my/profile" class="underline font-medium">基本信息</a>完成认证。
     </div>
     {{end}}
-    {{if not .hasShop}}
+    {{if not .hasCompany}}
     <div class="bg-gray-50 border border-gray-200 rounded-xl p-4 mb-4 text-sm text-gray-600">
-        您还未完善店铺信息，建议先<a href="/my/shop" class="text-blue-600 font-medium">设置店铺</a>。
+        您还未完善公司信息，建议先<a href="/my/company" class="text-blue-600 font-medium">完善公司信息</a>。
     </div>
     {{end}}
     <div class="flex flex-wrap gap-3">
-        <a href="/my/shop" class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700">完善店铺</a>
-        <a href="/my/products/new" class="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg text-sm hover:bg-gray-50">添加产品</a>
-        <a href="/my/products" class="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg text-sm hover:bg-gray-50">查看产品列表</a>
+        <a href="/my/company" class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700">完善公司信息</a>
+        <a href="/my/projects/new" class="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg text-sm hover:bg-gray-50">添加项目</a>
+        <a href="/my/projects" class="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg text-sm hover:bg-gray-50">查看项目列表</a>
     </div>
 </div>
 {{end}}

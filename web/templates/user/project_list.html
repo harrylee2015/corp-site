@@ -1,0 +1,67 @@
+{{define "project-list-content"}}
+<div class="bg-white rounded-xl border border-gray-200 p-5 sm:p-6">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+        <h1 class="text-xl font-bold text-gray-800">项目列表</h1>
+        <a href="/my/projects/new" class="inline-flex justify-center px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700">+ 添加项目</a>
+    </div>
+    {{if .created}}<div class="bg-green-50 text-green-700 px-4 py-2 rounded-lg mb-4 text-sm">项目已提交，等待管理员审核</div>{{end}}
+    <form method="GET" class="flex gap-2 mb-4">
+        <select name="status" class="border border-gray-300 rounded-lg px-3 py-1.5 text-sm bg-white">
+            <option value="">全部状态</option>
+            <option value="pending" {{if eq .status "pending"}}selected{{end}}>待审核</option>
+            <option value="approved" {{if eq .status "approved"}}selected{{end}}>已发布</option>
+            <option value="rejected" {{if eq .status "rejected"}}selected{{end}}>已驳回</option>
+            <option value="delisted" {{if eq .status "delisted"}}selected{{end}}>已下架</option>
+        </select>
+        <button type="submit" class="px-3 py-1.5 bg-gray-100 rounded-lg text-sm hover:bg-gray-200">筛选</button>
+    </form>
+    {{if .projects}}
+    <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+            <thead class="bg-gray-50 text-gray-600">
+                <tr>
+                    <th class="text-left px-3 py-2 font-medium">项目名称</th>
+                    <th class="text-left px-3 py-2 font-medium">分类</th>
+                    <th class="text-left px-3 py-2 font-medium">区域</th>
+                    {{if $.isFunder}}<th class="text-left px-3 py-2 font-medium">额度(万)</th><th class="text-left px-3 py-2 font-medium">利率</th>{{end}}
+                    <th class="text-left px-3 py-2 font-medium">状态</th>
+                    <th class="text-left px-3 py-2 font-medium">时间</th>
+                    <th class="text-left px-3 py-2 font-medium">操作</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100">
+                {{range .projects}}
+                <tr class="hover:bg-gray-50">
+                    <td class="px-3 py-2.5 font-medium text-gray-800">{{.Name}}</td>
+                    <td class="px-3 py-2.5 text-xs text-gray-500">{{if .Category.Parent}}{{.Category.Parent.Name}} · {{end}}{{.Category.Name}}</td>
+                    <td class="px-3 py-2.5 text-xs text-gray-500">{{FormatRegionsForUser .Regions $.user.Identity}}</td>
+                    {{if $.isFunder}}
+                    <td class="px-3 py-2.5">{{if .AmountWan}}{{printf "%.0f" .AmountWan}}{{else}}—{{end}}</td>
+                    <td class="px-3 py-2.5 text-xs">{{if and .RateType .RatePercent}}{{if eq .RateType "daily"}}日{{else}}年{{end}}{{.RatePercent}}%{{else}}—{{end}}</td>
+                    {{end}}
+                    <td class="px-3 py-2.5">
+                        {{if eq .Status "pending"}}<span class="text-amber-600">待审核</span>
+                        {{else if eq .Status "approved"}}<span class="text-green-600">已发布</span>
+                        {{else if eq .Status "rejected"}}<span class="text-red-500" title="{{.RejectReason}}">已驳回</span>
+                        {{else if eq .Status "delisted"}}<span class="text-gray-500">已下架</span>
+                        {{else}}{{.Status}}{{end}}
+                    </td>
+                    <td class="px-3 py-2.5 text-xs text-gray-400">{{.CreatedAt.Format "01-02 15:04"}}</td>
+                    <td class="px-3 py-2.5">
+                        {{if or (eq .Status "pending") (eq .Status "rejected")}}
+                        <form method="POST" action="/api/my/projects/{{.ID}}/delete" class="inline" onsubmit="return confirm('确定删除？')">
+                            <input type="hidden" name="_csrf" value="{{$.csrf_token}}">
+                            <button type="submit" class="text-red-500 text-xs hover:text-red-700">删除</button>
+                        </form>
+                        {{else}}—{{end}}
+                    </td>
+                </tr>
+                {{end}}
+            </tbody>
+        </table>
+    </div>
+    {{else}}
+    <div class="text-center py-12 text-gray-400 text-sm">暂无项目，<a href="/my/projects/new" class="text-blue-600">去添加</a></div>
+    {{end}}
+</div>
+{{end}}

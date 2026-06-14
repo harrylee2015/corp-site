@@ -38,7 +38,7 @@ func LoadCategoryStats() []CategoryParentStat {
 		CategoryID uint
 		Count      int64
 	}
-	db.Model(&model.Product{}).Select("category_id, COUNT(*) as count").Group("category_id").Scan(&productRows)
+	db.Model(&model.Project{}).Select("category_id, COUNT(*) as count").Group("category_id").Scan(&productRows)
 	for _, r := range productRows {
 		productCounts[r.CategoryID] = r.Count
 	}
