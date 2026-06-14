@@ -8,11 +8,11 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func CSRFToken() gin.HandlerFunc {
+func CSRFToken(secure bool) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		if c.Request.Method == "GET" || c.Request.Method == "HEAD" || c.Request.Method == "OPTIONS" {
 			token := generateToken()
-			c.SetCookie("csrf_token", token, 0, "/", "", false, false)
+			c.SetCookie("csrf_token", token, 0, "/", "", secure, true)
 			c.Set("csrf_token", token)
 			c.Next()
 			return

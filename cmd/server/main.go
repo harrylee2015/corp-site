@@ -96,7 +96,7 @@ func main() {
 	r.GET("/health", func(c *gin.Context) { c.JSON(200, gin.H{"status": "ok"}) })
 
 	// == public (CSRF applied) ==
-	pub := r.Group("", jwtMW.OptionalAuth(), middleware.CSRFToken())
+	pub := r.Group("", jwtMW.OptionalAuth(), middleware.CSRFToken(secure))
 	{
 		pub.GET("/", handler.Index)
 		pub.GET("/projects/:id", handler.ProjectDetail)
@@ -116,7 +116,7 @@ func main() {
 	}
 
 	// == user (JWT required + CSRF) ==
-	userGroup := r.Group("", jwtMW.AuthRequired("user"), middleware.CSRFToken())
+	userGroup := r.Group("", jwtMW.AuthRequired("user"), middleware.CSRFToken(secure))
 	{
 		userGroup.GET("/my", handler.UserCenterHome)
 		userGroup.GET("/my/company", handler.UserCompanyPage)
@@ -144,14 +144,14 @@ func main() {
 	}
 
 	// == admin pages (standalone) ==
-	adminPub := r.Group("", middleware.CSRFToken())
+	adminPub := r.Group("", middleware.CSRFToken(secure))
 	{
 		adminPub.GET("/admin/login", handler.AdminLoginPage)
 		adminPub.POST("/api/admin/login", handler.AdminLogin(cfg, loginLimiter))
 	}
 
 	// == admin (JWT required + CSRF) ==
-	adminGroup := r.Group("", jwtMW.AuthRequired("admin"), middleware.CSRFToken())
+	adminGroup := r.Group("", jwtMW.AuthRequired("admin"), middleware.CSRFToken(secure))
 	{
 		adminGroup.GET("/admin", handler.AdminDashboard)
 		adminGroup.GET("/admin/review", handler.AdminReview)
