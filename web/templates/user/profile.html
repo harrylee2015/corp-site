@@ -1,0 +1,57 @@
+{{define "profile-content"}}
+<div class="space-y-5">
+    <div class="bg-white rounded-xl border border-gray-200 p-5 sm:p-6">
+        <h1 class="text-xl font-bold text-gray-800 mb-4">基本信息</h1>
+        {{if .error}}<div class="bg-red-50 text-red-700 px-4 py-2 rounded-lg mb-4 text-sm">{{.error}}</div>{{end}}
+        {{if .saved}}<div class="bg-green-50 text-green-700 px-4 py-2 rounded-lg mb-4 text-sm">企业证明已上传，认证完成</div>{{end}}
+        {{if .pwdChanged}}<div class="bg-green-50 text-green-700 px-4 py-2 rounded-lg mb-4 text-sm">密码修改成功</div>{{end}}
+        <dl class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+            <div><dt class="text-gray-500 mb-0.5">手机号</dt><dd class="font-medium text-gray-800">{{.user.Phone}}</dd></div>
+            <div><dt class="text-gray-500 mb-0.5">真实姓名</dt><dd class="font-medium text-gray-800">{{.user.RealName}}</dd></div>
+            <div><dt class="text-gray-500 mb-0.5">企业名称</dt><dd class="font-medium text-gray-800">{{.user.Company}}</dd></div>
+            <div><dt class="text-gray-500 mb-0.5">用户身份</dt><dd class="font-medium text-gray-800">{{.identityLabel}} <span class="text-xs text-gray-400">（注册后不可修改）</span></dd></div>
+            <div class="sm:col-span-2">
+                <dt class="text-gray-500 mb-0.5">企业认证</dt>
+                <dd class="font-medium">
+                    {{if eq .user.VerifyStatus "approved"}}<span class="text-green-600">已认证</span>
+                    {{if .user.VerifyDocPath}} · <a href="/uploads/{{.user.VerifyDocPath}}" target="_blank" class="text-blue-600 text-sm">查看照片</a>{{end}}
+                    {{else}}<span class="text-gray-500">未认证</span>{{end}}
+                </dd>
+            </div>
+        </dl>
+        {{if ne .user.VerifyStatus "approved"}}
+        <form method="POST" action="/api/my/verify" enctype="multipart/form-data" class="mt-5 pt-5 border-t border-gray-100">
+            <input type="hidden" name="_csrf" value="{{.csrf_token}}">
+            <label class="block text-sm font-medium text-gray-700 mb-2">上传企业证明照片（营业执照等）<span class="text-red-500">*</span></label>
+            <input type="file" id="verifyFile" accept="image/*" class="text-sm mb-2">
+            <input type="hidden" name="doc_path" id="docPath" value="{{.user.VerifyDocPath}}">
+            {{if .user.VerifyDocPath}}<p class="text-xs text-gray-500 mb-2">已上传：<a href="/uploads/{{.user.VerifyDocPath}}" target="_blank" class="text-blue-600">查看文件</a></p>{{end}}
+            <button type="submit" id="verifySubmit" class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700">上传并认证</button>
+        </form>
+        <script>
+        document.getElementById('verifyFile').addEventListener('change',function(){
+          if(!this.files[0])return;
+          var f=new FormData();f.append('file',this.files[0]);f.append('_csrf','{{.csrf_token}}');
+          fetch('/api/upload',{method:'POST',body:f}).then(r=>r.json()).then(d=>{
+            if(d.url){document.getElementById('docPath').value=d.url.replace('/uploads/','');}
+            else alert(d.error||'上传失败');
+          });
+        });
+        document.querySelector('form[action="/api/my/verify"]').addEventListener('submit',function(e){
+          if(!document.getElementById('docPath').value){e.preventDefault();alert('请先上传企业证明照片');}
+        });
+        </script>
+        {{end}}
+    </div>
+    <div class="bg-white rounded-xl border border-gray-200 p-5 sm:p-6">
+        <h2 class="text-lg font-bold text-gray-800 mb-4">修改密码</h2>
+        <form method="POST" action="/api/my/password" class="space-y-4 max-w-md">
+            <input type="hidden" name="_csrf" value="{{.csrf_token}}">
+            <div><label class="block text-sm text-gray-600 mb-1">原密码</label><input type="password" name="old_password" required class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"></div>
+            <div><label class="block text-sm text-gray-600 mb-1">新密码</label><input type="password" name="new_password" required minlength="8" maxlength="20" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"></div>
+            <div><label class="block text-sm text-gray-600 mb-1">确认新密码</label><input type="password" name="new_password_confirm" required minlength="8" maxlength="20" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"></div>
+            <button type="submit" class="px-5 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700">确认修改</button>
+        </form>
+    </div>
+</div>
+{{end}}

@@ -1,6 +1,9 @@
 {{define "adminusers-content"}}
 <h1 class="text-xl font-bold text-gray-800 mb-4">用户管理</h1>
-<form method="GET" class="bg-white rounded-lg shadow-sm border border-gray-200 p-3 mb-4"><div class="flex gap-2"><input type="text" name="keyword" value="{{.keyword}}" placeholder="搜索手机号或昵称" class="border border-gray-300 rounded px-2 py-1.5 text-sm flex-1"><button type="submit" class="bg-blue-600 text-white px-3 py-1.5 rounded text-xs hover:bg-blue-700">搜索</button></div></form>
+<div class="flex flex-col sm:flex-row gap-2 mb-4">
+<form method="GET" class="bg-white rounded-lg shadow-sm border border-gray-200 p-3 flex-1"><div class="flex gap-2"><input type="text" name="keyword" value="{{.keyword}}" placeholder="搜索手机号、姓名或企业" class="border border-gray-300 rounded px-2 py-1.5 text-sm flex-1"><button type="submit" class="bg-blue-600 text-white px-3 py-1.5 rounded text-xs hover:bg-blue-700">搜索</button></div></form>
+<a href="/api/admin/users/export?keyword={{.keyword}}" class="inline-flex items-center justify-center bg-green-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-green-700 whitespace-nowrap">导出用户 Excel</a>
+</div>
 {{if .users}}
 <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
     <div class="hidden sm:block"><table class="w-full text-sm"><thead class="bg-gray-50"><tr><th class="text-left px-3 py-2 text-gray-600">手机号</th><th class="text-left px-3 py-2 text-gray-600">昵称</th><th class="text-left px-3 py-2 text-gray-600">公司</th><th class="text-left px-3 py-2 text-gray-600">注册时间</th><th class="text-left px-3 py-2 text-gray-600">状态</th><th class="text-left px-3 py-2 text-gray-600">操作</th></tr></thead><tbody>{{range .users}}

@@ -73,6 +73,8 @@ func AutoMigrate() error {
 		&model.Post{},
 		&model.Attachment{},
 		&model.SmsLog{},
+		&model.Shop{},
+		&model.Product{},
 	)
 }
 

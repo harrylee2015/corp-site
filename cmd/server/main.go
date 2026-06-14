@@ -67,6 +67,7 @@ func main() {
 			return fmt.Sprintf("%.1f MB", float64(size)/1048576)
 		},
 		"MaskPhone": handler.MaskPhone,
+		"MaskName":  handler.MaskName,
 	})
 
 	t, err := loadTemplates("web/templates", r.FuncMap)
@@ -80,7 +81,7 @@ func main() {
 	jwtMW := middleware.NewJWTMiddleware(cfg.JWT.Secret, secure)
 
 	r.Static("/static", "./web/static")
-	r.Static("/uploads", cfg.Upload.Path)
+	r.GET("/uploads/*filepath", jwtMW.OptionalAuth(), handler.ServeUpload(cfg))
 
 	loginLimiter := middleware.NewRateLimiter(time.Minute, 10)
 
@@ -104,6 +105,16 @@ func main() {
 	// == user (JWT required + CSRF) ==
 	userGroup := r.Group("", jwtMW.AuthRequired("user"), middleware.CSRFToken())
 	{
+		userGroup.GET("/my", handler.UserCenterHome)
+		userGroup.GET("/my/shop", handler.UserShopPage)
+		userGroup.POST("/api/my/shop", handler.SaveShop(cfg))
+		userGroup.GET("/my/products/new", handler.UserProductNew)
+		userGroup.POST("/api/my/products", handler.CreateProduct)
+		userGroup.GET("/my/products", handler.UserProductList)
+		userGroup.POST("/api/my/products/:id/delete", handler.DeleteProduct)
+		userGroup.GET("/my/profile", handler.UserProfilePage)
+		userGroup.POST("/api/my/password", handler.ChangeUserPassword(cfg))
+		userGroup.POST("/api/my/verify", handler.UploadVerifyDoc(cfg))
 		userGroup.GET("/my/posts", handler.MyPosts)
 		userGroup.GET("/my/posts/new", handler.NewPost)
 		userGroup.POST("/api/posts", handler.CreatePost(cfg))
@@ -130,12 +141,15 @@ func main() {
 		adminGroup.GET("/admin/users", handler.AdminUsers)
 		adminGroup.GET("/admin/password", handler.AdminPasswordPage)
 		adminGroup.GET("/api/admin/posts/:id", handler.AdminPostDetail)
-		adminGroup.POST("/api/admin/posts/:id/review", handler.ReviewPost)
+		adminGroup.POST("/api/admin/products/:id/review", handler.ReviewProduct)
+		adminGroup.GET("/admin/product-review", handler.AdminProductReview)
 		adminGroup.POST("/api/admin/posts/:id/delete", handler.AdminDeletePost(cfg))
 		adminGroup.POST("/api/admin/password", handler.ChangePassword)
 		adminGroup.GET("/api/admin/export", handler.ExportExcel)
 		adminGroup.GET("/api/admin/export/preview", handler.ExportPreview)
+		adminGroup.GET("/api/admin/users/export", handler.ExportUsersExcel)
 		adminGroup.PUT("/api/admin/users/:id/status", handler.UpdateUserStatus)
+		adminGroup.PUT("/api/admin/users/:id/verify", handler.UpdateUserVerify)
 	}
 
 	srv := &http.Server{

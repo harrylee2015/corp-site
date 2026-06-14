@@ -5,6 +5,7 @@ import (
 
 	"corp-site/internal/config"
 	"corp-site/internal/database"
+	"corp-site/internal/identity"
 	"corp-site/internal/middleware"
 	"corp-site/internal/model"
 	"corp-site/internal/sms"
@@ -60,7 +61,7 @@ func Login(cfg *config.Config, limiter *middleware.RateLimiter) gin.HandlerFunc 
 		}
 
 		jwtMW.SetTokenCookies(c, accessToken, refreshToken, cfg.JWT.AccessTTL, cfg.JWT.RefreshTTL)
-		c.Redirect(302, "/my/posts")
+		c.Redirect(302, "/my")
 	}
 }
 
@@ -71,21 +72,24 @@ func Register(cfg *config.Config) gin.HandlerFunc {
 			Code            string `json:"code" form:"code" binding:"required,len=6"`
 			Password        string `json:"password" form:"password" binding:"required,min=8,max=20"`
 			PasswordConfirm string `json:"password_confirm" form:"password_confirm" binding:"required"`
-			Nickname        string `json:"nickname" form:"nickname"`
-			Company         string `json:"company" form:"company"`
+			RealName        string `json:"real_name" form:"real_name" binding:"required"`
+			Company         string `json:"company" form:"company" binding:"required"`
+			Identity        string `json:"identity" form:"identity" binding:"required"`
 		}
+		regData := gin.H{"csrf_token": c.GetString("csrf_token")}
 		if err := c.ShouldBind(&req); err != nil {
-			renderPage(c, "layout/base.html", "用户注册", "register-content", gin.H{"error": "请填写完整信息", "csrf_token": c.GetString("csrf_token")})
+			regData["error"] = "请填写完整注册信息"
+			renderPage(c, "layout/base.html", "用户注册", "register-content", regData)
 			return
 		}
 
 		if req.Password != req.PasswordConfirm {
-			renderPage(c, "layout/base.html", "用户注册", "register-content", gin.H{"error": "两次密码输入不一致", "csrf_token": c.GetString("csrf_token")})
+			regData["error"] = "两次密码输入不一致"
+			renderPage(c, "layout/base.html", "用户注册", "register-content", regData)
 			return
 		}
 
-		hasLetter := false
-		hasDigit := false
+		hasLetter, hasDigit := false, false
 		for _, ch := range req.Password {
 			if ch >= 'a' && ch <= 'z' || ch >= 'A' && ch <= 'Z' {
 				hasLetter = true
@@ -95,12 +99,24 @@ func Register(cfg *config.Config) gin.HandlerFunc {
 			}
 		}
 		if !hasLetter || !hasDigit {
-			renderPage(c, "layout/base.html", "用户注册", "register-content", gin.H{"error": "密码需包含字母和数字", "csrf_token": c.GetString("csrf_token")})
+			regData["error"] = "密码需包含字母和数字"
+			renderPage(c, "layout/base.html", "用户注册", "register-content", regData)
 			return
 		}
 
-		if req.Nickname != "" && (len(req.Nickname) < 2 || len(req.Nickname) > 20) {
-			renderPage(c, "layout/base.html", "用户注册", "register-content", gin.H{"error": "昵称需2-20个字符", "csrf_token": c.GetString("csrf_token")})
+		if len(req.RealName) < 2 || len(req.RealName) > 20 {
+			regData["error"] = "真实姓名需2-20个字符"
+			renderPage(c, "layout/base.html", "用户注册", "register-content", regData)
+			return
+		}
+		if len(req.Company) < 2 {
+			regData["error"] = "请填写企业名称"
+			renderPage(c, "layout/base.html", "用户注册", "register-content", regData)
+			return
+		}
+		if !identity.Valid(req.Identity) {
+			regData["error"] = "请选择有效的用户身份"
+			renderPage(c, "layout/base.html", "用户注册", "register-content", regData)
 			return
 		}
 
@@ -109,25 +125,30 @@ func Register(cfg *config.Config) gin.HandlerFunc {
 		var smsLog model.SmsLog
 		if err := db.Where("phone = ? AND code = ? AND scene = ? AND used = ? AND expired_at > ?",
 			req.Phone, req.Code, "register", false, time.Now()).First(&smsLog).Error; err != nil {
-			renderPage(c, "layout/base.html", "用户注册", "register-content", gin.H{"error": "验证码错误或已过期", "csrf_token": c.GetString("csrf_token")})
+			regData["error"] = "验证码错误或已过期"
+			renderPage(c, "layout/base.html", "用户注册", "register-content", regData)
 			return
 		}
 
 		var exists model.User
 		if err := db.Where("phone = ?", req.Phone).First(&exists).Error; err == nil {
-			renderPage(c, "layout/base.html", "用户注册", "register-content", gin.H{"error": "该手机号已注册", "csrf_token": c.GetString("csrf_token")})
+			regData["error"] = "该手机号已注册"
+			renderPage(c, "layout/base.html", "用户注册", "register-content", regData)
 			return
 		}
 
 		user := model.User{
-			Phone:    req.Phone,
-			Role:     "user",
-			Nickname: req.Nickname,
-			Company:  req.Company,
-			Status:   "active",
+			Phone:        req.Phone,
+			Role:         "user",
+			RealName:     req.RealName,
+			Company:      req.Company,
+			Identity:     req.Identity,
+			VerifyStatus: "none",
+			Status:       "active",
 		}
 		if err := user.SetPassword(req.Password); err != nil {
-			renderPage(c, "layout/base.html", "用户注册", "register-content", gin.H{"error": "系统错误，请重试", "csrf_token": c.GetString("csrf_token")})
+			regData["error"] = "系统错误，请重试"
+			renderPage(c, "layout/base.html", "用户注册", "register-content", regData)
 			return
 		}
 
@@ -137,17 +158,19 @@ func Register(cfg *config.Config) gin.HandlerFunc {
 		jwtMW := middleware.NewJWTMiddleware(cfg.JWT.Secret, cfg.Server.Mode == "release")
 		accessToken, err := jwtMW.GenerateToken(user.ID.String(), user.Role, cfg.JWT.AccessTTL)
 		if err != nil {
-			renderPage(c, "layout/base.html", "用户注册", "register-content", gin.H{"error": "系统错误，请重试", "csrf_token": c.GetString("csrf_token")})
+			regData["error"] = "系统错误，请重试"
+			renderPage(c, "layout/base.html", "用户注册", "register-content", regData)
 			return
 		}
 		refreshToken, err := jwtMW.GenerateToken(user.ID.String(), user.Role, cfg.JWT.RefreshTTL)
 		if err != nil {
-			renderPage(c, "layout/base.html", "用户注册", "register-content", gin.H{"error": "系统错误，请重试", "csrf_token": c.GetString("csrf_token")})
+			regData["error"] = "系统错误，请重试"
+			renderPage(c, "layout/base.html", "用户注册", "register-content", regData)
 			return
 		}
 
 		jwtMW.SetTokenCookies(c, accessToken, refreshToken, cfg.JWT.AccessTTL, cfg.JWT.RefreshTTL)
-		c.Redirect(302, "/my/posts")
+		c.Redirect(302, "/my")
 	}
 }
 

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{.Title}} - 用户中心</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <header class="bg-white border-b border-gray-200 sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-4 h-12 flex items-center justify-between">
+            <div class="flex items-center gap-4">
+                <a href="/" class="font-bold text-blue-700">金筹设备租赁</a>
+                <span class="text-gray-300">|</span>
+                <span class="text-sm text-gray-600">用户中心</span>
+            </div>
+            <div class="flex items-center gap-3 text-sm">
+                <span class="text-gray-600 hidden sm:inline">欢迎，{{.UserDisplayName}}</span>
+                <a href="/" class="text-blue-600 hover:text-blue-800">返回首页</a>
+                <a href="/logout" class="text-red-500 hover:text-red-600">退出</a>
+            </div>
+        </div>
+    </header>
+    <div class="max-w-7xl mx-auto px-4 py-5 flex flex-col md:flex-row gap-5">
+        <aside class="w-full md:w-52 shrink-0">
+            <nav class="bg-white rounded-xl border border-gray-200 overflow-hidden text-sm">
+                <a href="/my" class="block px-4 py-3 border-b border-gray-100 {{if eq .ActiveNav "home"}}bg-blue-50 text-blue-700 font-semibold border-l-4 border-l-blue-600{{else}}text-gray-700 hover:bg-gray-50{{end}}">用户首页</a>
+                <div class="px-4 py-2 text-xs font-semibold text-gray-400 bg-gray-50 border-b border-gray-100">产品管理</div>
+                <a href="/my/shop" class="block px-4 py-2.5 pl-6 {{if eq .ActiveSub "shop"}}bg-blue-50 text-blue-700 font-medium border-l-4 border-l-blue-600{{else}}text-gray-600 hover:bg-gray-50{{end}}">店铺信息</a>
+                <a href="/my/products/new" class="block px-4 py-2.5 pl-6 {{if eq .ActiveSub "new"}}bg-blue-50 text-blue-700 font-medium border-l-4 border-l-blue-600{{else}}text-gray-600 hover:bg-gray-50{{end}}">添加产品</a>
+                <a href="/my/products" class="block px-4 py-2.5 pl-6 border-b border-gray-100 {{if eq .ActiveSub "list"}}bg-blue-50 text-blue-700 font-medium border-l-4 border-l-blue-600{{else}}text-gray-600 hover:bg-gray-50{{end}}">产品列表</a>
+                <a href="/my/profile" class="block px-4 py-3 {{if eq .ActiveNav "profile"}}bg-blue-50 text-blue-700 font-semibold border-l-4 border-l-blue-600{{else}}text-gray-700 hover:bg-gray-50{{end}}">基本信息</a>
+            </nav>
+        </aside>
+        <main class="flex-1 min-w-0">
+            {{.BodyContent}}
+        </main>
+    </div>
+</body>
+</html>

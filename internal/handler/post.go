@@ -79,7 +79,19 @@ func PostDetail(c *gin.Context) {
 		return
 	}
 
-	renderPage(c, "layout/base.html", "信息详情", "postdetail-content", gin.H{"post": post, "csrf_token": c.GetString("csrf_token")})
+	userIDStr, _ := c.Get("user_id")
+	role, _ := c.Get("role")
+	isOwner := userIDStr != nil && userIDStr.(string) == post.UserID.String()
+	isAdmin := role == "admin"
+	showPrivate := isOwner || isAdmin
+
+	renderPage(c, "layout/base.html", "信息详情", "postdetail-content", gin.H{
+		"post":          post,
+		"showPrivate":   showPrivate,
+		"maskedContact": MaskName(post.Contact),
+		"maskedPhone":   MaskPhone(post.ContactPhone),
+		"csrf_token":    c.GetString("csrf_token"),
+	})
 }
 
 func MyPosts(c *gin.Context) {
@@ -401,7 +413,7 @@ func PostList(c *gin.Context) {
 
 	rows := make([]row, len(posts))
 	for i, p := range posts {
-		nickname := p.User.Nickname
+		nickname := MaskName(p.User.DisplayName())
 		if nickname == "" {
 			nickname = MaskPhone(p.User.Phone)
 		}
@@ -414,8 +426,8 @@ func PostList(c *gin.Context) {
 			CategoryCls:  cls,
 			Nickname:     nickname,
 			Date:         p.CreatedAt.Format("01-02"),
-			HasAttach:    len(p.Attachments) > 0,
-			AttachCount:  len(p.Attachments),
+			HasAttach:    false,
+			AttachCount:  0,
 		}
 	}
 

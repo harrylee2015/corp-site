@@ -5,24 +5,30 @@
     {{else if .post}}
     <div class="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
         <div class="bg-gradient-to-r from-blue-600 to-purple-600 px-4 sm:px-6 py-3 flex items-center justify-between">
-            <span class="text-white text-xs bg-white/20 px-3 py-1 rounded-full">{{.post.Category.Name}}</span>
+            <span class="text-white text-xs bg-white/20 px-3 py-1 rounded-full">{{if .post.Category.Parent}}{{.post.Category.Parent.Name}} · {{.post.Category.Name}}{{else}}{{.post.Category.Name}}{{end}}</span>
             <span class="text-white/80 text-sm">{{.post.CreatedAt.Format "2006-01-02 15:04"}}</span>
         </div>
         <div class="p-4 sm:p-6">
             <h1 class="text-xl sm:text-2xl font-bold text-gray-800 mb-4">{{.post.Title}}</h1>
             <div class="text-sm sm:text-base text-gray-600 whitespace-pre-wrap mb-6 leading-relaxed">{{.post.Content}}</div>
-            {{if .post.Contact}}
+            {{if or .post.Contact .post.ContactPhone}}
             <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-6">
                 <div class="flex items-center gap-2 mb-2">
                     <svg class="w-4 h-4 text-amber-500" fill="currentColor" viewBox="0 0 20 20"><path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z"/></svg>
                     <span class="text-sm font-semibold text-amber-700">联系方式</span>
                 </div>
-                <div class="text-sm text-amber-800">联系人：{{.post.Contact}}</div>
-                {{if .post.ContactPhone}}<div class="text-sm text-amber-800 mt-1">联系电话：{{if eq .UserRole "admin"}}{{.post.ContactPhone}}{{else}}{{MaskPhone .post.ContactPhone}}{{end}}</div>{{end}}
-                <p class="text-xs text-amber-600/70 mt-3 pt-2 border-t border-amber-200">如有意向，请通过平台与发布方私下联系协商</p>
+                {{if .post.Contact}}
+                <div class="text-sm text-amber-800">联系人：{{if .showPrivate}}{{.post.Contact}}{{else}}{{.maskedContact}}{{end}}</div>
+                {{end}}
+                {{if .post.ContactPhone}}
+                <div class="text-sm text-amber-800 mt-1">联系电话：{{if .showPrivate}}{{.post.ContactPhone}}{{else}}{{.maskedPhone}}{{end}}</div>
+                {{end}}
+                {{if not .showPrivate}}
+                <p class="text-xs text-amber-600/70 mt-3 pt-2 border-t border-amber-200">联系方式已匿名展示，如需合作请通过平台私信或线下渠道联系</p>
+                {{end}}
             </div>
             {{end}}
-            {{if .post.Attachments}}
+            {{if and .showPrivate .post.Attachments}}
             <div class="border-t border-gray-100 pt-4 mb-4">
                 <h3 class="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-1.5">
                     <svg class="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/></svg>附件列表
@@ -35,7 +41,7 @@
                     </a>{{end}}</div>
             </div>{{end}}
             <div class="border-t border-gray-100 pt-3 text-sm text-gray-400">
-                发布者：{{if .post.User.Nickname}}{{.post.User.Nickname}}{{else}}{{MaskPhone .post.User.Phone}}{{end}}
+                发布者：{{if .showPrivate}}{{if .post.User.RealName}}{{.post.User.RealName}}{{else if .post.User.Nickname}}{{.post.User.Nickname}}{{else}}{{MaskPhone .post.User.Phone}}{{end}}{{else}}{{if .post.User.RealName}}{{MaskName .post.User.RealName}}{{else if .post.User.Nickname}}{{MaskName .post.User.Nickname}}{{else}}{{MaskPhone .post.User.Phone}}{{end}}{{end}}
             </div>
         </div>
     </div>

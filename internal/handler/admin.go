@@ -19,17 +19,23 @@ import (
 func AdminDashboard(c *gin.Context) {
 	db := database.DB()
 	var userCount, postCount, pendingCount, todayCount int64
+	var productCount, productPending int64
 	db.Model(&model.User{}).Where("role = ?", "user").Count(&userCount)
 	db.Model(&model.Post{}).Count(&postCount)
 	db.Model(&model.Post{}).Where("status = ?", "pending").Count(&pendingCount)
 	db.Model(&model.Post{}).Where("created_at >= ?", time.Now().Truncate(24*time.Hour)).Count(&todayCount)
+	db.Model(&model.Product{}).Count(&productCount)
+	db.Model(&model.Product{}).Where("status = ?", "pending").Count(&productPending)
 
 	renderPage(c, "layout/admin.html", "管理后台", "admindash-content", gin.H{
-		"userCount":    userCount,
-		"postCount":    postCount,
-		"pendingCount": pendingCount,
-		"todayCount":   todayCount,
-		"csrf_token":   c.GetString("csrf_token"),
+		"userCount":       userCount,
+		"postCount":       postCount,
+		"pendingCount":    pendingCount,
+		"todayCount":      todayCount,
+		"productCount":    productCount,
+		"productPending":  productPending,
+		"categoryStats":   LoadCategoryStats(),
+		"csrf_token":      c.GetString("csrf_token"),
 	})
 }
 
@@ -123,7 +129,8 @@ func AdminUsers(c *gin.Context) {
 
 	query := db.Model(&model.User{}).Where("role = ?", "user")
 	if keyword != "" {
-		query = query.Where("phone ILIKE ? OR nickname ILIKE ?", "%"+keyword+"%", "%"+keyword+"%")
+		query = query.Where("phone ILIKE ? OR nickname ILIKE ? OR real_name ILIKE ? OR company ILIKE ?",
+			"%"+keyword+"%", "%"+keyword+"%", "%"+keyword+"%", "%"+keyword+"%")
 	}
 
 	var total int64
@@ -189,6 +196,67 @@ func ReviewPost(c *gin.Context) {
 	}
 
 	c.JSON(200, gin.H{"message": "审核完成"})
+}
+
+func AdminProductReview(c *gin.Context) {
+	db := database.DB()
+	var products []model.Product
+	db.Where("status = ?", "pending").Preload("Category.Parent").Preload("User").
+		Order("created_at ASC").Limit(50).Find(&products)
+	renderPage(c, "layout/admin.html", "产品审核", "adminproductreview-content", gin.H{
+		"products":   products,
+		"csrf_token": c.GetString("csrf_token"),
+	})
+}
+
+func ReviewProduct(c *gin.Context) {
+	var req struct {
+		Action string `json:"action" form:"action" binding:"required"`
+		Reason string `json:"reason" form:"reason"`
+	}
+	if err := c.ShouldBind(&req); err != nil {
+		c.JSON(400, gin.H{"error": "参数错误"})
+		return
+	}
+	userIDStr, _ := c.Get("user_id")
+	reviewerID, _ := uuid.Parse(userIDStr.(string))
+	now := time.Now()
+	action := req.Action
+	if action != "approve" && action != "reject" {
+		c.JSON(400, gin.H{"error": "无效的审核操作"})
+		return
+	}
+	updates := map[string]interface{}{"reviewed_by": reviewerID, "reviewed_at": now}
+	if action == "approve" {
+		updates["status"] = "approved"
+	} else {
+		updates["status"] = "rejected"
+		updates["reject_reason"] = req.Reason
+	}
+	result := database.DB().Model(&model.Product{}).
+		Where("id = ? AND status = ?", c.Param("id"), "pending").Updates(updates)
+	if result.RowsAffected == 0 {
+		c.JSON(404, gin.H{"error": "产品不存在或已被审核"})
+		return
+	}
+	c.JSON(200, gin.H{"message": "审核完成"})
+}
+
+func UpdateUserVerify(c *gin.Context) {
+	var req struct {
+		Status string `json:"status" form:"status" binding:"required"`
+	}
+	if err := c.ShouldBind(&req); err != nil {
+		c.JSON(400, gin.H{"error": "参数错误"})
+		return
+	}
+	if req.Status != "approved" && req.Status != "rejected" && req.Status != "pending" {
+		c.JSON(400, gin.H{"error": "无效状态"})
+		return
+	}
+	database.DB().Model(&model.User{}).Where("id = ? AND role = ?", c.Param("id"), "user").
+		Update("verify_status", req.Status)
+	c.JSON(200, gin.H{"message": "更新成功"})
 }
 
 func UpdateUserStatus(c *gin.Context) {
@@ -346,4 +414,16 @@ func MaskPhone(phone string) string {
 		return phone
 	}
 	return phone[:3] + strings.Repeat("*", 4) + phone[7:]
+}
+
+func MaskName(name string) string {
+	name = strings.TrimSpace(name)
+	if name == "" {
+		return ""
+	}
+	runes := []rune(name)
+	if len(runes) == 1 {
+		return string(runes[0]) + "*"
+	}
+	return string(runes[0]) + strings.Repeat("*", len(runes)-1)
 }

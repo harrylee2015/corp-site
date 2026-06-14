@@ -36,7 +36,7 @@
                     <h2 class="text-lg sm:text-xl font-bold mb-2 leading-snug group-hover:text-blue-200 transition-colors line-clamp-1">{{$post.Title}}</h2>
                     <p class="text-xs sm:text-sm text-blue-100/80 line-clamp-1 leading-relaxed mb-2">{{$post.Content}}</p>
                     <div class="flex items-center justify-between text-xs text-blue-300/70 border-t border-blue-700/40 pt-2">
-                        <span>{{if $post.User.Nickname}}{{$post.User.Nickname}}{{else}}{{MaskPhone $post.User.Phone}}{{end}}</span>
+                        <span>{{if $post.User.RealName}}{{MaskName $post.User.RealName}}{{else if $post.User.Nickname}}{{MaskName $post.User.Nickname}}{{else}}{{MaskPhone $post.User.Phone}}{{end}}</span>
                         <span>{{$post.CreatedAt.Format "2006-01-02"}}</span>
                     </div>
                 </div>
@@ -71,8 +71,7 @@
             <h3 class="font-bold text-gray-800 text-sm mb-1.5 line-clamp-2 group-hover:text-blue-700 transition-colors">{{$post.Title}}</h3>
             <p class="text-xs text-gray-500 line-clamp-2 mb-2 leading-relaxed">{{$post.Content}}</p>
             <div class="flex items-center justify-between text-xs text-gray-400 pt-2 border-t border-blue-50">
-                <span class="font-medium text-gray-500">{{if $post.User.Nickname}}{{$post.User.Nickname}}{{else}}{{MaskPhone $post.User.Phone}}{{end}}</span>
-                {{if $post.Attachments}}<span class="text-blue-600 flex items-center gap-1">&#128206; {{len $post.Attachments}}</span>{{end}}
+                <span class="font-medium text-gray-500">{{if $post.User.RealName}}{{MaskName $post.User.RealName}}{{else if $post.User.Nickname}}{{MaskName $post.User.Nickname}}{{else}}{{MaskPhone $post.User.Phone}}{{end}}</span>
             </div>
         </a>
         {{end}}
@@ -110,7 +109,7 @@ function loadMore(){
       a.innerHTML='<div class="flex items-center justify-between mb-2"><span class="text-xs px-2 py-0.5 rounded-full font-medium bg-blue-100 text-blue-700">'+p.category+'</span><span class="text-xs text-gray-400">'+p.date+'</span></div>'
         +'<h3 class="font-bold text-gray-800 text-sm mb-1.5 line-clamp-2 group-hover:text-blue-700 transition-colors">'+p.title+'</h3>'
         +'<p class="text-xs text-gray-500 line-clamp-2 mb-2 leading-relaxed">'+p.content+'</p>'
-        +'<div class="flex items-center justify-between text-xs text-gray-400 pt-2 border-t border-blue-50"><span class="font-medium text-gray-500">'+p.nickname+'</span>'+(p.has_attach?'<span class="text-blue-600 flex items-center gap-1">&#128206; '+p.attach_count+'</span>':'')+'</div>';
+        +'<div class="flex items-center justify-between text-xs text-gray-400 pt-2 border-t border-blue-50"><span class="font-medium text-gray-500">'+p.nickname+'</span></div>';
       grid.appendChild(a)});
     if(!d.has_more){document.getElementById('loadMore').classList.add('hidden');document.getElementById('noMore').classList.remove('hidden')}
   })

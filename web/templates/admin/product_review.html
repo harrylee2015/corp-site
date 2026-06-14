@@ -1,0 +1,40 @@
+{{define "adminproductreview-content"}}
+<h1 class="text-xl font-bold text-gray-800 mb-4">产品审核</h1>
+{{if .products}}
+<div class="space-y-4">
+{{range .products}}
+<div class="bg-white rounded-lg border border-gray-200 p-4">
+<div class="flex flex-wrap items-start justify-between gap-2 mb-2">
+<h3 class="font-bold text-gray-800">{{.Name}}</h3>
+<span class="text-xs text-gray-400">{{.CreatedAt.Format "2006-01-02 15:04"}}</span>
+</div>
+<div class="text-xs text-gray-500 mb-2">
+<span class="bg-blue-50 text-blue-700 px-2 py-0.5 rounded">{{if .Category.Parent}}{{.Category.Parent.Name}} · {{end}}{{.Category.Name}}</span>
+· 发布者：{{if .User.RealName}}{{.User.RealName}}{{else}}{{.User.Company}}{{end}}（{{.User.Phone}}）
+</div>
+<div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs text-gray-600 mb-3">
+<div>额度：<b>{{.AmountWan}}</b> 万元</div>
+<div>利率：{{if eq .RateType "daily"}}日{{else}}年{{end}} <b>{{.RatePercent}}%</b></div>
+<div>期数：<b>{{.PeriodCount}}</b> 期</div>
+<div>还款：{{if eq .RepayMethod "equal_principal"}}等额本金{{else}}等额本息{{end}}</div>
+</div>
+<p class="text-sm text-gray-700 whitespace-pre-wrap mb-3">{{.Intro}}</p>
+<div class="flex gap-2">
+<button onclick="reviewProduct('{{.ID}}','approve')" class="px-4 py-1.5 bg-green-600 text-white rounded text-sm hover:bg-green-700">通过</button>
+<button onclick="reviewProduct('{{.ID}}','reject')" class="px-4 py-1.5 bg-red-500 text-white rounded text-sm hover:bg-red-600">驳回</button>
+</div>
+</div>
+{{end}}
+</div>
+{{else}}
+<p class="text-gray-500 text-sm py-8 text-center">暂无待审核产品</p>
+{{end}}
+<script>
+function reviewProduct(id,action){
+  var reason='';
+  if(action==='reject'){reason=prompt('请输入驳回原因');if(!reason)return;}
+  var fd=new FormData();fd.append('action',action);fd.append('reason',reason||'');fd.append('_csrf','{{.csrf_token}}');
+  fetch('/api/admin/products/'+id+'/review',{method:'POST',body:fd}).then(r=>r.json()).then(d=>{alert(d.message||d.error);if(d.message)location.reload();});
+}
+</script>
+{{end}}
