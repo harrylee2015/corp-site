@@ -23,7 +23,7 @@ func AdminDashboard(c *gin.Context) {
 	db.Model(&model.User{}).Where("role = ?", "user").Count(&userCount)
 	db.Model(&model.Post{}).Count(&postCount)
 	db.Model(&model.Post{}).Where("status = ?", "pending").Count(&pendingCount)
-	db.Model(&model.Post{}).Where("created_at >= ?", time.Now().Truncate(24*time.Hour)).Count(&todayCount)
+	db.Model(&model.Project{}).Where("created_at >= ?", time.Now().Truncate(24*time.Hour)).Count(&todayCount)
 	db.Model(&model.Project{}).Count(&productCount)
 	db.Model(&model.Project{}).Where("status = ?", "pending").Count(&productPending)
 
@@ -113,6 +113,58 @@ func AdminPosts(c *gin.Context) {
 		"startDate":  startDate,
 		"endDate":    endDate,
 		"csrf_token": c.GetString("csrf_token"),
+	})
+}
+
+func AdminProjects(c *gin.Context) {
+	db := database.DB()
+	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
+	pageSize := 20
+	status := c.Query("status")
+	categoryID := c.Query("category_id")
+	keyword := c.Query("keyword")
+	startDate := c.Query("start_date")
+	endDate := c.Query("end_date")
+
+	query := db.Model(&model.Project{}).Preload("Category.Parent").Preload("User")
+	if status != "" {
+		query = query.Where("status = ?", status)
+	}
+	if categoryID != "" {
+		query = query.Where("category_id = ?", categoryID)
+	}
+	if keyword != "" {
+		for _, word := range strings.Fields(keyword) {
+			like := "%" + word + "%"
+			query = query.Where("(name ILIKE ? OR intro ILIKE ?)", like, like)
+		}
+	}
+	if startDate != "" {
+		query = query.Where("created_at >= ?", startDate)
+	}
+	if endDate != "" {
+		query = query.Where("created_at <= ?", endDate+" 23:59:59")
+	}
+
+	var total int64
+	query.Count(&total)
+
+	var projects []model.Project
+	query.Order("created_at DESC").Offset((page - 1) * pageSize).Limit(pageSize).Find(&projects)
+
+	totalPages := int(math.Ceil(float64(total) / float64(pageSize)))
+
+	renderPage(c, "layout/admin.html", "项目管理", "adminprojects-content", gin.H{
+		"projects":      projects,
+		"navCategories": LoadCategoryNav(),
+		"page":          page,
+		"totalPages":    totalPages,
+		"status":        status,
+		"categoryID":    categoryID,
+		"keyword":       keyword,
+		"startDate":     startDate,
+		"endDate":       endDate,
+		"csrf_token":    c.GetString("csrf_token"),
 	})
 }
 

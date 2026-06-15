@@ -6,7 +6,7 @@
     <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4"><div class="text-2xl font-bold text-yellow-600">{{.pendingCount}}</div><div class="text-sm text-gray-500 mt-1">信息待审</div></div>
     <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4"><div class="text-2xl font-bold text-purple-600">{{if .projectCount}}{{.projectCount}}{{else}}{{.productCount}}{{end}}</div><div class="text-sm text-gray-500 mt-1">项目总数</div></div>
     <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4"><div class="text-2xl font-bold text-orange-600">{{if .projectPending}}{{.projectPending}}{{else}}{{.productPending}}{{end}}</div><div class="text-sm text-gray-500 mt-1">项目待审</div></div>
-    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4"><div class="text-2xl font-bold text-green-600">{{.todayCount}}</div><div class="text-sm text-gray-500 mt-1">今日新增信息</div></div>
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4"><div class="text-2xl font-bold text-green-600">{{.todayCount}}</div><div class="text-sm text-gray-500 mt-1">今日新增项目</div></div>
 </div>
 
 {{if .categoryStats}}
@@ -56,7 +56,7 @@
 
 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
     <a href="/admin/project-review" class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 hover:shadow-md transition"><h3 class="font-semibold text-gray-800">项目审核</h3><p class="text-xs text-gray-500 mt-1">审核用户提交的项目</p></a>
-    <a href="/admin/posts" class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 hover:shadow-md transition"><h3 class="font-semibold text-gray-800">项目管理</h3><p class="text-xs text-gray-500 mt-1">管理所有项目</p></a>
+    <a href="/admin/projects" class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 hover:shadow-md transition"><h3 class="font-semibold text-gray-800">项目管理</h3><p class="text-xs text-gray-500 mt-1">管理所有项目</p></a>
     <a href="/admin/export" class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 hover:shadow-md transition"><h3 class="font-semibold text-gray-800">导出报表</h3><p class="text-xs text-gray-500 mt-1">筛选并导出信息 Excel</p></a>
     <a href="/admin/users" class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 hover:shadow-md transition"><h3 class="font-semibold text-gray-800">用户管理</h3><p class="text-xs text-gray-500 mt-1">管理平台注册用户</p></a>
 </div>
