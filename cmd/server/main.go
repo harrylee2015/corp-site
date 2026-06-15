@@ -156,6 +156,10 @@ func main() {
 		adminGroup.GET("/admin", handler.AdminDashboard)
 		adminGroup.GET("/admin/review", handler.AdminReview)
 		adminGroup.GET("/admin/posts", handler.AdminPosts)
+		adminGroup.GET("/admin/projects", handler.AdminProjects)
+		adminGroup.GET("/admin/products", func(c *gin.Context) {
+			c.Redirect(http.StatusFound, "/admin/projects")
+		})
 		adminGroup.GET("/admin/export", handler.AdminExportPage)
 		adminGroup.GET("/admin/users", handler.AdminUsers)
 		adminGroup.GET("/admin/password", handler.AdminPasswordPage)
@@ -174,8 +178,11 @@ func main() {
 	}
 
 	srv := &http.Server{
-		Addr:    fmt.Sprintf(":%d", cfg.Server.Port),
-		Handler: r,
+		Addr:         fmt.Sprintf(":%d", cfg.Server.Port),
+		Handler:      r,
+		ReadTimeout:  30 * time.Second,
+		WriteTimeout: 30 * time.Second,
+		IdleTimeout:  120 * time.Second,
 	}
 
 	go func() {
