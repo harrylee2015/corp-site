@@ -59,18 +59,41 @@ func ServeUpload(cfg *config.Config) gin.HandlerFunc {
 	}
 }
 
+func normalizeUploadRelPath(path string) string {
+	path = strings.TrimSpace(path)
+	path = filepath.ToSlash(path)
+	if path == "" || strings.Contains(path, "..") {
+		return ""
+	}
+	return path
+}
+
+func userOwnsUpload(userID uuid.UUID, relPath string) bool {
+	norm := normalizeUploadRelPath(relPath)
+	if norm == "" {
+		return false
+	}
+	var attach model.Attachment
+	return database.DB().Where("file_path = ? AND user_id = ?", norm, userID).First(&attach).Error == nil
+}
+
 func canAccessUpload(userID uuid.UUID, relPath string) bool {
 	db := database.DB()
-	norm := filepath.ToSlash(relPath)
+	norm := normalizeUploadRelPath(relPath)
+	if norm == "" {
+		return false
+	}
 
 	var attach model.Attachment
 	if err := db.Where("file_path = ?", norm).First(&attach).Error; err == nil {
-		if attach.PostID == nil {
+		if attach.UserID != uuid.Nil && attach.UserID == userID {
 			return true
 		}
-		var post model.Post
-		if db.First(&post, "id = ?", *attach.PostID).Error == nil {
-			return post.UserID == userID
+		if attach.PostID != nil {
+			var post model.Post
+			if db.First(&post, "id = ?", *attach.PostID).Error == nil {
+				return post.UserID == userID
+			}
 		}
 		return false
 	}

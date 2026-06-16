@@ -178,13 +178,21 @@ func CreatePost(cfg *config.Config) gin.HandlerFunc {
 			for _, idStr := range ids {
 				attachID, err := uuid.Parse(strings.TrimSpace(idStr))
 				if err != nil {
-					continue
-				}
-				if err := tx.Model(&model.Attachment{}).Where("id = ? AND post_id IS NULL", attachID).
-					Update("post_id", post.ID).Error; err != nil {
 					tx.Rollback()
 					renderPage(c, "layout/base.html", "发布信息", "postcreate-content", gin.H{
-						"error":         "发布失败，请重试",
+						"error":         "附件无效",
+						"navCategories": LoadCategoryNav(),
+						"csrf_token":    c.GetString("csrf_token"),
+					})
+					return
+				}
+				result := tx.Model(&model.Attachment{}).
+					Where("id = ? AND post_id IS NULL AND user_id = ?", attachID, user.ID).
+					Update("post_id", post.ID)
+				if result.Error != nil || result.RowsAffected == 0 {
+					tx.Rollback()
+					renderPage(c, "layout/base.html", "发布信息", "postcreate-content", gin.H{
+						"error":         "附件无效或无权使用",
 						"navCategories": LoadCategoryNav(),
 						"csrf_token":    c.GetString("csrf_token"),
 					})
@@ -314,8 +322,20 @@ func UploadFile(cfg *config.Config) gin.HandlerFunc {
 		}
 
 		relPath := filepath.Join(monthDir, newName)
+		userIDStr, ok := c.Get("user_id")
+		if !ok {
+			c.JSON(401, gin.H{"error": "请先登录"})
+			return
+		}
+		userID, err := uuid.Parse(userIDStr.(string))
+		if err != nil {
+			c.JSON(401, gin.H{"error": "请先登录"})
+			return
+		}
+
 		db := database.DB()
 		attach := model.Attachment{
+			UserID:   userID,
 			FileName: file.Filename,
 			FilePath: relPath,
 			FileSize: file.Size,

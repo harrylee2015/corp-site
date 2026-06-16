@@ -24,13 +24,21 @@ func enrichUserCenterData(h gin.H, user *model.User) {
 }
 
 func bindCompanyRegionFields(h gin.H, company model.Company, user *model.User) {
-	if data.IsMultiProvince(user.Identity) {
-		h["selectedRegions"] = data.ParseProvinces(company.Regions)
+	bindRegionFields(h, company.Regions, user.Identity)
+}
+
+func bindProjectRegionFields(h gin.H, project model.Project) {
+	bindRegionFields(h, project.Regions, project.User.Identity)
+}
+
+func bindRegionFields(h gin.H, regionsRaw, userIdentity string) {
+	if data.IsMultiProvince(userIdentity) {
+		h["selectedRegions"] = data.ParseProvinces(regionsRaw)
 		if h["selectedRegions"] == nil {
 			h["selectedRegions"] = []string{}
 		}
 	} else {
-		p, c := data.ParseSingleCity(company.Regions)
+		p, c := data.ParseSingleCity(regionsRaw)
 		h["selectedProvince"] = p
 		h["selectedCity"] = c
 	}
@@ -156,6 +164,19 @@ func SaveCompany(cfg *config.Config) gin.HandlerFunc {
 			Intro:         strings.TrimSpace(c.PostForm("intro")),
 			BannerPath:    strings.TrimSpace(c.PostForm("banner_path")),
 		}
+		if company.BannerPath != "" && !userOwnsUpload(user.ID, company.BannerPath) {
+			data := userCenterBase(c, user)
+			data["ActiveNav"] = "project"
+			data["ActiveSub"] = "company"
+			data["error"] = "横幅图片无效或无权使用"
+			var existing model.Company
+			database.DB().Where("user_id = ?", user.ID).FirstOrInit(&existing, model.Company{UserID: user.ID})
+			data["company"] = existing
+			data["shop"] = existing
+			bindCompanyRegionFields(data, existing, user)
+			renderUserPage(c, "公司信息", "company-content", data)
+			return
+		}
 
 		db := database.DB()
 		var existing model.Company
@@ -228,11 +249,17 @@ func CreateProject(c *gin.Context) {
 		return
 	}
 
+	imagePath := strings.TrimSpace(c.PostForm("image_path"))
+	if imagePath != "" && !userOwnsUpload(user.ID, imagePath) {
+		renderProjectFormError(c, user, "项目图片无效或无权使用")
+		return
+	}
+
 	project := model.Project{
 		UserID:     user.ID,
 		CategoryID: uint(categoryID),
 		Name:       name,
-		ImagePath:  strings.TrimSpace(c.PostForm("image_path")),
+		ImagePath:  imagePath,
 		Regions:    regionsJSON,
 		Intro:      strings.TrimSpace(c.PostForm("intro")),
 		PeriodUnit: "month",
@@ -418,6 +445,10 @@ func UploadVerifyDoc(cfg *config.Config) gin.HandlerFunc {
 		path := strings.TrimSpace(c.PostForm("doc_path"))
 		if path == "" {
 			c.Redirect(302, "/my/profile?error=doc")
+			return
+		}
+		if !userOwnsUpload(user.ID, path) {
+			c.Redirect(302, "/my/profile?error=img")
 			return
 		}
 		ext := strings.ToLower(filepath.Ext(path))
