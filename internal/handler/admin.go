@@ -20,26 +20,22 @@ import (
 
 func AdminDashboard(c *gin.Context) {
 	db := database.DB()
-	var userCount, postCount, pendingCount, todayCount int64
+	var userCount, todayCount int64
 	var productCount, productPending int64
 	db.Model(&model.User{}).Where("role = ?", "user").Count(&userCount)
-	db.Model(&model.Post{}).Count(&postCount)
-	db.Model(&model.Post{}).Where("status = ?", "pending").Count(&pendingCount)
 	db.Model(&model.Project{}).Where("created_at >= ?", time.Now().Truncate(24*time.Hour)).Count(&todayCount)
 	db.Model(&model.Project{}).Count(&productCount)
 	db.Model(&model.Project{}).Where("status = ?", "pending").Count(&productPending)
 
 	renderPage(c, "layout/admin.html", "管理后台", "admindash-content", gin.H{
-		"userCount":       userCount,
-		"postCount":       postCount,
-		"pendingCount":    pendingCount,
-		"todayCount":      todayCount,
-		"productCount":    productCount,
-		"projectCount":    productCount,
-		"productPending":  productPending,
-		"projectPending":  productPending,
-		"categoryStats":   LoadCategoryStats(),
-		"csrf_token":      c.GetString("csrf_token"),
+		"userCount":      userCount,
+		"todayCount":     todayCount,
+		"productCount":   productCount,
+		"projectCount":   productCount,
+		"productPending": productPending,
+		"projectPending": productPending,
+		"categoryStats":  LoadCategoryStats(),
+		"csrf_token":     c.GetString("csrf_token"),
 	})
 }
 

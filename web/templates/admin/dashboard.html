@@ -1,63 +1,105 @@
 {{define "admindash-content"}}
 <h1 class="text-xl font-bold text-gray-800 mb-6">管理后台</h1>
-<div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4 mb-8">
-    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4"><div class="text-2xl font-bold text-blue-600">{{.userCount}}</div><div class="text-sm text-gray-500 mt-1">用户总数</div></div>
-    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4"><div class="text-2xl font-bold text-gray-800">{{.postCount}}</div><div class="text-sm text-gray-500 mt-1">信息总数</div></div>
-    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4"><div class="text-2xl font-bold text-yellow-600">{{.pendingCount}}</div><div class="text-sm text-gray-500 mt-1">信息待审</div></div>
-    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4"><div class="text-2xl font-bold text-purple-600">{{if .projectCount}}{{.projectCount}}{{else}}{{.productCount}}{{end}}</div><div class="text-sm text-gray-500 mt-1">项目总数</div></div>
-    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4"><div class="text-2xl font-bold text-orange-600">{{if .projectPending}}{{.projectPending}}{{else}}{{.productPending}}{{end}}</div><div class="text-sm text-gray-500 mt-1">项目待审</div></div>
-    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4"><div class="text-2xl font-bold text-green-600">{{.todayCount}}</div><div class="text-sm text-gray-500 mt-1">今日新增项目</div></div>
+
+<div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-8">
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 border-l-4 border-l-blue-500 p-4 sm:p-5">
+        <div class="text-2xl sm:text-3xl font-bold text-blue-600">{{.userCount}}</div>
+        <div class="text-sm text-gray-500 mt-1">用户总数</div>
+    </div>
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 border-l-4 border-l-purple-500 p-4 sm:p-5">
+        <div class="text-2xl sm:text-3xl font-bold text-purple-600">{{if .projectCount}}{{.projectCount}}{{else}}{{.productCount}}{{end}}</div>
+        <div class="text-sm text-gray-500 mt-1">项目总数</div>
+    </div>
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 border-l-4 border-l-orange-500 p-4 sm:p-5">
+        <div class="text-2xl sm:text-3xl font-bold text-orange-600">{{if .projectPending}}{{.projectPending}}{{else}}{{.productPending}}{{end}}</div>
+        <div class="text-sm text-gray-500 mt-1">项目待审</div>
+    </div>
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 border-l-4 border-l-green-500 p-4 sm:p-5">
+        <div class="text-2xl sm:text-3xl font-bold text-green-600">{{.todayCount}}</div>
+        <div class="text-sm text-gray-500 mt-1">今日新增项目</div>
+    </div>
 </div>
 
 {{if .categoryStats}}
-<div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-5 mb-8 overflow-x-auto">
-    <h2 class="text-base font-bold text-gray-800 mb-4">分类数据统计（信息 / 项目）</h2>
-    <table class="w-full text-sm min-w-[640px]">
-        <thead class="bg-gray-50">
-            <tr>
-                <th class="text-left px-3 py-2 text-gray-600 font-medium">一级分类</th>
-                <th class="text-right px-3 py-2 text-gray-600 font-medium">信息数</th>
-                <th class="text-right px-3 py-2 text-gray-600 font-medium">项目数</th>
-                <th class="text-left px-3 py-2 text-gray-600 font-medium">二级分类</th>
-                <th class="text-right px-3 py-2 text-gray-600 font-medium">信息数</th>
-                <th class="text-right px-3 py-2 text-gray-600 font-medium">项目数</th>
-            </tr>
-        </thead>
-        <tbody>
-            {{range $parent := .categoryStats}}
-            {{if $parent.Children}}
-            {{range $i, $child := $parent.Children}}
-            <tr class="border-t border-gray-100 hover:bg-gray-50">
-                {{if eq $i 0}}
-                <td class="px-3 py-2 font-medium text-gray-800 align-top" rowspan="{{len $parent.Children}}">{{$parent.Name}}</td>
-                <td class="px-3 py-2 text-right text-gray-700 align-top" rowspan="{{len $parent.Children}}">{{$parent.PostCount}}</td>
-                <td class="px-3 py-2 text-right text-gray-700 align-top" rowspan="{{len $parent.Children}}">{{$parent.ProductCount}}</td>
+<div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-5 mb-8">
+    <h2 class="text-base font-bold text-gray-800 mb-4">分类项目统计</h2>
+    <div class="hidden sm:block overflow-x-auto">
+        <table class="w-full text-sm">
+            <thead class="bg-gray-50 rounded-lg">
+                <tr>
+                    <th class="text-left px-3 py-2.5 text-gray-600 font-medium rounded-tl-lg">一级分类</th>
+                    <th class="text-right px-3 py-2.5 text-gray-600 font-medium w-24">项目数</th>
+                    <th class="text-left px-3 py-2.5 text-gray-600 font-medium pl-6">二级分类</th>
+                    <th class="text-right px-3 py-2.5 text-gray-600 font-medium w-24 rounded-tr-lg">项目数</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{range $parent := .categoryStats}}
+                {{if $parent.Children}}
+                {{range $i, $child := $parent.Children}}
+                <tr class="border-t border-gray-100 hover:bg-gray-50/80">
+                    {{if eq $i 0}}
+                    <td class="px-3 py-2.5 font-medium text-gray-800 align-top" rowspan="{{len $parent.Children}}">{{$parent.Name}}</td>
+                    <td class="px-3 py-2.5 text-right font-semibold text-purple-700 align-top" rowspan="{{len $parent.Children}}">{{$parent.ProductCount}}</td>
+                    {{end}}
+                    <td class="px-3 py-2.5 text-gray-600 pl-6">{{$child.Name}}</td>
+                    <td class="px-3 py-2.5 text-right text-gray-700">{{$child.ProductCount}}</td>
+                </tr>
                 {{end}}
-                <td class="px-3 py-2 text-gray-600 pl-4">{{$child.Name}}</td>
-                <td class="px-3 py-2 text-right text-gray-600">{{$child.PostCount}}</td>
-                <td class="px-3 py-2 text-right text-gray-600">{{$child.ProductCount}}</td>
-            </tr>
+                {{else}}
+                <tr class="border-t border-gray-100 hover:bg-gray-50/80">
+                    <td class="px-3 py-2.5 font-medium text-gray-800">{{$parent.Name}}</td>
+                    <td class="px-3 py-2.5 text-right font-semibold text-purple-700">{{$parent.ProductCount}}</td>
+                    <td class="px-3 py-2.5 text-gray-400 pl-6">—</td>
+                    <td class="px-3 py-2.5 text-right text-gray-400">—</td>
+                </tr>
+                {{end}}
+                {{end}}
+            </tbody>
+        </table>
+    </div>
+    <div class="sm:hidden space-y-3">
+        {{range $parent := .categoryStats}}
+        <div class="border border-gray-100 rounded-lg p-3 bg-gray-50/50">
+            <div class="flex items-center justify-between mb-2">
+                <span class="font-medium text-gray-800">{{$parent.Name}}</span>
+                <span class="text-sm font-semibold text-purple-700">{{$parent.ProductCount}} 项</span>
+            </div>
+            {{if $parent.Children}}
+            <div class="divide-y divide-gray-100 border-t border-gray-100 pt-2">
+                {{range $parent.Children}}
+                <div class="flex items-center justify-between py-1.5 text-sm">
+                    <span class="text-gray-600 pl-2">{{.Name}}</span>
+                    <span class="text-gray-700">{{.ProductCount}}</span>
+                </div>
+                {{end}}
+            </div>
             {{end}}
-            {{else}}
-            <tr class="border-t border-gray-100 hover:bg-gray-50">
-                <td class="px-3 py-2 font-medium text-gray-800">{{$parent.Name}}</td>
-                <td class="px-3 py-2 text-right text-gray-700">{{$parent.PostCount}}</td>
-                <td class="px-3 py-2 text-right text-gray-700">{{$parent.ProductCount}}</td>
-                <td class="px-3 py-2 text-gray-400 pl-4">—</td>
-                <td class="px-3 py-2 text-right text-gray-400">—</td>
-                <td class="px-3 py-2 text-right text-gray-400">—</td>
-            </tr>
-            {{end}}
-            {{end}}
-        </tbody>
-    </table>
+        </div>
+        {{end}}
+    </div>
 </div>
 {{end}}
 
-<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-    <a href="/admin/project-review" class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 hover:shadow-md transition"><h3 class="font-semibold text-gray-800">项目审核</h3><p class="text-xs text-gray-500 mt-1">审核用户提交的项目</p></a>
-    <a href="/admin/projects" class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 hover:shadow-md transition"><h3 class="font-semibold text-gray-800">项目管理</h3><p class="text-xs text-gray-500 mt-1">管理所有项目</p></a>
-    <a href="/admin/export" class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 hover:shadow-md transition"><h3 class="font-semibold text-gray-800">导出报表</h3><p class="text-xs text-gray-500 mt-1">筛选并导出信息 Excel</p></a>
-    <a href="/admin/users" class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 hover:shadow-md transition"><h3 class="font-semibold text-gray-800">用户管理</h3><p class="text-xs text-gray-500 mt-1">管理平台注册用户</p></a>
+<div>
+    <h2 class="text-base font-bold text-gray-800 mb-3">快捷入口</h2>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+        <a href="/admin/project-review" class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 hover:shadow-md hover:border-blue-200 transition group">
+            <h3 class="font-semibold text-gray-800 group-hover:text-blue-700">项目审核</h3>
+            <p class="text-xs text-gray-500 mt-1">审核用户提交的项目</p>
+        </a>
+        <a href="/admin/projects" class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 hover:shadow-md hover:border-blue-200 transition group">
+            <h3 class="font-semibold text-gray-800 group-hover:text-blue-700">项目管理</h3>
+            <p class="text-xs text-gray-500 mt-1">管理所有项目</p>
+        </a>
+        <a href="/admin/export" class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 hover:shadow-md hover:border-blue-200 transition group">
+            <h3 class="font-semibold text-gray-800 group-hover:text-blue-700">导出报表</h3>
+            <p class="text-xs text-gray-500 mt-1">筛选并导出 Excel</p>
+        </a>
+        <a href="/admin/users" class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 hover:shadow-md hover:border-blue-200 transition group">
+            <h3 class="font-semibold text-gray-800 group-hover:text-blue-700">用户管理</h3>
+            <p class="text-xs text-gray-500 mt-1">管理平台注册用户</p>
+        </a>
+    </div>
 </div>
 {{end}}
