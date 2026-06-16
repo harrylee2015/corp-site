@@ -1,5 +1,6 @@
 {{define "adminprojects-content"}}
 <h1 class="text-xl font-bold text-gray-800 mb-4">项目管理</h1>
+{{if eq .saved "1"}}<div class="bg-green-50 text-green-700 px-4 py-2 rounded-lg mb-4 text-sm">保存成功</div>{{end}}
 <form method="GET" class="bg-white rounded-lg shadow-sm border border-gray-200 p-3 sm:p-4 mb-4">
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
         <select name="category_id" class="border border-gray-300 rounded px-2 py-1.5 text-xs"><option value="">全部分类</option>{{range .navCategories}}{{if .Children}}<optgroup label="{{.Name}}">{{range .Children}}<option value="{{.ID}}" {{if eq (printf "%d" .ID) $.categoryID}}selected{{end}}>{{.Name}}</option>{{end}}</optgroup>{{else}}<option value="{{.ID}}" {{if eq (printf "%d" .ID) $.categoryID}}selected{{end}}>{{.Name}}</option>{{end}}{{end}}</select>
@@ -12,9 +13,24 @@
 {{if .projects}}
 <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
     <div class="hidden sm:block"><table class="w-full text-sm"><thead class="bg-gray-50"><tr><th class="text-left px-3 py-2 text-gray-600">项目名称</th><th class="text-left px-3 py-2 text-gray-600">分类</th><th class="text-left px-3 py-2 text-gray-600">发布人</th><th class="text-left px-3 py-2 text-gray-600">状态</th><th class="text-left px-3 py-2 text-gray-600">时间</th><th class="text-left px-3 py-2 text-gray-600">操作</th></tr></thead><tbody>{{range .projects}}
-        <tr class="border-t border-gray-100 hover:bg-gray-50"><td class="px-3 py-2">{{.Name}}</td><td class="px-3 py-2 text-xs">{{if .Category.Parent}}{{.Category.Parent.Name}} · {{end}}{{.Category.Name}}</td><td class="px-3 py-2 text-xs">{{if .User.RealName}}{{.User.RealName}}{{else if .User.Company}}{{.User.Company}}{{else}}{{.User.Phone}}{{end}}</td><td class="px-3 py-2 text-xs">{{if eq .Status "pending"}}<span class="text-yellow-600">待审核</span>{{else if eq .Status "approved"}}<span class="text-green-600">已通过</span>{{else if eq .Status "delisted"}}<span class="text-gray-500">已下架</span>{{else}}<span class="text-red-500">已驳回</span>{{end}}</td><td class="px-3 py-2 text-xs text-gray-400">{{.CreatedAt.Format "01-02 15:04"}}</td><td class="px-3 py-2 text-xs"><a href="/projects/{{.ID}}" target="_blank" class="text-blue-600 hover:text-blue-800">详情</a></td></tr>{{end}}</tbody></table></div>
-    <div class="sm:hidden divide-y divide-gray-100">{{range .projects}}<div class="p-3"><div class="font-medium text-sm truncate mb-1">{{.Name}}</div><div class="flex items-center justify-between text-xs"><div class="flex items-center gap-2"><span class="text-blue-600">{{if .Category.Parent}}{{.Category.Parent.Name}} · {{end}}{{.Category.Name}}</span>{{if eq .Status "pending"}}<span class="text-yellow-600">待审核</span>{{else if eq .Status "approved"}}<span class="text-green-600">已通过</span>{{else if eq .Status "delisted"}}<span class="text-gray-500">已下架</span>{{else}}<span class="text-red-500">已驳回</span>{{end}}<span class="text-gray-400">{{.CreatedAt.Format "01-02"}}</span></div><a href="/projects/{{.ID}}" target="_blank" class="text-blue-600">详情</a></div></div>{{end}}</div>
+        <tr class="border-t border-gray-100 hover:bg-gray-50" id="project-row-{{.ID}}"><td class="px-3 py-2">{{.Name}}</td><td class="px-3 py-2 text-xs">{{if .Category.Parent}}{{.Category.Parent.Name}} · {{end}}{{.Category.Name}}</td><td class="px-3 py-2 text-xs">{{if .User.RealName}}{{.User.RealName}}{{else if .User.Company}}{{.User.Company}}{{else}}{{.User.Phone}}{{end}}</td><td class="px-3 py-2 text-xs">{{if eq .Status "pending"}}<span class="text-yellow-600">待审核</span>{{else if eq .Status "approved"}}<span class="text-green-600">已通过</span>{{else if eq .Status "delisted"}}<span class="text-gray-500">已下架</span>{{else}}<span class="text-red-500">已驳回</span>{{end}}</td><td class="px-3 py-2 text-xs text-gray-400">{{.CreatedAt.Format "01-02 15:04"}}</td><td class="px-3 py-2 text-xs whitespace-nowrap"><a href="/projects/{{.ID}}" target="_blank" class="text-blue-600 hover:text-blue-800 mr-2">详情</a><a href="/admin/projects/{{.ID}}/edit" class="text-blue-600 hover:text-blue-800 mr-2">编辑</a><button onclick="deleteProject('{{.ID}}')" class="text-red-500 hover:text-red-700">删除</button></td></tr>{{end}}</tbody></table></div>
+    <div class="sm:hidden divide-y divide-gray-100">{{range .projects}}<div class="p-3" id="project-mobile-{{.ID}}"><div class="font-medium text-sm truncate mb-1">{{.Name}}</div><div class="flex items-center justify-between text-xs"><div class="flex items-center gap-2 flex-wrap"><span class="text-blue-600">{{if .Category.Parent}}{{.Category.Parent.Name}} · {{end}}{{.Category.Name}}</span>{{if eq .Status "pending"}}<span class="text-yellow-600">待审核</span>{{else if eq .Status "approved"}}<span class="text-green-600">已通过</span>{{else if eq .Status "delisted"}}<span class="text-gray-500">已下架</span>{{else}}<span class="text-red-500">已驳回</span>{{end}}<span class="text-gray-400">{{.CreatedAt.Format "01-02"}}</span></div><div class="flex gap-2 shrink-0"><a href="/projects/{{.ID}}" target="_blank" class="text-blue-600">详情</a><a href="/admin/projects/{{.ID}}/edit" class="text-blue-600">编辑</a><button onclick="deleteProject('{{.ID}}')" class="text-red-500">删除</button></div></div></div>{{end}}</div>
 </div>
 {{else}}<div class="text-center py-12 text-gray-400">暂无项目</div>{{end}}
 {{if gt .totalPages 1}}<div class="flex justify-center mt-6 space-x-1">{{range $i := iterate 1 .totalPages}}<a href="/admin/projects?page={{$i}}&status={{$.status}}&category_id={{$.categoryID}}&start_date={{$.startDate}}&end_date={{$.endDate}}&keyword={{$.keyword}}" class="px-3 py-1.5 rounded text-sm {{if eq $i $.page}}bg-blue-600 text-white{{else}}bg-white border border-gray-300 text-gray-600 hover:bg-gray-100{{end}}">{{$i}}</a>{{end}}</div>{{end}}
+<script>
+function deleteProject(id){
+  if(!confirm('确认删除该项目？此操作不可恢复。'))return;
+  fetch('/api/admin/projects/'+id+'/delete',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:'_csrf={{.csrf_token}}'})
+    .then(function(r){return r.json()})
+    .then(function(d){
+      if(d.error){alert(d.error);return}
+      var row=document.getElementById('project-row-'+id);
+      var mobile=document.getElementById('project-mobile-'+id);
+      if(row)row.remove();
+      if(mobile)mobile.remove();
+      if(!row&&!mobile)location.reload();
+    });
+}
+</script>
 {{end}}

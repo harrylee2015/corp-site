@@ -9,7 +9,9 @@ import (
 	"time"
 
 	"corp-site/internal/config"
+	"corp-site/internal/data"
 	"corp-site/internal/database"
+	"corp-site/internal/identity"
 	"corp-site/internal/model"
 
 	"github.com/gin-gonic/gin"
@@ -164,8 +166,167 @@ func AdminProjects(c *gin.Context) {
 		"keyword":       keyword,
 		"startDate":     startDate,
 		"endDate":       endDate,
+		"saved":         c.Query("saved"),
 		"csrf_token":    c.GetString("csrf_token"),
 	})
+}
+
+func AdminProjectEditPage(c *gin.Context) {
+	db := database.DB()
+	var project model.Project
+	if err := db.Preload("Category.Parent").Preload("User").
+		First(&project, "id = ?", c.Param("id")).Error; err != nil {
+		c.Redirect(302, "/admin/projects")
+		return
+	}
+
+	pageData := gin.H{
+		"project":       project,
+		"navCategories": LoadCategoryNav(),
+		"provinces":     data.Provinces,
+		"citiesJSON":    data.CitiesJSON(),
+		"isFunder":      project.User.Identity == identity.Funder,
+		"identityLabel": identity.Label(project.User.Identity),
+		"csrf_token":    c.GetString("csrf_token"),
+	}
+	bindProjectRegionFields(pageData, project)
+
+	renderPage(c, "layout/admin.html", "编辑项目", "adminprojectedit-content", pageData)
+}
+
+func AdminUpdateProject(c *gin.Context) {
+	db := database.DB()
+	var project model.Project
+	if err := db.Preload("User").First(&project, "id = ?", c.Param("id")).Error; err != nil {
+		c.JSON(404, gin.H{"error": "项目不存在"})
+		return
+	}
+
+	categoryID, _ := strconv.ParseUint(c.PostForm("category_id"), 10, 64)
+	if categoryID == 0 {
+		renderAdminProjectEditError(c, project, "请选择分类")
+		return
+	}
+
+	regionsJSON, err := data.BuildRegionsJSON(
+		project.User.Identity,
+		c.PostFormArray("regions"),
+		c.PostForm("province"),
+		c.PostForm("city"),
+	)
+	if err != nil {
+		renderAdminProjectEditError(c, project, err.Error())
+		return
+	}
+
+	name := strings.TrimSpace(c.PostForm("name"))
+	if name == "" {
+		renderAdminProjectEditError(c, project, "请填写项目名称")
+		return
+	}
+
+	contactPerson := strings.TrimSpace(c.PostForm("contact_person"))
+	contactPhone := strings.TrimSpace(c.PostForm("contact_phone"))
+	if contactPerson == "" || contactPhone == "" {
+		renderAdminProjectEditError(c, project, "请填写联系人和联系电话")
+		return
+	}
+
+	status := c.PostForm("status")
+	if status != "pending" && status != "approved" && status != "rejected" && status != "delisted" {
+		renderAdminProjectEditError(c, project, "无效的状态")
+		return
+	}
+
+	updates := map[string]interface{}{
+		"category_id":    uint(categoryID),
+		"name":           name,
+		"regions":        regionsJSON,
+		"intro":          strings.TrimSpace(c.PostForm("intro")),
+		"contact_person": contactPerson,
+		"contact_phone":  contactPhone,
+		"status":         status,
+	}
+
+	imagePath := strings.TrimSpace(c.PostForm("image_path"))
+	if imagePath != "" {
+		updates["image_path"] = imagePath
+	}
+
+	budgetStr := strings.TrimSpace(c.PostForm("budget_amount_wan"))
+	if budgetStr != "" {
+		budget, _ := strconv.ParseFloat(budgetStr, 64)
+		if budget > 0 {
+			updates["budget_amount_wan"] = budget
+		}
+	}
+
+	if project.User.Identity == identity.Funder {
+		amountWan, _ := strconv.ParseFloat(c.PostForm("amount_wan"), 64)
+		ratePercent, _ := strconv.ParseFloat(c.PostForm("rate_percent"), 64)
+		periodCount, _ := strconv.Atoi(c.PostForm("period_count"))
+		rateType := c.PostForm("rate_type")
+		repayMethod := c.PostForm("repay_method")
+		if amountWan <= 0 || ratePercent <= 0 || periodCount <= 0 {
+			renderAdminProjectEditError(c, project, "请填写完整的金融信息（额度、利率、期数）")
+			return
+		}
+		if rateType != "daily" && rateType != "yearly" {
+			rateType = "yearly"
+		}
+		if repayMethod != "equal_installment" && repayMethod != "equal_principal" {
+			repayMethod = "equal_installment"
+		}
+		updates["amount_wan"] = amountWan
+		updates["rate_percent"] = ratePercent
+		updates["period_count"] = periodCount
+		updates["rate_type"] = rateType
+		updates["repay_method"] = repayMethod
+	}
+
+	if err := db.Model(&project).Updates(updates).Error; err != nil {
+		renderAdminProjectEditError(c, project, "保存失败")
+		return
+	}
+	c.Redirect(302, "/admin/projects?saved=1")
+}
+
+func renderAdminProjectEditError(c *gin.Context, project model.Project, msg string) {
+	database.DB().Preload("Category.Parent").Preload("User").
+		First(&project, "id = ?", project.ID)
+	pageData := gin.H{
+		"project":       project,
+		"navCategories": LoadCategoryNav(),
+		"provinces":     data.Provinces,
+		"citiesJSON":    data.CitiesJSON(),
+		"isFunder":      project.User.Identity == identity.Funder,
+		"identityLabel": identity.Label(project.User.Identity),
+		"error":         msg,
+		"csrf_token":    c.GetString("csrf_token"),
+	}
+	bindProjectRegionFields(pageData, project)
+	renderPage(c, "layout/admin.html", "编辑项目", "adminprojectedit-content", pageData)
+}
+
+func AdminDeleteProject(cfg *config.Config) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		db := database.DB()
+		var project model.Project
+		if err := db.First(&project, "id = ?", c.Param("id")).Error; err != nil {
+			c.JSON(404, gin.H{"error": "项目不存在"})
+			return
+		}
+
+		if project.ImagePath != "" {
+			os.Remove(filepath.Join(cfg.Upload.Path, project.ImagePath))
+		}
+
+		if err := db.Delete(&project).Error; err != nil {
+			c.JSON(500, gin.H{"error": "删除失败"})
+			return
+		}
+		c.JSON(200, gin.H{"message": "删除成功"})
+	}
 }
 
 func AdminExportPage(c *gin.Context) {

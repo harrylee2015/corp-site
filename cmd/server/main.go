@@ -140,7 +140,12 @@ func main() {
 		userGroup.GET("/api/posts/:id", handler.MyPostDetail)
 		userGroup.POST("/api/posts/:id/delete", handler.DeletePost(cfg))
 		userGroup.POST("/api/posts/:id/toggle-list", handler.ToggleListStatus)
-		userGroup.POST("/api/upload", handler.UploadFile(cfg))
+	}
+
+	// == shared upload (user + admin, single route registration) ==
+	authGroup := r.Group("", jwtMW.AuthRequired("user", "admin"), middleware.CSRFToken(secure))
+	{
+		authGroup.POST("/api/upload", handler.UploadFile(cfg))
 	}
 
 	// == admin pages (standalone) ==
@@ -168,6 +173,9 @@ func main() {
 		adminGroup.POST("/api/admin/products/:id/review", handler.ReviewProduct)
 		adminGroup.GET("/admin/project-review", handler.AdminProjectReview)
 		adminGroup.GET("/admin/product-review", handler.AdminProductReview)
+		adminGroup.GET("/admin/projects/:id/edit", handler.AdminProjectEditPage)
+		adminGroup.POST("/api/admin/projects/:id/update", handler.AdminUpdateProject)
+		adminGroup.POST("/api/admin/projects/:id/delete", handler.AdminDeleteProject(cfg))
 		adminGroup.POST("/api/admin/posts/:id/delete", handler.AdminDeletePost(cfg))
 		adminGroup.POST("/api/admin/password", handler.ChangePassword)
 		adminGroup.GET("/api/admin/export", handler.ExportExcel)

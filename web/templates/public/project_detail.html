@@ -48,24 +48,20 @@
             {{if .project.Intro}}
             <div class="text-sm sm:text-base text-gray-600 whitespace-pre-wrap mb-6 leading-relaxed">{{.project.Intro}}</div>
             {{end}}
-            {{if .company}}
+            {{if and .company .showPrivate}}
             <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-4">
                 <div class="text-sm font-semibold text-amber-700 mb-2">发布方信息</div>
                 <div class="text-sm text-amber-800 space-y-1">
                     {{if .company.ShopName}}<div>公司：{{.company.ShopName}}</div>{{end}}
+                    {{if .company.Address}}<div>地址：{{.company.Address}}</div>{{end}}
                     {{if .company.EstablishedAt}}<div>成立时间：{{.company.EstablishedAt}}</div>{{end}}
                     {{if .project.User.Company}}<div>企业：{{.project.User.Company}}</div>{{end}}
-                     {{if .company.Contact}}<div>联系人：{{if .showPrivate}}{{.company.Contact}}{{else}}{{.maskedShopContact}}{{end}}</div>{{end}}
-                     {{if .company.Phone}}<div>手机：{{if .showPrivate}}{{.company.Phone}}{{else}}{{.maskedShopPhone}}{{end}}</div>{{end}}
-                    {{if .project.ContactPerson}}<div>项目联系人：{{if .showPrivate}}{{.project.ContactPerson}}{{else}}{{MaskName .project.ContactPerson}}{{end}}</div>{{end}}
-                    {{if .project.ContactPhone}}<div>项目联系电话：{{if .showPrivate}}{{.project.ContactPhone}}{{else}}{{MaskPhone .project.ContactPhone}}{{end}}</div>{{end}}
+                     {{if .company.Contact}}<div>联系人：{{.company.Contact}}</div>{{end}}
+                     {{if .company.Phone}}<div>手机：{{.company.Phone}}</div>{{end}}
+                    {{if .project.ContactPerson}}<div>项目联系人：{{.project.ContactPerson}}</div>{{end}}
+                    {{if .project.ContactPhone}}<div>项目联系电话：{{.project.ContactPhone}}</div>{{end}}
                 </div>
-                {{if not .showPrivate}}
-                <p class="text-xs text-amber-600/70 mt-3 pt-2 border-t border-amber-200">联系方式已匿名展示</p>
-                {{end}}
             </div>
-            {{else if .project.User.Company}}
-            <div class="border-t border-gray-100 pt-3 text-sm text-gray-500">发布企业：{{.project.User.Company}}</div>
             {{end}}
             <div class="border-t border-gray-100 pt-3 text-sm text-gray-400">
                 发布者：{{if .showPrivate}}{{if .project.User.RealName}}{{.project.User.RealName}}{{else if .project.User.Nickname}}{{.project.User.Nickname}}{{else}}{{MaskPhone .project.User.Phone}}{{end}}{{else}}{{if .project.User.RealName}}{{MaskName .project.User.RealName}}{{else if .project.User.Nickname}}{{MaskName .project.User.Nickname}}{{else}}{{MaskPhone .project.User.Phone}}{{end}}{{end}}
