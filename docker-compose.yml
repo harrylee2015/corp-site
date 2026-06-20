@@ -10,6 +10,7 @@ services:
     environment:
       - CONFIG_PATH=/app/config.yaml
     volumes:
+      - ./web:/app/web
       - ./uploads:/app/uploads
       - ./config.yaml:/app/config.yaml:ro
     depends_on:

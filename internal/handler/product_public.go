@@ -248,7 +248,7 @@ const photoBase = "/static/img/photos/"
 
 // 二级分类 -> 图片池（对题、按二级分散）
 var subCategoryPhotoPool = map[string][]string{
-	"光伏发电":     {"solar-panels.jpg", "solar-field-2.jpg", "solar-sunset.jpg", "solar-roof.jpg"},
+	"光伏发电":     {"solar-panels.jpg", "solar-field-2.jpg", "solar-sunset.jpg"},
 	"储能电站":     {"battery-storage.jpg", "substation.jpg", "power-grid.jpg"},
 	"风力发电":     {"wind-farm.jpg", "wind-farm-2.jpg", "wind-farm-3.jpg"},
 	"垃圾发电":     {"waste-plant.jpg", "power-plant.jpg", "industrial.jpg"},
@@ -277,7 +277,7 @@ var defaultPhotoPool = []string{"business.jpg", "finance.jpg", "solar-panels.jpg
 
 // 全局图库（去重借用，保证同页不重复）——不含 hero 大图
 var allPhotos = []string{
-	"solar-panels.jpg", "solar-field-2.jpg", "solar-sunset.jpg", "solar-roof.jpg",
+	"solar-panels.jpg", "solar-field-2.jpg", "solar-sunset.jpg",
 	"wind-farm.jpg", "wind-farm-2.jpg", "wind-farm-3.jpg", "battery-storage.jpg",
 	"power-grid.jpg", "power-lines.jpg", "substation.jpg", "power-plant.jpg", "waste-plant.jpg",
 	"hydro-dam.jpg", "hydro-station.jpg", "ev-charging.jpg",
