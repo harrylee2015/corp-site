@@ -3,21 +3,129 @@
     {{if .error}}
     <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl mb-4 text-sm">{{.error}}</div>
     {{end}}
-    <div class="bg-gradient-to-br from-blue-600 via-blue-700 to-blue-800 rounded-2xl px-4 sm:px-8 py-6 sm:py-8 mb-4 sm:mb-5 shadow-lg shadow-blue-500/20 relative overflow-hidden">
-        <div class="absolute inset-0 bg-grid opacity-10"></div>
-        <div class="relative z-10 text-center">
-            <h1 class="text-xl sm:text-3xl font-extrabold text-white mb-2">发现优质商业项目</h1>
-            <p class="text-blue-100 text-sm mb-4 sm:mb-5 max-w-xl mx-auto">覆盖新能源、融资、租赁等领域，高效连接商业资源</p>
-            <form method="GET" action="/" class="max-w-xl mx-auto">
-                {{if .categoryID}}<input type="hidden" name="category_id" value="{{.categoryID}}">{{end}}
-                <div class="flex gap-2">
-                    <input type="text" name="keyword" value="{{.keyword}}" placeholder="搜索项目名称或介绍..."
-                           class="flex-1 border-0 rounded-xl px-4 py-2.5 text-sm bg-white/95 focus:outline-none focus:ring-2 focus:ring-white/50 placeholder-gray-400 shadow-inner">
-                    <button type="submit" class="bg-white text-blue-700 px-5 py-2.5 rounded-xl text-sm font-bold hover:bg-blue-50 transition-all shadow-lg">搜索</button>
+
+    <!-- Hero：渐变背景 + 文字 -->
+    <div class="hero-photo-section mb-5 sm:mb-6 reveal">
+        <div class="relative z-10 flex flex-col lg:flex-row items-stretch gap-6 lg:gap-10 px-5 sm:px-8 py-7 sm:py-9 lg:py-10 min-h-[300px] lg:min-h-[360px]">
+            <div class="flex-1 flex flex-col justify-center text-center lg:text-left">
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/15 border border-white/25 text-blue-100 text-xs font-medium mb-3 backdrop-blur-sm mx-auto lg:mx-0 w-fit">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                    实时更新的商业项目广场
                 </div>
-            </form>
+                <h1 class="text-2xl sm:text-4xl lg:text-[2.75rem] font-extrabold mb-3 leading-tight text-white drop-shadow-sm">
+                    发现优质商业项目
+                </h1>
+                <p class="text-blue-100/90 text-sm sm:text-base mb-5 max-w-xl mx-auto lg:mx-0 leading-relaxed">覆盖新能源、融资、租赁等领域，连接真实商业资源与优质合作方</p>
+                <form method="GET" action="/" class="max-w-xl mx-auto lg:mx-0 mb-4 w-full">
+                    {{if .categoryID}}<input type="hidden" name="category_id" value="{{.categoryID}}">{{end}}
+                    <div class="flex gap-2 shadow-xl shadow-black/20 rounded-xl">
+                        <input type="text" name="keyword" value="{{.keyword}}" placeholder="搜索项目名称或介绍..."
+                               class="flex-1 glass-search rounded-l-xl rounded-r-none px-4 py-3 text-sm border-r-0">
+                        <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-r-xl text-sm font-bold transition-colors shrink-0">搜索</button>
+                    </div>
+                </form>
+                <div class="flex flex-wrap justify-center lg:justify-start gap-2">
+                    <span class="hero-pill bg-emerald-500/30 text-emerald-50 border border-emerald-400/40">新能源</span>
+                    <span class="hero-pill bg-amber-500/30 text-amber-50 border border-amber-400/40">融资对接</span>
+                    <span class="hero-pill bg-violet-500/30 text-violet-50 border border-violet-400/40">设备租赁</span>
+                </div>
+                <div class="flex gap-2 mt-5 lg:hidden overflow-x-auto pb-1 -mx-1 px-1 snap-x">
+                    <img src="/static/img/photos/solar-panels.jpg" alt="光伏" class="w-32 h-20 object-cover rounded-lg shrink-0 snap-start shadow-md border border-white/20" loading="lazy">
+                    <img src="/static/img/photos/wind-farm.jpg" alt="风电" class="w-32 h-20 object-cover rounded-lg shrink-0 snap-start shadow-md border border-white/20" loading="lazy">
+                    <img src="/static/img/photos/finance.jpg" alt="融资" class="w-32 h-20 object-cover rounded-lg shrink-0 snap-start shadow-md border border-white/20" loading="lazy">
+                </div>
+            </div>
+            <div class="hero-photo-grid shrink-0 self-center">
+                <div class="hero-photo-grid-main">
+                    <img src="/static/img/photos/solar-panels.jpg" alt="光伏发电项目" loading="lazy">
+                    <span class="photo-caption"><span class="photo-caption-dot"></span>光伏电站 · 在运</span>
+                </div>
+                <div class="hero-photo-grid-sub">
+                    <img src="/static/img/photos/wind-farm.jpg" alt="风力发电项目" loading="lazy">
+                    <span class="photo-caption">风电场 · 招租中</span>
+                </div>
+                <div class="hero-photo-grid-sub">
+                    <img src="/static/img/photos/finance.jpg" alt="企业融资" loading="lazy">
+                    <span class="photo-caption">企业融资 · 对接中</span>
+                </div>
+            </div>
         </div>
     </div>
+
+    <!-- Stats marquee -->
+    <div class="stats-marquee-wrap mb-5 sm:mb-6 reveal reveal-delay-1">
+        <div class="stats-marquee">
+            <span class="stat-pill bg-blue-500/10 text-blue-700 border-blue-200/50"><span class="text-blue-500">⚡</span> 新能源项目对接</span>
+            <span class="stat-pill bg-emerald-500/10 text-emerald-700 border-emerald-200/50"><span class="text-emerald-500">🌱</span> 绿色能源转型</span>
+            <span class="stat-pill bg-amber-500/10 text-amber-700 border-amber-200/50"><span class="text-amber-500">📈</span> 灵活融资方案</span>
+            <span class="stat-pill bg-violet-500/10 text-violet-700 border-violet-200/50"><span class="text-violet-500">🏭</span> 设备融资租赁</span>
+            <span class="stat-pill bg-indigo-500/10 text-indigo-700 border-indigo-200/50"><span class="text-indigo-500">🔗</span> 高效资源撮合</span>
+            <span class="stat-pill bg-cyan-500/10 text-cyan-700 border-cyan-200/50"><span class="text-cyan-500">✓</span> 企业认证保障</span>
+            <!-- duplicate for seamless loop -->
+            <span class="stat-pill bg-blue-500/10 text-blue-700 border-blue-200/50"><span class="text-blue-500">⚡</span> 新能源项目对接</span>
+            <span class="stat-pill bg-emerald-500/10 text-emerald-700 border-emerald-200/50"><span class="text-emerald-500">🌱</span> 绿色能源转型</span>
+            <span class="stat-pill bg-amber-500/10 text-amber-700 border-amber-200/50"><span class="text-amber-500">📈</span> 灵活融资方案</span>
+            <span class="stat-pill bg-violet-500/10 text-violet-700 border-violet-200/50"><span class="text-violet-500">🏭</span> 设备融资租赁</span>
+            <span class="stat-pill bg-indigo-500/10 text-indigo-700 border-indigo-200/50"><span class="text-indigo-500">🔗</span> 高效资源撮合</span>
+            <span class="stat-pill bg-cyan-500/10 text-cyan-700 border-cyan-200/50"><span class="text-cyan-500">✓</span> 企业认证保障</span>
+        </div>
+    </div>
+
+    <!-- Feature cards -->
+    <div class="section-title reveal reveal-delay-1">
+        <h2 class="text-sm sm:text-base font-bold text-gray-700 whitespace-nowrap">平台服务</h2>
+    </div>
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-5 sm:mb-6">
+        <div class="feature-card card-shine gradient-border-card card-accent-emerald reveal reveal-delay-1 overflow-hidden rounded-xl">
+            <div class="feature-photo">
+                <img src="/static/img/photos/solar-panels.jpg" alt="新能源项目" loading="lazy">
+                <div class="feature-icon feature-icon-glow-emerald w-9 h-9 rounded-lg bg-white/95 flex items-center justify-center shadow-md">
+                    <svg class="w-5 h-5 text-emerald-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd"/></svg>
+                </div>
+            </div>
+            <div class="p-3 sm:p-4 pt-2">
+                <h3 class="font-bold text-gray-800 text-xs sm:text-sm mb-0.5">新能源项目</h3>
+                <p class="text-[10px] sm:text-xs text-gray-500 leading-relaxed">光伏、储能、风电等绿色能源</p>
+            </div>
+        </div>
+        <div class="feature-card card-shine gradient-border-card card-accent-amber reveal reveal-delay-2 overflow-hidden rounded-xl">
+            <div class="feature-photo">
+                <img src="/static/img/photos/finance.jpg" alt="企业融资" loading="lazy">
+                <div class="feature-icon feature-icon-glow-amber w-9 h-9 rounded-lg bg-white/95 flex items-center justify-center shadow-md">
+                    <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+                </div>
+            </div>
+            <div class="p-3 sm:p-4 pt-2">
+                <h3 class="font-bold text-gray-800 text-xs sm:text-sm mb-0.5">企业融资</h3>
+                <p class="text-[10px] sm:text-xs text-gray-500 leading-relaxed">资金方对接，灵活融资方案</p>
+            </div>
+        </div>
+        <div class="feature-card card-shine gradient-border-card card-accent-violet reveal reveal-delay-3 overflow-hidden rounded-xl">
+            <div class="feature-photo">
+                <img src="/static/img/photos/industrial.jpg" alt="设备租赁" loading="lazy">
+                <div class="feature-icon feature-icon-glow-violet w-9 h-9 rounded-lg bg-white/95 flex items-center justify-center shadow-md">
+                    <svg class="w-5 h-5 text-violet-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+                </div>
+            </div>
+            <div class="p-3 sm:p-4 pt-2">
+                <h3 class="font-bold text-gray-800 text-xs sm:text-sm mb-0.5">设备租赁</h3>
+                <p class="text-[10px] sm:text-xs text-gray-500 leading-relaxed">融资租赁，助力企业设备升级</p>
+            </div>
+        </div>
+        <div class="feature-card card-shine gradient-border-card card-accent-blue reveal reveal-delay-4 overflow-hidden rounded-xl">
+            <div class="feature-photo">
+                <img src="/static/img/photos/business.jpg" alt="资源对接" loading="lazy">
+                <div class="feature-icon feature-icon-glow-blue w-9 h-9 rounded-lg bg-white/95 flex items-center justify-center shadow-md">
+                    <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
+                </div>
+            </div>
+            <div class="p-3 sm:p-4 pt-2">
+                <h3 class="font-bold text-gray-800 text-xs sm:text-sm mb-0.5">资源对接</h3>
+                <p class="text-[10px] sm:text-xs text-gray-500 leading-relaxed">电站买卖，高效商业撮合</p>
+            </div>
+        </div>
+    </div>
+
     {{if .ActiveCategoryName}}
     <div class="mb-3 flex items-center gap-2 text-sm text-blue-700">
         <span>当前分类：</span>
@@ -25,19 +133,35 @@
         <a href="/{{if .keyword}}?keyword={{.keyword}}{{end}}" class="text-xs text-blue-500 hover:text-blue-700">清除筛选</a>
     </div>
     {{end}}
+
     {{$list := .projects}}
     {{if not $list}}{{$list = .products}}{{end}}
+
     {{if gt (len $list) 6}}
-    <div id="heroCarousel" class="relative mb-4 sm:mb-5 rounded-xl overflow-hidden shadow-lg bg-gradient-to-br from-blue-900 via-blue-800 to-blue-900" onmouseenter="pauseCarousel()" onmouseleave="resumeCarousel()" onfocusin="pauseCarousel()" onfocusout="resumeCarousel()">
+    <div class="section-title reveal">
+        <h2 class="text-sm sm:text-base font-bold text-gray-700 whitespace-nowrap">热门推荐</h2>
+    </div>
+    <div id="heroCarousel" class="carousel-aurora relative mb-4 sm:mb-5 rounded-xl overflow-hidden reveal reveal-delay-1" onmouseenter="pauseCarousel()" onmouseleave="resumeCarousel()" onfocusin="pauseCarousel()" onfocusout="resumeCarousel()">
+        <div class="carousel-particles">
+            <span class="carousel-particle carousel-particle-lg" style="top:15%;left:8%;animation-delay:0s"></span>
+            <span class="carousel-particle carousel-particle-sm" style="top:55%;left:20%;animation-delay:0.6s"></span>
+            <span class="carousel-particle carousel-particle-lg" style="top:25%;left:65%;animation-delay:1.2s"></span>
+            <span class="carousel-particle carousel-particle-sm" style="top:70%;left:80%;animation-delay:1.8s"></span>
+            <span class="carousel-particle carousel-particle-lg" style="top:40%;left:45%;animation-delay:0.3s"></span>
+            <span class="carousel-particle carousel-particle-sm" style="top:85%;left:55%;animation-delay:2.4s"></span>
+            <span class="carousel-particle carousel-particle-sm" style="top:10%;left:90%;animation-delay:0.9s"></span>
+        </div>
         <div id="carouselTrack" class="flex transition-transform duration-500 ease-in-out">
             {{range $i, $p := $list}}
             {{if lt $i 6}}
-            <a href="/projects/{{$p.ID}}" class="min-w-full flex-shrink-0 px-5 sm:px-10 py-4 sm:py-5 text-white block no-underline group cursor-pointer" style="max-width:100%;overflow:hidden">
-                <div class="max-w-2xl mx-auto">
-                    <span class="inline-block text-xs px-2.5 py-0.5 rounded-full font-medium mb-2 bg-blue-400/20 text-blue-200">{{if $p.Category.Parent}}{{$p.Category.Parent.Name}} · {{$p.Category.Name}}{{else}}{{$p.Category.Name}}{{end}}</span>
+            <a href="/projects/{{$p.ID}}" class="min-w-full flex-shrink-0 carousel-photo-slide px-5 sm:px-10 py-4 sm:py-6 text-white block no-underline group cursor-pointer" style="max-width:100%;overflow:hidden">
+                {{$slidePhoto := index $.photos $i}}
+                <img src="{{$slidePhoto}}" alt="" class="slide-photo" loading="lazy">
+                <div class="slide-content max-w-2xl mx-auto">
+                    <span class="inline-block text-xs px-2.5 py-0.5 rounded-full font-medium mb-2 bg-white/15 text-blue-100 backdrop-blur-sm">{{if $p.Category.Parent}}{{$p.Category.Parent.Name}} · {{$p.Category.Name}}{{else}}{{$p.Category.Name}}{{end}}</span>
                     <h2 class="text-lg sm:text-xl font-bold mb-2 leading-snug group-hover:text-blue-200 transition-colors line-clamp-1">{{$p.Name}}</h2>
                     <p class="text-xs sm:text-sm text-blue-100/80 line-clamp-1 leading-relaxed mb-2">{{if $p.Intro}}{{$p.Intro}}{{else}}{{FormatRegionsForUser $p.Regions $p.User.Identity}}{{end}}</p>
-                    <div class="flex items-center justify-between text-xs text-blue-300/70 border-t border-blue-700/40 pt-2">
+                    <div class="flex items-center justify-between text-xs text-blue-300/70 border-t border-white/10 pt-2">
                         <span>{{FormatRegionsForUser $p.Regions $p.User.Identity}}</span>
                         <span>{{$p.CreatedAt.Format "2006-01-02"}}</span>
                     </div>
@@ -61,28 +185,47 @@
         </div>
     </div>
     {{end}}
+
     {{if $list}}
+    <div class="section-title reveal">
+        <h2 class="text-sm sm:text-base font-bold text-gray-700 whitespace-nowrap">全部项目</h2>
+    </div>
     <div id="projectGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
         {{range $i, $p := $list}}
         {{if or (le (len $list) 6) (ge $i 6)}}
-        <a href="/projects/{{$p.ID}}" class="project-card group bg-white/90 backdrop-blur-sm rounded-xl shadow-sm border border-blue-100 p-4 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 block">
-            <div class="flex items-center justify-between mb-2">
-                <span class="text-xs px-2 py-0.5 rounded-full font-medium bg-blue-100 text-blue-700">{{if $p.Category.Parent}}{{$p.Category.Parent.Name}} · {{$p.Category.Name}}{{else}}{{$p.Category.Name}}{{end}}</span>
-                <span class="text-xs text-gray-400">{{$p.CreatedAt.Format "01-02"}}</span>
+        {{$stripe := "stripe-default"}}{{$cover := "cover-default"}}{{$photo := "/static/img/photos/business.jpg"}}
+        {{if $p.Category.Parent}}
+            {{if eq $p.Category.Parent.Name "新能源项目"}}{{$stripe = "stripe-energy"}}{{$cover = "cover-energy"}}{{$photo = "/static/img/photos/solar-panels.jpg"}}{{else if eq $p.Category.Parent.Name "企业类项目"}}{{$stripe = "stripe-finance"}}{{$cover = "cover-finance"}}{{$photo = "/static/img/photos/finance.jpg"}}{{else if eq $p.Category.Parent.Name "租赁公司"}}{{$stripe = "stripe-lease"}}{{$cover = "cover-lease"}}{{$photo = "/static/img/photos/industrial.jpg"}}{{else if or (eq $p.Category.Parent.Name "电站出售方") (eq $p.Category.Parent.Name "电站收购方")}}{{$stripe = "stripe-enterprise"}}{{$cover = "cover-enterprise"}}{{$photo = "/static/img/photos/power-grid.jpg"}}{{else if eq $p.Category.Parent.Name "其他类"}}{{$stripe = "stripe-other"}}{{$cover = "cover-other"}}{{$photo = "/static/img/photos/business.jpg"}}{{end}}
+        {{else}}
+            {{if eq $p.Category.Name "新能源项目"}}{{$stripe = "stripe-energy"}}{{$cover = "cover-energy"}}{{$photo = "/static/img/photos/solar-panels.jpg"}}{{else if eq $p.Category.Name "企业类项目"}}{{$stripe = "stripe-finance"}}{{$cover = "cover-finance"}}{{$photo = "/static/img/photos/finance.jpg"}}{{else if eq $p.Category.Name "租赁公司"}}{{$stripe = "stripe-lease"}}{{$cover = "cover-lease"}}{{$photo = "/static/img/photos/industrial.jpg"}}{{else if or (eq $p.Category.Name "电站出售方") (eq $p.Category.Name "电站收购方")}}{{$stripe = "stripe-enterprise"}}{{$cover = "cover-enterprise"}}{{$photo = "/static/img/photos/power-grid.jpg"}}{{else if eq $p.Category.Name "其他类"}}{{$stripe = "stripe-other"}}{{$cover = "cover-other"}}{{$photo = "/static/img/photos/business.jpg"}}{{end}}
+        {{end}}
+        {{$photo = index $.photos $i}}
+        <a href="/projects/{{$p.ID}}" class="project-card-enhanced group rounded-xl shadow-sm border border-gray-200/80 block overflow-hidden reveal bg-white">
+            <div class="project-card-stripe {{$stripe}}"></div>
+            <div class="project-card-cover {{$cover}}" style="--hue:{{ProjectHue $p.ID}}">
+                <img src="{{$photo}}" alt="" loading="lazy">
+                <span class="project-cover-tint"></span>
+                <span class="project-cover-tag"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>{{if $p.Category.Parent}}{{$p.Category.Parent.Name}}{{else}}{{$p.Category.Name}}{{end}}</span>
+                <h3 class="project-cover-title">{{$p.Name}}</h3>
             </div>
-            <h3 class="font-bold text-gray-800 text-sm mb-1.5 line-clamp-2 group-hover:text-blue-700 transition-colors">{{$p.Name}}</h3>
-            <p class="text-xs text-gray-500 line-clamp-2 mb-2 leading-relaxed">{{if $p.Intro}}{{$p.Intro}}{{else}}—{{end}}</p>
-            {{if eq $p.User.Identity "funder"}}
-            <div class="flex flex-wrap gap-2 text-xs text-blue-600 mb-2">
-                {{if $p.AmountWan}}<span class="bg-blue-50 px-2 py-0.5 rounded">{{printf "%.0f" (derefFloat $p.AmountWan)}}万</span>{{end}}
-                <span class="bg-green-50 text-green-700 px-2 py-0.5 rounded">{{FormatProjectRate $p}}</span>
-                {{if $p.PeriodCount}}<span class="bg-amber-50 text-amber-700 px-2 py-0.5 rounded">{{$p.PeriodCount}}期</span>{{end}}
-            </div>
-            {{else}}
-            <div class="text-xs text-gray-500 mb-2">{{FormatRegionsForUser $p.Regions $p.User.Identity}}</div>
-            {{end}}
-            <div class="flex items-center justify-between text-xs text-gray-400 pt-2 border-t border-blue-50">
-                <span class="font-medium text-gray-500">{{if $p.User.RealName}}{{MaskName $p.User.RealName}}{{else if $p.User.Nickname}}{{MaskName $p.User.Nickname}}{{else}}{{MaskPhone $p.User.Phone}}{{end}}</span>
+            <div class="p-4">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-xs px-2 py-0.5 rounded-full font-medium bg-blue-100 text-blue-700">{{if $p.Category.Parent}}{{$p.Category.Parent.Name}} · {{$p.Category.Name}}{{else}}{{$p.Category.Name}}{{end}}</span>
+                    <span class="text-xs text-gray-400">{{$p.CreatedAt.Format "01-02"}}</span>
+                </div>
+                <p class="text-xs text-gray-500 line-clamp-2 mb-2 leading-relaxed">{{if $p.Intro}}{{$p.Intro}}{{else}}—{{end}}</p>
+                {{if eq $p.User.Identity "funder"}}
+                <div class="flex flex-wrap gap-2 text-xs text-blue-600 mb-2">
+                    {{if $p.AmountWan}}<span class="bg-blue-50 px-2 py-0.5 rounded">{{printf "%.0f" (derefFloat $p.AmountWan)}}万</span>{{end}}
+                    <span class="bg-green-50 text-green-700 px-2 py-0.5 rounded">{{FormatProjectRate $p}}</span>
+                    {{if $p.PeriodCount}}<span class="bg-amber-50 text-amber-700 px-2 py-0.5 rounded">{{$p.PeriodCount}}期</span>{{end}}
+                </div>
+                {{else}}
+                <div class="text-xs text-gray-500 mb-2">{{FormatRegionsForUser $p.Regions $p.User.Identity}}</div>
+                {{end}}
+                <div class="flex items-center justify-between text-xs text-gray-400 pt-2 border-t border-blue-50">
+                    <span class="font-medium text-gray-500">{{if $p.User.RealName}}{{MaskName $p.User.RealName}}{{else if $p.User.Nickname}}{{MaskName $p.User.Nickname}}{{else}}{{MaskPhone $p.User.Phone}}{{end}}</span>
+                </div>
             </div>
         </a>
         {{end}}
@@ -93,10 +236,14 @@
     </div>
     <div id="noMore" class="text-center py-6 text-gray-400 text-sm {{if gt .totalPages 1}}hidden{{end}}">已加载全部项目</div>
     {{else}}
-    <div class="text-center py-12 sm:py-16">
-        <div class="text-4xl mb-3">&#128269;</div>
-        <p class="text-base font-semibold text-gray-500 mb-1">暂无项目</p>
-        <p class="text-sm text-gray-400">还没有审核通过的项目发布，请稍后再来</p>
+    <div class="text-center py-12 sm:py-16 empty-state-glow rounded-2xl reveal overflow-hidden relative">
+        <img src="/static/img/photos/hero-solar.jpg" alt="" class="absolute inset-0 w-full h-full object-cover opacity-20" loading="lazy">
+        <div class="relative z-10">
+        <img src="/static/img/empty-projects.svg" alt="暂无项目" class="w-32 h-auto mx-auto mb-4 opacity-80">
+        <p class="text-base font-semibold text-gray-700 mb-1">暂无项目</p>
+        <p class="text-sm text-gray-500 mb-4">还没有审核通过的项目发布，请稍后再来</p>
+        <a href="/register" class="inline-block text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 px-5 py-2.5 rounded-full transition-colors shadow-md">注册发布您的项目</a>
+        </div>
     </div>
     {{end}}
 </div>
@@ -111,25 +258,43 @@ function pauseCarousel(){clearInterval(carouselTimer)}
 function resumeCarousel(){startCarousel()}
 if(carouselTotal>1)startCarousel();
 
+function categoryTheme(cat){
+  var photos='/static/img/photos/';
+  if(!cat)return{stripe:'stripe-default',cover:'cover-default',photo:photos+'business.jpg'};
+  if(cat.indexOf('新能源')>=0)return{stripe:'stripe-energy',cover:'cover-energy',photo:photos+'solar-panels.jpg'};
+  if(cat.indexOf('企业')>=0)return{stripe:'stripe-finance',cover:'cover-finance',photo:photos+'finance.jpg'};
+  if(cat.indexOf('租赁')>=0)return{stripe:'stripe-lease',cover:'cover-lease',photo:photos+'industrial.jpg'};
+  if(cat.indexOf('电站')>=0)return{stripe:'stripe-enterprise',cover:'cover-enterprise',photo:photos+'power-grid.jpg'};
+  if(cat.indexOf('其他')>=0)return{stripe:'stripe-other',cover:'cover-other',photo:photos+'business.jpg'};
+  return{stripe:'stripe-default',cover:'cover-default',photo:photos+'business.jpg'};
+}
+
 var scrollPage={{.page}};var hasCat='{{.categoryID}}';var hasKw='{{.keyword}}';var scrollURL='/api/projects/list?'+(hasCat?'category_id='+hasCat+'&':'')+(hasKw?'keyword='+encodeURIComponent(hasKw):'');
 function loadMore(){
   if(document.getElementById('loadMore').classList.contains('hidden'))return;
   scrollPage++;fetch(scrollURL+'&page='+scrollPage).then(function(r){return r.json()}).then(function(d){
     var items=d.projects||d.products||[];
     if(!items.length){document.getElementById('loadMore').classList.add('hidden');document.getElementById('noMore').classList.remove('hidden');return}
-    var grid=document.getElementById('projectGrid');items.forEach(function(p){var a=document.createElement('a');a.href='/projects/'+p.id;a.className='project-card group bg-white/90 backdrop-blur-sm rounded-xl shadow-sm border border-blue-100 p-4 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 block';
+    var grid=document.getElementById('projectGrid');items.forEach(function(p){
+      var theme=categoryTheme(p.category);
+      var a=document.createElement('a');a.href='/projects/'+p.id;
+      a.className='project-card-enhanced group rounded-xl shadow-sm border border-gray-200/80 block overflow-hidden reveal revealed bg-white';
       var tags='';
       if(p.is_funder){if(p.amount)tags+='<span class="bg-blue-50 px-2 py-0.5 rounded">'+p.amount+'</span> ';if(p.rate)tags+='<span class="bg-green-50 text-green-700 px-2 py-0.5 rounded">'+p.rate+'</span> ';if(p.period)tags+='<span class="bg-amber-50 text-amber-700 px-2 py-0.5 rounded">'+p.period+'</span>';}
       else tags='<div class="text-xs text-gray-500 mb-2">'+(p.region||'')+'</div>';
-      a.innerHTML='<div class="flex items-center justify-between mb-2"><span class="text-xs px-2 py-0.5 rounded-full font-medium bg-blue-100 text-blue-700">'+p.category+'</span><span class="text-xs text-gray-400">'+p.date+'</span></div>'
-        +'<h3 class="font-bold text-gray-800 text-sm mb-1.5 line-clamp-2 group-hover:text-blue-700 transition-colors">'+p.name+'</h3>'
+      a.innerHTML='<div class="project-card-stripe '+theme.stripe+'"></div>'
+        +'<div class="project-card-cover '+theme.cover+'" style="--hue:'+(p.hue||0)+'"><img src="'+(p.photo||theme.photo)+'" alt="" loading="lazy"><span class="project-cover-tint"></span><span class="project-cover-tag"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>'+(p.category||'项目')+'</span><h3 class="project-cover-title">'+(p.name||'')+'</h3></div>'
+        +'<div class="p-4">'
+        +'<div class="flex items-center justify-between mb-2"><span class="text-xs px-2 py-0.5 rounded-full font-medium bg-blue-100 text-blue-700">'+p.category+'</span><span class="text-xs text-gray-400">'+p.date+'</span></div>'
         +'<p class="text-xs text-gray-500 line-clamp-2 mb-2 leading-relaxed">'+(p.intro||'—')+'</p>'
         +(p.is_funder?'<div class="flex flex-wrap gap-2 text-xs text-blue-600 mb-2">'+tags+'</div>':tags)
-        +'<div class="flex items-center justify-between text-xs text-gray-400 pt-2 border-t border-blue-50"><span class="font-medium text-gray-500">'+p.nickname+'</span></div>';
+        +'<div class="flex items-center justify-between text-xs text-gray-400 pt-2 border-t border-blue-50"><span class="font-medium text-gray-500">'+p.nickname+'</span></div>'
+        +'</div>';
       grid.appendChild(a)});
     if(!d.has_more){document.getElementById('loadMore').classList.add('hidden');document.getElementById('noMore').classList.remove('hidden')}
   })
 }
-var obs=new IntersectionObserver(function(entries){if(entries[0].isIntersecting)loadMore()});obs.observe(document.getElementById('loadMore'));
+var obs=new IntersectionObserver(function(entries){if(entries[0].isIntersecting)loadMore()});
+if(document.getElementById('loadMore'))obs.observe(document.getElementById('loadMore'));
 </script>
 {{end}}

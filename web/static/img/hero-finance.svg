@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 320" fill="none">
+  <defs>
+    <linearGradient id="chartFill" x1="200" y1="80" x2="200" y2="260" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#fbbf24" stop-opacity="0.6"/><stop offset="1" stop-color="#fbbf24" stop-opacity="0"/>
+    </linearGradient>
+    <filter id="glow"><feGaussianBlur stdDeviation="2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  </defs>
+  <circle cx="80" cy="80" r="110" fill="#818cf8" opacity="0.1"/>
+  <circle cx="340" cy="240" r="90" fill="#fbbf24" opacity="0.08"/>
+  <rect x="55" y="75" width="290" height="190" rx="14" fill="rgba(255,255,255,0.1)" stroke="rgba(255,255,255,0.2)" stroke-width="1.5"/>
+  <g stroke="rgba(255,255,255,0.12)" stroke-width="1">
+    <line x1="55" y1="135" x2="345" y2="135"/><line x1="55" y1="175" x2="345" y2="175"/><line x1="55" y1="215" x2="345" y2="215"/>
+  </g>
+  <path d="M75 225 L125 195 L175 205 L225 155 L275 165 L325 95" stroke="#fbbf24" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" fill="none" filter="url(#glow)"/>
+  <path d="M75 225 L125 195 L175 205 L225 155 L275 165 L325 95 L325 265 L75 265 Z" fill="url(#chartFill)"/>
+  <circle cx="125" cy="195" r="6" fill="#fff" stroke="#fbbf24" stroke-width="2"/>
+  <circle cx="225" cy="155" r="6" fill="#fff" stroke="#fbbf24" stroke-width="2"/>
+  <circle cx="325" cy="95" r="8" fill="#fbbf24" filter="url(#glow)">
+    <animate attributeName="r" values="7;9;7" dur="2s" repeatCount="indefinite"/>
+  </circle>
+  <g transform="translate(295,195)">
+    <ellipse cx="32" cy="42" rx="30" ry="9" fill="#92400e" opacity="0.4"/>
+    <ellipse cx="32" cy="34" rx="30" ry="9" fill="#d97706"/>
+    <rect x="2" y="18" width="60" height="16" fill="#f59e0b"/>
+    <ellipse cx="32" cy="18" rx="30" ry="9" fill="#fbbf24" filter="url(#glow)"/>
+    <text x="32" y="25" text-anchor="middle" fill="#92400e" font-size="16" font-weight="bold">¥</text>
+  </g>
+  <g transform="translate(240,208)">
+    <ellipse cx="26" cy="34" rx="24" ry="7" fill="#92400e" opacity="0.35"/>
+    <ellipse cx="26" cy="28" rx="24" ry="7" fill="#d97706"/>
+    <rect x="2" y="14" width="48" height="14" fill="#f59e0b"/>
+    <ellipse cx="26" cy="14" rx="24" ry="7" fill="#fbbf24"/>
+  </g>
+  <g transform="translate(335,55)">
+    <path d="M0 28 L0 0 L22 0" stroke="#34d399" stroke-width="3" stroke-linecap="round" fill="none" filter="url(#glow)"/>
+    <polygon points="22,0 15,9 29,9" fill="#34d399"/>
+    <text x="32" y="10" fill="#34d399" font-size="18" font-weight="bold">+28%</text>
+  </g>
+</svg>
