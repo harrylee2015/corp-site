@@ -75,6 +75,8 @@ func main() {
 		"FormatProjectRate":   handler.FormatProjectRate,
 		"FormatRepayMethod":   handler.FormatRepayMethod,
 		"FormatRegionsForUser": handler.FormatRegionsForUser,
+		"ProjectPhoto":        handler.ProjectPhoto,
+		"ProjectHue":          handler.ProjectHue,
 	})
 
 	t, err := loadTemplates("web/templates", r.FuncMap)

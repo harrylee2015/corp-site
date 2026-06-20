@@ -1,29 +1,71 @@
 {{define "login-content"}}
-<div class="max-w-md mx-auto px-4 py-8 sm:py-16">
-    <div class="bg-white rounded-2xl shadow-xl border border-gray-100 p-6 sm:p-8 relative overflow-hidden">
-        <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500"></div>
-        <h2 class="text-2xl font-extrabold text-center text-gray-800 mb-1">用户登录</h2>
-        <p class="text-center text-sm text-gray-400 mb-6">欢迎回到金筹网</p>
-        {{if .error}}
-        <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl mb-4 text-sm">{{.error}}</div>
-        {{end}}
-        <form method="POST" action="/api/auth/login">
-            <input type="hidden" name="_csrf" value="{{.csrf_token}}">
-            <div class="mb-4">
-                <label class="block text-sm font-medium text-gray-600 mb-1.5">手机号</label>
-                <input type="tel" name="phone" required maxlength="11" placeholder="请输入手机号"
-                       class="w-full border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition">
+<div class="auth-split max-w-5xl mx-auto px-4 py-6 sm:py-10">
+    <!-- Mobile brand banner -->
+    <div class="auth-mobile-banner lg:hidden rounded-xl px-4 py-3 mb-4 text-center text-white">
+        <p class="text-sm font-semibold">金筹设备租赁</p>
+        <p class="text-xs text-blue-100 mt-0.5">商业信息聚合 · 高效资源对接</p>
+    </div>
+
+    <div class="auth-glow-wrap">
+    <div class="auth-glow-inner flex flex-col lg:flex-row">
+        <!-- Form panel -->
+        <div class="flex-1 bg-white p-6 sm:p-8 lg:p-10 relative">
+            <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500"></div>
+            <h2 class="text-2xl font-extrabold text-gray-800 mb-1">用户登录</h2>
+            <p class="text-sm text-gray-400 mb-6">欢迎回到金筹网</p>
+            {{if .error}}
+            <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl mb-4 text-sm">{{.error}}</div>
+            {{end}}
+            <form method="POST" action="/api/auth/login">
+                <input type="hidden" name="_csrf" value="{{.csrf_token}}">
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-600 mb-1.5">手机号</label>
+                    <input type="tel" name="phone" required maxlength="11" placeholder="请输入手机号"
+                           class="w-full border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition">
+                </div>
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-gray-600 mb-1.5">密码</label>
+                    <input type="password" name="password" required placeholder="请输入密码"
+                           class="w-full border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition">
+                </div>
+                <button type="submit" class="w-full bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 text-white py-2.5 rounded-xl text-sm font-bold btn-glow transition-all">登 录</button>
+            </form>
+            <div class="text-center mt-5 text-sm text-gray-500">
+                还没有账号？<a href="/register" class="font-medium text-blue-600 hover:text-blue-800">立即注册</a>
             </div>
-            <div class="mb-6">
-                <label class="block text-sm font-medium text-gray-600 mb-1.5">密码</label>
-                <input type="password" name="password" required placeholder="请输入密码"
-                       class="w-full border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition">
-            </div>
-            <button type="submit" class="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-2.5 rounded-xl text-sm font-bold hover:shadow-lg hover:shadow-blue-500/25 hover:scale-[1.02] transition-all">登 录</button>
-        </form>
-        <div class="text-center mt-5 text-sm text-gray-500">
-            还没有账号？<a href="/register" class="font-medium text-blue-600 hover:text-blue-800">立即注册</a>
         </div>
+
+        <!-- Brand panel -->
+        <div class="auth-brand-panel hidden lg:flex lg:w-[42%] flex-col items-center justify-center p-8 text-white text-center">
+            <div class="hero-blob hero-blob-1"></div>
+            <div class="hero-blob hero-blob-2"></div>
+            <div class="relative z-10">
+                <img src="/static/img/photos/finance.jpg" alt="" class="w-56 h-36 object-cover rounded-xl mx-auto mb-6 shadow-2xl border border-white/20" loading="lazy">
+                <h3 class="text-xl font-bold mb-2">连接优质商业资源</h3>
+                <p class="text-blue-100 text-sm mb-6 max-w-xs mx-auto">新能源、融资、租赁一站式信息对接平台</p>
+                <ul class="text-left text-sm space-y-3 max-w-xs mx-auto">
+                    <li class="flex items-center gap-2.5">
+                        <span class="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center shrink-0">
+                            <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+                        </span>
+                        海量审核通过的商业项目
+                    </li>
+                    <li class="flex items-center gap-2.5">
+                        <span class="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center shrink-0">
+                            <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+                        </span>
+                        资金方与需求方精准匹配
+                    </li>
+                    <li class="flex items-center gap-2.5">
+                        <span class="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center shrink-0">
+                            <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+                        </span>
+                        安全可靠的企业认证体系
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
     </div>
 </div>
 {{end}}

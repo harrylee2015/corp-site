@@ -28,6 +28,7 @@ WORKDIR /app
 
 COPY --from=builder /build/server .
 COPY --from=builder /build/web/templates ./web/templates
+COPY --from=builder /build/web/static ./web/static
 COPY --from=builder /build/config.yaml .
 
 RUN mkdir -p /app/uploads

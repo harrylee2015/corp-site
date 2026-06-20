@@ -1,65 +1,101 @@
 {{define "register-content"}}
-<div class="max-w-md mx-auto px-4 py-8 sm:py-12">
-    <div class="bg-white rounded-2xl shadow-xl border border-gray-100 p-6 sm:p-8 relative overflow-hidden">
-        <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 to-blue-700"></div>
-        <h2 class="text-2xl font-extrabold text-center text-gray-800 mb-1">用户注册</h2>
-        <p class="text-center text-sm text-gray-400 mb-6">注册后需上传企业证明照片方可发布产品</p>
-        {{if .error}}
-        <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl mb-4 text-sm">{{.error}}</div>
-        {{end}}
-        <form method="POST" action="/api/auth/register" id="registerForm">
-            <input type="hidden" name="_csrf" value="{{.csrf_token}}">
-            <div class="mb-4">
-                <label class="block text-sm font-medium text-gray-600 mb-1.5">手机号 <span class="text-red-500">*</span></label>
-                <input type="tel" name="phone" required maxlength="11" placeholder="11位手机号"
-                       class="w-full border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-            </div>
-            <div class="mb-4">
-                <label class="block text-sm font-medium text-gray-600 mb-1.5">短信验证码 <span class="text-red-500">*</span></label>
-                <div class="flex gap-2">
-                    <input type="text" name="code" required maxlength="6" placeholder="6位验证码"
-                           class="flex-1 border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    <button type="button" id="sendSmsBtn" onclick="sendSMS()"
-                            class="bg-blue-600 text-white px-4 py-2.5 rounded-xl text-sm font-medium whitespace-nowrap hover:bg-blue-700 disabled:opacity-50">获取验证码</button>
+<div class="auth-split max-w-5xl mx-auto px-4 py-6 sm:py-10">
+    <!-- Mobile brand banner -->
+    <div class="auth-mobile-banner lg:hidden rounded-xl px-4 py-3 mb-4 text-center text-white">
+        <p class="text-sm font-semibold">金筹设备租赁</p>
+        <p class="text-xs text-blue-100 mt-0.5">注册后即可发布商业项目信息</p>
+    </div>
+
+    <div class="auth-glow-wrap">
+    <div class="auth-glow-inner flex flex-col lg:flex-row">
+        <!-- Form panel -->
+        <div class="flex-1 bg-white p-6 sm:p-8 lg:p-10 relative">
+            <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 via-indigo-500 to-violet-500"></div>
+            <h2 class="text-2xl font-extrabold text-gray-800 mb-1">用户注册</h2>
+            <p class="text-center lg:text-left text-sm text-gray-400 mb-6">注册后需上传企业证明照片方可发布产品</p>
+            {{if .error}}
+            <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl mb-4 text-sm">{{.error}}</div>
+            {{end}}
+            <form method="POST" action="/api/auth/register" id="registerForm">
+                <input type="hidden" name="_csrf" value="{{.csrf_token}}">
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-600 mb-1.5">手机号 <span class="text-red-500">*</span></label>
+                    <input type="tel" name="phone" required maxlength="11" placeholder="11位手机号"
+                           class="w-full border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
                 </div>
-            </div>
-            <div class="mb-4">
-                <label class="block text-sm font-medium text-gray-600 mb-1.5">登录密码 <span class="text-red-500">*</span></label>
-                <input type="password" name="password" required minlength="8" maxlength="20" placeholder="8-20位，含字母和数字"
-                       class="w-full border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-            </div>
-            <div class="mb-4">
-                <label class="block text-sm font-medium text-gray-600 mb-1.5">确认密码 <span class="text-red-500">*</span></label>
-                <input type="password" name="password_confirm" required minlength="8" maxlength="20"
-                       class="w-full border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-            </div>
-            <div class="mb-4">
-                <label class="block text-sm font-medium text-gray-600 mb-1.5">真实姓名 <span class="text-red-500">*</span></label>
-                <input type="text" name="real_name" required minlength="2" maxlength="20" placeholder="2-20个字符"
-                       class="w-full border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-            </div>
-            <div class="mb-4">
-                <label class="block text-sm font-medium text-gray-600 mb-1.5">企业名称 <span class="text-red-500">*</span></label>
-                <input type="text" name="company" required minlength="2" maxlength="100"
-                       class="w-full border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-            </div>
-            <div class="mb-6">
-                <label class="block text-sm font-medium text-gray-600 mb-2">用户身份 <span class="text-red-500">*</span> <span class="text-gray-400 font-normal text-xs">（注册后不可修改）</span></label>
-                <div class="space-y-2">
-                    <label class="flex items-center gap-2 border border-gray-200 rounded-xl px-4 py-2.5 cursor-pointer hover:border-blue-400 has-[:checked]:border-blue-500 has-[:checked]:bg-blue-50">
-                        <input type="radio" name="identity" value="demander" required class="text-blue-600"> <span class="text-sm">需求方</span>
-                    </label>
-                    <label class="flex items-center gap-2 border border-gray-200 rounded-xl px-4 py-2.5 cursor-pointer hover:border-blue-400 has-[:checked]:border-blue-500 has-[:checked]:bg-blue-50">
-                        <input type="radio" name="identity" value="supplier" class="text-blue-600"> <span class="text-sm">设备供应商</span>
-                    </label>
-                    <label class="flex items-center gap-2 border border-gray-200 rounded-xl px-4 py-2.5 cursor-pointer hover:border-blue-400 has-[:checked]:border-blue-500 has-[:checked]:bg-blue-50">
-                        <input type="radio" name="identity" value="funder" class="text-blue-600"> <span class="text-sm">资金方</span>
-                    </label>
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-600 mb-1.5">短信验证码 <span class="text-red-500">*</span></label>
+                    <div class="flex gap-2">
+                        <input type="text" name="code" required maxlength="6" placeholder="6位验证码"
+                               class="flex-1 border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <button type="button" id="sendSmsBtn" onclick="sendSMS()"
+                                class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-4 py-2.5 rounded-xl text-sm font-medium whitespace-nowrap hover:shadow-md disabled:opacity-50 transition-all">获取验证码</button>
+                    </div>
                 </div>
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-600 mb-1.5">登录密码 <span class="text-red-500">*</span></label>
+                    <input type="password" name="password" required minlength="8" maxlength="20" placeholder="8-20位，含字母和数字"
+                           class="w-full border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                </div>
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-600 mb-1.5">确认密码 <span class="text-red-500">*</span></label>
+                    <input type="password" name="password_confirm" required minlength="8" maxlength="20"
+                           class="w-full border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                </div>
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-600 mb-1.5">真实姓名 <span class="text-red-500">*</span></label>
+                    <input type="text" name="real_name" required minlength="2" maxlength="20" placeholder="2-20个字符"
+                           class="w-full border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-600 mb-1.5">企业名称 <span class="text-red-500">*</span></label>
+                    <input type="text" name="company" required minlength="2" maxlength="100"
+                           class="w-full border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-gray-600 mb-2">用户身份 <span class="text-red-500">*</span> <span class="text-gray-400 font-normal text-xs">（注册后不可修改）</span></label>
+                    <div class="space-y-2">
+                        <label class="flex items-center gap-2 border border-gray-200 rounded-xl px-4 py-2.5 cursor-pointer hover:border-emerald-400 has-[:checked]:border-emerald-500 has-[:checked]:bg-emerald-50 transition-colors">
+                            <input type="radio" name="identity" value="demander" required class="text-emerald-600"> <span class="text-sm">需求方</span>
+                        </label>
+                        <label class="flex items-center gap-2 border border-gray-200 rounded-xl px-4 py-2.5 cursor-pointer hover:border-violet-400 has-[:checked]:border-violet-500 has-[:checked]:bg-violet-50 transition-colors">
+                            <input type="radio" name="identity" value="supplier" class="text-violet-600"> <span class="text-sm">设备供应商</span>
+                        </label>
+                        <label class="flex items-center gap-2 border border-gray-200 rounded-xl px-4 py-2.5 cursor-pointer hover:border-amber-400 has-[:checked]:border-amber-500 has-[:checked]:bg-amber-50 transition-colors">
+                            <input type="radio" name="identity" value="funder" class="text-amber-600"> <span class="text-sm">资金方</span>
+                        </label>
+                    </div>
+                </div>
+                <button type="submit" class="w-full bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 text-white py-2.5 rounded-xl text-sm font-bold btn-glow transition-all">注 册</button>
+            </form>
+            <div class="text-center mt-5 text-sm text-gray-500">已有账号？<a href="/login" class="font-medium text-blue-600 hover:text-blue-800">立即登录</a></div>
+        </div>
+
+        <!-- Brand panel -->
+        <div class="auth-brand-panel hidden lg:flex lg:w-[38%] flex-col items-center justify-center p-8 text-white text-center">
+            <div class="hero-blob hero-blob-1"></div>
+            <div class="hero-blob hero-blob-2"></div>
+            <div class="relative z-10">
+                <img src="/static/img/photos/solar-panels.jpg" alt="" class="w-56 h-36 object-cover rounded-xl mx-auto mb-6 shadow-2xl border border-white/20" loading="lazy">
+                <h3 class="text-xl font-bold mb-2">加入金筹平台</h3>
+                <p class="text-blue-100 text-sm mb-6 max-w-xs mx-auto">发布项目、对接资源，拓展商业机会</p>
+                <ul class="text-left text-sm space-y-3 max-w-xs mx-auto">
+                    <li class="flex items-center gap-2.5">
+                        <span class="w-6 h-6 rounded-full bg-emerald-400/30 flex items-center justify-center shrink-0 text-emerald-200">1</span>
+                        注册并选择您的身份角色
+                    </li>
+                    <li class="flex items-center gap-2.5">
+                        <span class="w-6 h-6 rounded-full bg-amber-400/30 flex items-center justify-center shrink-0 text-amber-200">2</span>
+                        上传企业证明完成认证
+                    </li>
+                    <li class="flex items-center gap-2.5">
+                        <span class="w-6 h-6 rounded-full bg-violet-400/30 flex items-center justify-center shrink-0 text-violet-200">3</span>
+                        发布项目，等待审核上线
+                    </li>
+                </ul>
             </div>
-            <button type="submit" class="w-full bg-blue-600 text-white py-2.5 rounded-xl text-sm font-bold hover:bg-blue-700 transition-all">注 册</button>
-        </form>
-        <div class="text-center mt-5 text-sm text-gray-500">已有账号？<a href="/login" class="font-medium text-blue-600">立即登录</a></div>
+        </div>
+    </div>
     </div>
 </div>
 <script>

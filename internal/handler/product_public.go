@@ -2,6 +2,7 @@ package handler
 
 import (
 	"fmt"
+	"hash/fnv"
 	"math"
 	"strconv"
 	"strings"
@@ -12,6 +13,7 @@ import (
 	"corp-site/internal/model"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
@@ -32,9 +34,12 @@ func Index(c *gin.Context) {
 
 	totalPages := int(math.Ceil(float64(total) / float64(pageSize)))
 
+	photos := AssignProjectPhotos(projects, (page-1)*pageSize)
+
 	renderPage(c, "layout/base.html", "首页 - 金筹设备租赁", "index-content", gin.H{
 		"projects":   projects,
 		"products":   projects,
+		"photos":     photos,
 		"page":       page,
 		"totalPages": totalPages,
 		"categoryID": categoryID,
@@ -124,6 +129,8 @@ func serveProjectListAPI(c *gin.Context) {
 
 	hasMore := int64(page*pageSize) < total
 
+	photos := AssignProjectPhotos(projects, (page-1)*pageSize)
+
 	type row struct {
 		ID       string `json:"id"`
 		Name     string `json:"name"`
@@ -137,6 +144,8 @@ func serveProjectListAPI(c *gin.Context) {
 		IsFunder bool   `json:"is_funder"`
 		Nickname string `json:"nickname"`
 		Date     string `json:"date"`
+		Photo    string `json:"photo"`
+		Hue      int    `json:"hue"`
 	}
 
 	rows := make([]row, len(projects))
@@ -150,6 +159,8 @@ func serveProjectListAPI(c *gin.Context) {
 			IsFunder: p.User.Identity == identity.Funder,
 			Nickname: maskPublisherName(p.User),
 			Date:     p.CreatedAt.Format("01-02"),
+			Photo:    photos[i],
+			Hue:      ProjectHue(p.ID),
 		}
 		if p.BudgetAmountWan != nil && *p.BudgetAmountWan > 0 {
 			r.Budget = fmt.Sprintf("%.0f万", *p.BudgetAmountWan)
@@ -231,4 +242,111 @@ func maskPublisherName(user model.User) string {
 		return MaskName(user.Nickname)
 	}
 	return MaskPhone(user.Phone)
+}
+
+const photoBase = "/static/img/photos/"
+
+// 二级分类 -> 图片池（对题、按二级分散）
+var subCategoryPhotoPool = map[string][]string{
+	"光伏发电":     {"solar-panels.jpg", "solar-field-2.jpg", "solar-sunset.jpg"},
+	"储能电站":     {"battery-storage.jpg", "substation.jpg", "power-grid.jpg"},
+	"风力发电":     {"wind-farm.jpg", "wind-farm-2.jpg", "wind-farm-3.jpg"},
+	"垃圾发电":     {"waste-plant.jpg", "power-plant.jpg", "industrial.jpg"},
+	"水利发电":     {"hydro-dam.jpg", "hydro-station.jpg", "power-lines.jpg"},
+	"充电桩":      {"ev-charging.jpg", "city-night.jpg", "substation.jpg"},
+	"光储充一体化项目": {"solar-panels.jpg", "battery-storage.jpg", "ev-charging.jpg"},
+	"央国企设备租赁":  {"office-building.jpg", "business-meeting.jpg", "industrial.jpg"},
+	"上市公司设备租赁": {"business-team.jpg", "office-building.jpg", "finance.jpg"},
+	"中小微企业设备租赁": {"business.jpg", "business-meeting.jpg", "warehouse.jpg"},
+	"金租":       {"finance.jpg", "office-building.jpg", "business.jpg"},
+	"商租":       {"business-team.jpg", "business-meeting.jpg", "city-skyline.jpg"},
+	"外资":       {"office-building.jpg", "city-skyline.jpg", "business-team.jpg"},
+}
+
+// 一级分类 -> 图片池（无二级时回退）
+var categoryPhotoPool = map[string][]string{
+	"新能源项目": {"solar-panels.jpg", "wind-farm.jpg", "power-grid.jpg", "solar-field-2.jpg", "battery-storage.jpg", "hydro-station.jpg", "ev-charging.jpg"},
+	"企业类项目": {"finance.jpg", "business.jpg", "office-building.jpg", "business-meeting.jpg", "business-team.jpg"},
+	"租赁公司":  {"industrial.jpg", "heavy-machinery.jpg", "construction.jpg", "forklift.jpg", "warehouse.jpg"},
+	"电站出售方": {"power-grid.jpg", "solar-panels.jpg", "substation.jpg", "power-lines.jpg", "industrial.jpg"},
+	"电站收购方": {"power-grid.jpg", "solar-panels.jpg", "substation.jpg", "power-lines.jpg", "industrial.jpg"},
+	"其他类":   {"business.jpg", "finance.jpg", "city-skyline.jpg", "city-night.jpg", "warehouse.jpg"},
+}
+
+var defaultPhotoPool = []string{"business.jpg", "finance.jpg", "solar-panels.jpg", "office-building.jpg"}
+
+// 全局图库（去重借用，保证同页不重复）——不含 hero 大图
+var allPhotos = []string{
+	"solar-panels.jpg", "solar-field-2.jpg", "solar-sunset.jpg",
+	"wind-farm.jpg", "wind-farm-2.jpg", "wind-farm-3.jpg", "battery-storage.jpg",
+	"power-grid.jpg", "power-lines.jpg", "substation.jpg", "power-plant.jpg", "waste-plant.jpg",
+	"hydro-dam.jpg", "hydro-station.jpg", "ev-charging.jpg",
+	"industrial.jpg", "heavy-machinery.jpg", "construction.jpg", "forklift.jpg", "warehouse.jpg",
+	"finance.jpg", "business.jpg", "office-building.jpg", "business-meeting.jpg", "business-team.jpg",
+	"city-skyline.jpg", "city-night.jpg",
+}
+
+func hashID(id uuid.UUID) uint32 {
+	h := fnv.New32a()
+	_, _ = h.Write([]byte(id.String()))
+	return h.Sum32()
+}
+
+// poolForProject 优先用二级分类池，否则回退一级池，再回退默认池。
+func poolForProject(p model.Project) []string {
+	if p.Category.Parent != nil {
+		if pool, ok := subCategoryPhotoPool[p.Category.Name]; ok && len(pool) > 0 {
+			return pool
+		}
+		if pool, ok := categoryPhotoPool[p.Category.Parent.Name]; ok && len(pool) > 0 {
+			return pool
+		}
+	} else if pool, ok := categoryPhotoPool[p.Category.Name]; ok && len(pool) > 0 {
+		return pool
+	}
+	return defaultPhotoPool
+}
+
+// ProjectPhoto 单项取图（按二级池 + ID 哈希），用于无需去重的场景。
+func ProjectPhoto(p model.Project) string {
+	pool := poolForProject(p)
+	return photoBase + pool[int(hashID(p.ID)%uint32(len(pool)))]
+}
+
+// AssignProjectPhotos 给一页项目分配底图，保证本页内不重复：
+// 优先从各自二级池里取“本页未用过”的图；池在本页用尽则从全局图库借未用图。
+func AssignProjectPhotos(projects []model.Project, offset int) []string {
+	out := make([]string, len(projects))
+	used := make(map[string]bool, len(projects))
+	for i, p := range projects {
+		pool := poolForProject(p)
+		chosen := ""
+		start := int(hashID(p.ID) % uint32(len(pool)))
+		for k := 0; k < len(pool); k++ {
+			if cand := pool[(start+k)%len(pool)]; !used[cand] {
+				chosen = cand
+				break
+			}
+		}
+		if chosen == "" {
+			g := (offset + i) % len(allPhotos)
+			for k := 0; k < len(allPhotos); k++ {
+				if cand := allPhotos[(g+k)%len(allPhotos)]; !used[cand] {
+					chosen = cand
+					break
+				}
+			}
+		}
+		if chosen == "" {
+			chosen = pool[start]
+		}
+		used[chosen] = true
+		out[i] = photoBase + chosen
+	}
+	return out
+}
+
+// ProjectHue 给每个项目一个专属色相（0-359），用于封面色块叠加。
+func ProjectHue(id uuid.UUID) int {
+	return int(hashID(id) % 360)
 }

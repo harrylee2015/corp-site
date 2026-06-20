@@ -3,73 +3,120 @@
     {{if .error}}
     <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl mb-4">{{.error}}</div>
     {{else if .project}}
-    <div class="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
-        <div class="bg-gradient-to-r from-blue-600 to-blue-800 px-4 sm:px-6 py-3 flex items-center justify-between">
-            <span class="text-white text-xs bg-white/20 px-3 py-1 rounded-full">{{if .project.Category.Parent}}{{.project.Category.Parent.Name}} · {{.project.Category.Name}}{{else}}{{.project.Category.Name}}{{end}}</span>
-            <span class="text-white/80 text-sm">{{.project.CreatedAt.Format "2006-01-02"}}</span>
+    {{$stripe := "from-blue-600 to-indigo-700"}}{{$section := "detail-section"}}{{$bannerPhoto := "/static/img/photos/business.jpg"}}
+    {{if .project.Category.Parent}}
+        {{if eq .project.Category.Parent.Name "新能源项目"}}{{$stripe = "from-emerald-700 to-teal-800"}}{{$section = "detail-section detail-section-energy"}}{{$bannerPhoto = "/static/img/photos/solar-panels.jpg"}}{{else if eq .project.Category.Parent.Name "企业类项目"}}{{$stripe = "from-amber-600 to-orange-700"}}{{$section = "detail-section detail-section-finance"}}{{$bannerPhoto = "/static/img/photos/finance.jpg"}}{{else if eq .project.Category.Parent.Name "租赁公司"}}{{$stripe = "from-violet-700 to-purple-800"}}{{$section = "detail-section detail-section-lease"}}{{$bannerPhoto = "/static/img/photos/industrial.jpg"}}{{else if or (eq .project.Category.Parent.Name "电站出售方") (eq .project.Category.Parent.Name "电站收购方")}}{{$stripe = "from-indigo-700 to-blue-800"}}{{$bannerPhoto = "/static/img/photos/power-grid.jpg"}}{{else if eq .project.Category.Parent.Name "其他类"}}{{$stripe = "from-slate-700 to-slate-800"}}{{end}}
+    {{else}}
+        {{if eq .project.Category.Name "新能源项目"}}{{$stripe = "from-emerald-700 to-teal-800"}}{{$section = "detail-section detail-section-energy"}}{{$bannerPhoto = "/static/img/photos/solar-panels.jpg"}}{{else if eq .project.Category.Name "企业类项目"}}{{$stripe = "from-amber-600 to-orange-700"}}{{$section = "detail-section detail-section-finance"}}{{$bannerPhoto = "/static/img/photos/finance.jpg"}}{{else if eq .project.Category.Name "租赁公司"}}{{$stripe = "from-violet-700 to-purple-800"}}{{$section = "detail-section detail-section-lease"}}{{$bannerPhoto = "/static/img/photos/industrial.jpg"}}{{end}}
+    {{end}}
+
+    <div class="detail-glow-wrap reveal">
+    <div class="detail-glow-inner bg-white overflow-hidden">
+        <!-- Banner -->
+        <div class="detail-banner relative min-h-[160px] sm:min-h-[200px]">
+            <img src="{{$bannerPhoto}}" alt="" class="absolute inset-0 w-full h-full object-cover" loading="lazy">
+            <div class="absolute inset-0 bg-gradient-to-r {{$stripe}} opacity-85"></div>
+            <div class="relative z-10 px-4 sm:px-6 py-5 sm:py-8 flex items-start justify-between gap-4">
+                <div class="flex-1 min-w-0">
+                    <span class="inline-block text-xs px-3 py-1 rounded-full font-medium mb-2 bg-white/20 text-white backdrop-blur-sm border border-white/20">{{if .project.Category.Parent}}{{.project.Category.Parent.Name}} · {{.project.Category.Name}}{{else}}{{.project.Category.Name}}{{end}}</span>
+                    <h1 class="text-xl sm:text-2xl lg:text-3xl font-bold text-white leading-snug drop-shadow-sm">{{.project.Name}}</h1>
+                    <p class="text-white/80 text-sm mt-2 flex items-center gap-1.5">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                        {{.project.CreatedAt.Format "2006-01-02"}} 发布
+                    </p>
+                </div>
+            </div>
         </div>
+
         <div class="p-4 sm:p-6">
-            <h1 class="text-xl sm:text-2xl font-bold text-gray-800 mb-4">{{.project.Name}}</h1>
             {{if and .showPrivate .project.ImagePath}}
             <img src="/uploads/{{.project.ImagePath}}" alt="" class="w-full max-h-48 object-cover rounded-xl mb-4 border border-gray-100">
             {{end}}
+
             {{if .isFunder}}
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
-                <div class="bg-blue-50 rounded-xl p-3 text-center border border-blue-100">
+                <div class="stat-card bg-blue-50 rounded-xl p-3 text-center border border-blue-100">
+                    <div class="w-8 h-8 mx-auto mb-1.5 rounded-lg bg-blue-100 flex items-center justify-center">
+                        <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    </div>
                     <div class="text-lg font-bold text-blue-700">{{if .project.AmountWan}}{{printf "%.0f" (derefFloat .project.AmountWan)}}{{else}}—{{end}}<span class="text-sm font-normal">万</span></div>
                     <div class="text-xs text-blue-500 mt-0.5">额度</div>
                 </div>
-                <div class="bg-green-50 rounded-xl p-3 text-center border border-green-100">
+                <div class="stat-card bg-green-50 rounded-xl p-3 text-center border border-green-100">
+                    <div class="w-8 h-8 mx-auto mb-1.5 rounded-lg bg-green-100 flex items-center justify-center">
+                        <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+                    </div>
                     <div class="text-sm font-bold text-green-700">{{FormatProjectRate .project}}</div>
                     <div class="text-xs text-green-500 mt-0.5">利率</div>
                 </div>
-                <div class="bg-amber-50 rounded-xl p-3 text-center border border-amber-100">
+                <div class="stat-card bg-amber-50 rounded-xl p-3 text-center border border-amber-100">
+                    <div class="w-8 h-8 mx-auto mb-1.5 rounded-lg bg-amber-100 flex items-center justify-center">
+                        <svg class="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                    </div>
                     <div class="text-lg font-bold text-amber-700">{{if .project.PeriodCount}}{{.project.PeriodCount}}{{else}}—{{end}}<span class="text-sm font-normal">期</span></div>
                     <div class="text-xs text-amber-500 mt-0.5">还款期数</div>
                 </div>
-                <div class="bg-purple-50 rounded-xl p-3 text-center border border-purple-100">
+                <div class="stat-card bg-purple-50 rounded-xl p-3 text-center border border-purple-100">
+                    <div class="w-8 h-8 mx-auto mb-1.5 rounded-lg bg-purple-100 flex items-center justify-center">
+                        <svg class="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+                    </div>
                     <div class="text-sm font-bold text-purple-700">{{if .project.RepayMethod}}{{FormatRepayMethod .project.RepayMethod}}{{else}}—{{end}}</div>
                     <div class="text-xs text-purple-500 mt-0.5">还款方式</div>
                 </div>
             </div>
-             {{end}}
+            {{end}}
+
             {{if .project.BudgetAmountWan}}
-            <div class="bg-indigo-50 rounded-xl p-3 text-center border border-indigo-100 mb-4">
+            <div class="stat-card bg-indigo-50 rounded-xl p-4 text-center border border-indigo-100 mb-4">
+                <div class="w-8 h-8 mx-auto mb-1.5 rounded-lg bg-indigo-100 flex items-center justify-center">
+                    <svg class="w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+                </div>
                 <div class="text-lg font-bold text-indigo-700">{{printf "%.0f" (derefFloat .project.BudgetAmountWan)}}<span class="text-sm font-normal"> 万元</span></div>
                 <div class="text-xs text-indigo-500 mt-0.5">项目预算额度</div>
             </div>
             {{end}}
+
             {{if .regions}}
-            <div class="mb-4">
+            <div class="mb-4 {{$section}}">
                 <h3 class="text-sm font-semibold text-gray-700 mb-2">项目区域</h3>
-                <div class="flex flex-wrap gap-1.5">{{range .regions}}<span class="text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-600">{{.}}</span>{{end}}</div>
+                <div class="flex flex-wrap gap-1.5">{{range .regions}}<span class="text-xs px-2.5 py-1 rounded-full bg-gray-100 text-gray-600">{{.}}</span>{{end}}</div>
             </div>
             {{end}}
+
             {{if .project.Intro}}
-            <div class="text-sm sm:text-base text-gray-600 whitespace-pre-wrap mb-6 leading-relaxed">{{.project.Intro}}</div>
+            <div class="mb-6 {{$section}}">
+                <h3 class="text-sm font-semibold text-gray-700 mb-2">项目介绍</h3>
+                <div class="text-sm sm:text-base text-gray-600 whitespace-pre-wrap leading-relaxed">{{.project.Intro}}</div>
+            </div>
             {{end}}
+
             {{if and .company .showPrivate}}
-            <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-4">
-                <div class="text-sm font-semibold text-amber-700 mb-2">发布方信息</div>
+            <div class="bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-200 rounded-xl p-4 mb-4 {{$section}}">
+                <div class="flex items-center gap-2 text-sm font-semibold text-amber-700 mb-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+                    发布方信息
+                </div>
                 <div class="text-sm text-amber-800 space-y-1">
                     {{if .company.ShopName}}<div>公司：{{.company.ShopName}}</div>{{end}}
                     {{if .company.Address}}<div>地址：{{.company.Address}}</div>{{end}}
                     {{if .company.EstablishedAt}}<div>成立时间：{{.company.EstablishedAt}}</div>{{end}}
                     {{if .project.User.Company}}<div>企业：{{.project.User.Company}}</div>{{end}}
-                     {{if .company.Contact}}<div>联系人：{{.company.Contact}}</div>{{end}}
-                     {{if .company.Phone}}<div>手机：{{.company.Phone}}</div>{{end}}
+                    {{if .company.Contact}}<div>联系人：{{.company.Contact}}</div>{{end}}
+                    {{if .company.Phone}}<div>手机：{{.company.Phone}}</div>{{end}}
                     {{if .project.ContactPerson}}<div>项目联系人：{{.project.ContactPerson}}</div>{{end}}
                     {{if .project.ContactPhone}}<div>项目联系电话：{{.project.ContactPhone}}</div>{{end}}
                 </div>
             </div>
             {{end}}
+
             <div class="border-t border-gray-100 pt-3 text-sm text-gray-400">
                 发布者：{{if .showPrivate}}{{if .project.User.RealName}}{{.project.User.RealName}}{{else if .project.User.Nickname}}{{.project.User.Nickname}}{{else}}{{MaskPhone .project.User.Phone}}{{end}}{{else}}{{if .project.User.RealName}}{{MaskName .project.User.RealName}}{{else if .project.User.Nickname}}{{MaskName .project.User.Nickname}}{{else}}{{MaskPhone .project.User.Phone}}{{end}}{{end}}
             </div>
         </div>
     </div>
-    <div class="mt-4">
-        <a href="/" class="inline-flex items-center gap-1 text-sm text-blue-600 hover:text-blue-800 bg-white px-4 py-2 rounded-xl shadow-sm border border-gray-100 hover:shadow transition-all">
+    </div>
+    <div class="mt-4 reveal">
+        <a href="/" class="inline-flex items-center gap-1.5 text-sm font-medium text-blue-600 hover:text-white bg-white hover:bg-gradient-to-r hover:from-blue-600 hover:to-indigo-600 px-5 py-2.5 rounded-xl shadow-sm border border-blue-200 hover:border-transparent transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/25">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>返回首页
         </a>
     </div>
