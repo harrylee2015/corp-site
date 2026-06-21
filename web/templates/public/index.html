@@ -6,17 +6,29 @@
 
     <!-- Hero：渐变背景 + 文字 -->
     <div class="hero-photo-section mb-5 sm:mb-6 reveal">
-        <div class="relative z-10 flex flex-col lg:flex-row items-stretch gap-6 lg:gap-10 px-5 sm:px-8 py-7 sm:py-9 lg:py-10 min-h-[300px] lg:min-h-[360px]">
-            <div class="flex-1 flex flex-col justify-center text-center lg:text-left">
-                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/15 border border-white/25 text-blue-100 text-xs font-medium mb-3 backdrop-blur-sm mx-auto lg:mx-0 w-fit">
+        <div class="relative z-10 flex items-stretch gap-4 lg:gap-6 px-5 sm:px-8 py-7 sm:py-9 lg:py-10 min-h-[300px] lg:min-h-[360px]">
+            <!-- 左侧背景照片 -->
+            <div class="hero-side-photos hidden lg:flex">
+                <div class="hero-side-photo">
+                    <img src="/static/img/photos/solar-panels.jpg" alt="光伏发电项目" loading="lazy">
+                    <span class="photo-caption"><span class="photo-caption-dot"></span>光伏电站 · 在运</span>
+                </div>
+                <div class="hero-side-photo">
+                    <img src="/static/img/photos/wind-farm.jpg" alt="风力发电项目" loading="lazy">
+                    <span class="photo-caption">风电场 · 招租中</span>
+                </div>
+            </div>
+            <!-- 中间搜索模块 -->
+            <div class="flex-1 flex flex-col justify-center items-center text-center max-w-2xl mx-auto">
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/15 border border-white/25 text-blue-100 text-xs font-medium mb-3 backdrop-blur-sm mx-auto w-fit">
                     <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
                     实时更新的商业项目广场
                 </div>
                 <h1 class="text-2xl sm:text-4xl lg:text-[2.75rem] font-extrabold mb-3 leading-tight text-white drop-shadow-sm">
-                    发现优质商业项目
+                    精筹设备 诚信托付
                 </h1>
-                <p class="text-blue-100/90 text-sm sm:text-base mb-5 max-w-xl mx-auto lg:mx-0 leading-relaxed">覆盖新能源、融资、租赁等领域，连接真实商业资源与优质合作方</p>
-                <form method="GET" action="/" class="max-w-xl mx-auto lg:mx-0 mb-4 w-full">
+                <p class="text-blue-100/90 text-sm sm:text-base mb-5 max-w-xl mx-auto leading-relaxed">提供全方位新能源，地方城投，各行企业融资服务平台</p>
+                <form method="GET" action="/" class="max-w-xl mx-auto mb-4 w-full">
                     {{if .categoryID}}<input type="hidden" name="category_id" value="{{.categoryID}}">{{end}}
                     <div class="flex gap-2 shadow-xl shadow-black/20 rounded-xl">
                         <input type="text" name="keyword" value="{{.keyword}}" placeholder="搜索项目名称或介绍..."
@@ -24,29 +36,26 @@
                         <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-r-xl text-sm font-bold transition-colors shrink-0">搜索</button>
                     </div>
                 </form>
-                <div class="flex flex-wrap justify-center lg:justify-start gap-2">
+                <div class="flex flex-wrap justify-center gap-2">
                     <span class="hero-pill bg-emerald-500/30 text-emerald-50 border border-emerald-400/40">新能源</span>
                     <span class="hero-pill bg-amber-500/30 text-amber-50 border border-amber-400/40">融资对接</span>
                     <span class="hero-pill bg-violet-500/30 text-violet-50 border border-violet-400/40">设备租赁</span>
                 </div>
-                <div class="flex gap-2 mt-5 lg:hidden overflow-x-auto pb-1 -mx-1 px-1 snap-x">
+                <div class="flex justify-center gap-2 mt-5 lg:hidden overflow-x-auto pb-1 -mx-1 px-1 snap-x">
                     <img src="/static/img/photos/solar-panels.jpg" alt="光伏" class="w-32 h-20 object-cover rounded-lg shrink-0 snap-start shadow-md border border-white/20" loading="lazy">
                     <img src="/static/img/photos/wind-farm.jpg" alt="风电" class="w-32 h-20 object-cover rounded-lg shrink-0 snap-start shadow-md border border-white/20" loading="lazy">
                     <img src="/static/img/photos/finance.jpg" alt="融资" class="w-32 h-20 object-cover rounded-lg shrink-0 snap-start shadow-md border border-white/20" loading="lazy">
                 </div>
             </div>
-            <div class="hero-photo-grid shrink-0 self-center">
-                <div class="hero-photo-grid-main">
-                    <img src="/static/img/photos/solar-panels.jpg" alt="光伏发电项目" loading="lazy">
-                    <span class="photo-caption"><span class="photo-caption-dot"></span>光伏电站 · 在运</span>
-                </div>
-                <div class="hero-photo-grid-sub">
-                    <img src="/static/img/photos/wind-farm.jpg" alt="风力发电项目" loading="lazy">
-                    <span class="photo-caption">风电场 · 招租中</span>
-                </div>
-                <div class="hero-photo-grid-sub">
+            <!-- 右侧背景照片 -->
+            <div class="hero-side-photos hidden lg:flex">
+                <div class="hero-side-photo">
                     <img src="/static/img/photos/finance.jpg" alt="企业融资" loading="lazy">
-                    <span class="photo-caption">企业融资 · 对接中</span>
+                    <span class="photo-caption"><span class="photo-caption-dot"></span>企业融资 · 对接中</span>
+                </div>
+                <div class="hero-side-photo">
+                    <img src="/static/img/photos/industrial.jpg" alt="设备租赁" loading="lazy">
+                    <span class="photo-caption">设备租赁 · 进行中</span>
                 </div>
             </div>
         </div>
@@ -70,69 +79,6 @@
             <span class="stat-pill bg-cyan-500/10 text-cyan-700 border-cyan-200/50"><span class="text-cyan-500">✓</span> 企业认证保障</span>
         </div>
     </div>
-
-    <!-- Feature cards -->
-    <div class="section-title reveal reveal-delay-1">
-        <h2 class="text-sm sm:text-base font-bold text-gray-700 whitespace-nowrap">平台服务</h2>
-    </div>
-    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-5 sm:mb-6">
-        <div class="feature-card card-shine gradient-border-card card-accent-emerald reveal reveal-delay-1 overflow-hidden rounded-xl">
-            <div class="feature-photo">
-                <img src="/static/img/photos/solar-panels.jpg" alt="新能源项目" loading="lazy">
-                <div class="feature-icon feature-icon-glow-emerald w-9 h-9 rounded-lg bg-white/95 flex items-center justify-center shadow-md">
-                    <svg class="w-5 h-5 text-emerald-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd"/></svg>
-                </div>
-            </div>
-            <div class="p-3 sm:p-4 pt-2">
-                <h3 class="font-bold text-gray-800 text-xs sm:text-sm mb-0.5">新能源项目</h3>
-                <p class="text-[10px] sm:text-xs text-gray-500 leading-relaxed">光伏、储能、风电等绿色能源</p>
-            </div>
-        </div>
-        <div class="feature-card card-shine gradient-border-card card-accent-amber reveal reveal-delay-2 overflow-hidden rounded-xl">
-            <div class="feature-photo">
-                <img src="/static/img/photos/finance.jpg" alt="企业融资" loading="lazy">
-                <div class="feature-icon feature-icon-glow-amber w-9 h-9 rounded-lg bg-white/95 flex items-center justify-center shadow-md">
-                    <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
-                </div>
-            </div>
-            <div class="p-3 sm:p-4 pt-2">
-                <h3 class="font-bold text-gray-800 text-xs sm:text-sm mb-0.5">企业融资</h3>
-                <p class="text-[10px] sm:text-xs text-gray-500 leading-relaxed">资金方对接，灵活融资方案</p>
-            </div>
-        </div>
-        <div class="feature-card card-shine gradient-border-card card-accent-violet reveal reveal-delay-3 overflow-hidden rounded-xl">
-            <div class="feature-photo">
-                <img src="/static/img/photos/industrial.jpg" alt="设备租赁" loading="lazy">
-                <div class="feature-icon feature-icon-glow-violet w-9 h-9 rounded-lg bg-white/95 flex items-center justify-center shadow-md">
-                    <svg class="w-5 h-5 text-violet-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
-                </div>
-            </div>
-            <div class="p-3 sm:p-4 pt-2">
-                <h3 class="font-bold text-gray-800 text-xs sm:text-sm mb-0.5">设备租赁</h3>
-                <p class="text-[10px] sm:text-xs text-gray-500 leading-relaxed">融资租赁，助力企业设备升级</p>
-            </div>
-        </div>
-        <div class="feature-card card-shine gradient-border-card card-accent-blue reveal reveal-delay-4 overflow-hidden rounded-xl">
-            <div class="feature-photo">
-                <img src="/static/img/photos/business.jpg" alt="资源对接" loading="lazy">
-                <div class="feature-icon feature-icon-glow-blue w-9 h-9 rounded-lg bg-white/95 flex items-center justify-center shadow-md">
-                    <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
-                </div>
-            </div>
-            <div class="p-3 sm:p-4 pt-2">
-                <h3 class="font-bold text-gray-800 text-xs sm:text-sm mb-0.5">资源对接</h3>
-                <p class="text-[10px] sm:text-xs text-gray-500 leading-relaxed">电站买卖，高效商业撮合</p>
-            </div>
-        </div>
-    </div>
-
-    {{if .ActiveCategoryName}}
-    <div class="mb-3 flex items-center gap-2 text-sm text-blue-700">
-        <span>当前分类：</span>
-        <span class="font-semibold px-2.5 py-0.5 rounded-full bg-blue-100">{{.ActiveCategoryName}}</span>
-        <a href="/{{if .keyword}}?keyword={{.keyword}}{{end}}" class="text-xs text-blue-500 hover:text-blue-700">清除筛选</a>
-    </div>
-    {{end}}
 
     {{$list := .projects}}
     {{if not $list}}{{$list = .products}}{{end}}
@@ -186,46 +132,114 @@
     </div>
     {{end}}
 
+    <!-- Feature cards -->
+    <div class="section-title reveal reveal-delay-1">
+        <h2 class="text-sm sm:text-base font-bold text-gray-700 whitespace-nowrap">平台服务</h2>
+    </div>
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-5 sm:mb-6">
+        <a href="/?category_id={{CategoryIDByName "新能源项目"}}" class="feature-card card-shine gradient-border-card card-accent-emerald reveal reveal-delay-1 overflow-hidden rounded-xl block no-underline">
+            <div class="feature-photo">
+                <img src="/static/img/photos/solar-panels.jpg" alt="新能源项目" loading="lazy">
+                <div class="feature-icon feature-icon-glow-emerald w-9 h-9 rounded-lg bg-white/95 flex items-center justify-center shadow-md">
+                    <svg class="w-5 h-5 text-emerald-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd"/></svg>
+                </div>
+            </div>
+            <div class="p-3 sm:p-4 pt-2">
+                <h3 class="font-bold text-gray-800 text-xs sm:text-sm mb-0.5">新能源项目</h3>
+                <p class="text-[10px] sm:text-xs text-gray-500 leading-relaxed">光伏、储能、风电等绿色能源</p>
+            </div>
+        </a>
+        <a href="/?category_id={{CategoryIDByName "企业类项目"}}" class="feature-card card-shine gradient-border-card card-accent-amber reveal reveal-delay-2 overflow-hidden rounded-xl block no-underline">
+            <div class="feature-photo">
+                <img src="/static/img/photos/finance.jpg" alt="企业融资" loading="lazy">
+                <div class="feature-icon feature-icon-glow-amber w-9 h-9 rounded-lg bg-white/95 flex items-center justify-center shadow-md">
+                    <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+                </div>
+            </div>
+            <div class="p-3 sm:p-4 pt-2">
+                <h3 class="font-bold text-gray-800 text-xs sm:text-sm mb-0.5">企业融资</h3>
+                <p class="text-[10px] sm:text-xs text-gray-500 leading-relaxed">资金方对接，灵活融资方案</p>
+            </div>
+        </a>
+        <a href="/?category_id={{CategoryIDByName "政信类项目"}}" class="feature-card card-shine gradient-border-card card-accent-violet reveal reveal-delay-3 overflow-hidden rounded-xl block no-underline">
+            <div class="feature-photo">
+                <img src="/static/img/photos/city-skyline.jpg" alt="政信类租赁" loading="lazy">
+                <div class="feature-icon feature-icon-glow-violet w-9 h-9 rounded-lg bg-white/95 flex items-center justify-center shadow-md">
+                    <svg class="w-5 h-5 text-violet-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+                </div>
+            </div>
+            <div class="p-3 sm:p-4 pt-2">
+                <h3 class="font-bold text-gray-800 text-xs sm:text-sm mb-0.5">政信类租赁</h3>
+                <p class="text-[10px] sm:text-xs text-gray-500 leading-relaxed">地级市、区县级平台公司项目</p>
+            </div>
+        </a>
+        <a href="/about" class="feature-card card-shine gradient-border-card card-accent-blue reveal reveal-delay-4 overflow-hidden rounded-xl block no-underline">
+            <div class="feature-photo">
+                <img src="/static/img/photos/business.jpg" alt="关于公司" loading="lazy">
+                <div class="feature-icon feature-icon-glow-blue w-9 h-9 rounded-lg bg-white/95 flex items-center justify-center shadow-md">
+                    <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
+                </div>
+            </div>
+            <div class="p-3 sm:p-4 pt-2">
+                <h3 class="font-bold text-gray-800 text-xs sm:text-sm mb-0.5">关于公司</h3>
+                <p class="text-[10px] sm:text-xs text-gray-500 leading-relaxed">了解中友（福建）融资租赁有限公司</p>
+            </div>
+        </a>
+    </div>
+
+    {{if .ActiveCategoryName}}
+    <div class="mb-3 flex items-center gap-2 text-sm text-blue-700">
+        <span>当前分类：</span>
+        <span class="font-semibold px-2.5 py-0.5 rounded-full bg-blue-100">{{.ActiveCategoryName}}</span>
+        <a href="/{{if .keyword}}?keyword={{.keyword}}{{end}}" class="text-xs text-blue-500 hover:text-blue-700">清除筛选</a>
+    </div>
+    {{end}}
+
     {{if $list}}
     <div class="section-title reveal">
         <h2 class="text-sm sm:text-base font-bold text-gray-700 whitespace-nowrap">全部项目</h2>
     </div>
-    <div id="projectGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+    <div id="projectGrid" class="flex flex-col gap-3">
         {{range $i, $p := $list}}
         {{if or (le (len $list) 6) (ge $i 6)}}
         {{$stripe := "stripe-default"}}{{$cover := "cover-default"}}{{$photo := "/static/img/photos/business.jpg"}}
         {{if $p.Category.Parent}}
-            {{if eq $p.Category.Parent.Name "新能源项目"}}{{$stripe = "stripe-energy"}}{{$cover = "cover-energy"}}{{$photo = "/static/img/photos/solar-panels.jpg"}}{{else if eq $p.Category.Parent.Name "企业类项目"}}{{$stripe = "stripe-finance"}}{{$cover = "cover-finance"}}{{$photo = "/static/img/photos/finance.jpg"}}{{else if eq $p.Category.Parent.Name "租赁公司"}}{{$stripe = "stripe-lease"}}{{$cover = "cover-lease"}}{{$photo = "/static/img/photos/industrial.jpg"}}{{else if or (eq $p.Category.Parent.Name "电站出售方") (eq $p.Category.Parent.Name "电站收购方")}}{{$stripe = "stripe-enterprise"}}{{$cover = "cover-enterprise"}}{{$photo = "/static/img/photos/power-grid.jpg"}}{{else if eq $p.Category.Parent.Name "其他类"}}{{$stripe = "stripe-other"}}{{$cover = "cover-other"}}{{$photo = "/static/img/photos/business.jpg"}}{{end}}
+            {{if eq $p.Category.Parent.Name "新能源项目"}}{{$stripe = "stripe-energy"}}{{$cover = "cover-energy"}}{{$photo = "/static/img/photos/solar-panels.jpg"}}{{else if eq $p.Category.Parent.Name "企业类项目"}}{{$stripe = "stripe-finance"}}{{$cover = "cover-finance"}}{{$photo = "/static/img/photos/finance.jpg"}}{{else if eq $p.Category.Parent.Name "政信类项目"}}{{$stripe = "stripe-govt"}}{{$cover = "cover-govt"}}{{$photo = "/static/img/photos/city-skyline.jpg"}}{{else if eq $p.Category.Parent.Name "租赁公司"}}{{$stripe = "stripe-lease"}}{{$cover = "cover-lease"}}{{$photo = "/static/img/photos/industrial.jpg"}}{{else if or (eq $p.Category.Parent.Name "电站出售方") (eq $p.Category.Parent.Name "电站收购方")}}{{$stripe = "stripe-enterprise"}}{{$cover = "cover-enterprise"}}{{$photo = "/static/img/photos/power-grid.jpg"}}{{else if eq $p.Category.Parent.Name "其他类"}}{{$stripe = "stripe-other"}}{{$cover = "cover-other"}}{{$photo = "/static/img/photos/business.jpg"}}{{end}}
         {{else}}
-            {{if eq $p.Category.Name "新能源项目"}}{{$stripe = "stripe-energy"}}{{$cover = "cover-energy"}}{{$photo = "/static/img/photos/solar-panels.jpg"}}{{else if eq $p.Category.Name "企业类项目"}}{{$stripe = "stripe-finance"}}{{$cover = "cover-finance"}}{{$photo = "/static/img/photos/finance.jpg"}}{{else if eq $p.Category.Name "租赁公司"}}{{$stripe = "stripe-lease"}}{{$cover = "cover-lease"}}{{$photo = "/static/img/photos/industrial.jpg"}}{{else if or (eq $p.Category.Name "电站出售方") (eq $p.Category.Name "电站收购方")}}{{$stripe = "stripe-enterprise"}}{{$cover = "cover-enterprise"}}{{$photo = "/static/img/photos/power-grid.jpg"}}{{else if eq $p.Category.Name "其他类"}}{{$stripe = "stripe-other"}}{{$cover = "cover-other"}}{{$photo = "/static/img/photos/business.jpg"}}{{end}}
+            {{if eq $p.Category.Name "新能源项目"}}{{$stripe = "stripe-energy"}}{{$cover = "cover-energy"}}{{$photo = "/static/img/photos/solar-panels.jpg"}}{{else if eq $p.Category.Name "企业类项目"}}{{$stripe = "stripe-finance"}}{{$cover = "cover-finance"}}{{$photo = "/static/img/photos/finance.jpg"}}{{else if eq $p.Category.Name "政信类项目"}}{{$stripe = "stripe-govt"}}{{$cover = "cover-govt"}}{{$photo = "/static/img/photos/city-skyline.jpg"}}{{else if eq $p.Category.Name "租赁公司"}}{{$stripe = "stripe-lease"}}{{$cover = "cover-lease"}}{{$photo = "/static/img/photos/industrial.jpg"}}{{else if or (eq $p.Category.Name "电站出售方") (eq $p.Category.Name "电站收购方")}}{{$stripe = "stripe-enterprise"}}{{$cover = "cover-enterprise"}}{{$photo = "/static/img/photos/power-grid.jpg"}}{{else if eq $p.Category.Name "其他类"}}{{$stripe = "stripe-other"}}{{$cover = "cover-other"}}{{$photo = "/static/img/photos/business.jpg"}}{{end}}
         {{end}}
         {{$photo = index $.photos $i}}
-        <a href="/projects/{{$p.ID}}" class="project-card-enhanced group rounded-xl shadow-sm border border-gray-200/80 block overflow-hidden reveal bg-white">
-            <div class="project-card-stripe {{$stripe}}"></div>
-            <div class="project-card-cover {{$cover}}" style="--hue:{{ProjectHue $p.ID}}">
+        <a href="/projects/{{$p.ID}}" class="project-bar group reveal">
+            <span class="project-bar-stripe {{$stripe}}"></span>
+            <div class="project-bar-thumb">
                 <img src="{{$photo}}" alt="" loading="lazy">
-                <span class="project-cover-tint"></span>
-                <span class="project-cover-tag"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>{{if $p.Category.Parent}}{{$p.Category.Parent.Name}}{{else}}{{$p.Category.Name}}{{end}}</span>
-                <h3 class="project-cover-title">{{$p.Name}}</h3>
+                <span class="project-bar-tag"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>{{if $p.Category.Parent}}{{$p.Category.Parent.Name}}{{else}}{{$p.Category.Name}}{{end}}</span>
             </div>
-            <div class="p-4">
-                <div class="flex items-center justify-between mb-2">
-                    <span class="text-xs px-2 py-0.5 rounded-full font-medium bg-blue-100 text-blue-700">{{if $p.Category.Parent}}{{$p.Category.Parent.Name}} · {{$p.Category.Name}}{{else}}{{$p.Category.Name}}{{end}}</span>
-                    <span class="text-xs text-gray-400">{{$p.CreatedAt.Format "01-02"}}</span>
+            <div class="project-bar-body">
+                <div class="project-bar-head">
+                    <div class="flex items-center gap-1.5 min-w-0">
+                        <span class="project-bar-cat">{{if $p.Category.Parent}}{{$p.Category.Parent.Name}} · {{$p.Category.Name}}{{else}}{{$p.Category.Name}}{{end}}</span>
+                        {{if eq $p.User.Identity "funder"}}<span class="project-bar-ident project-bar-ident-funder">资金方</span>{{else}}<span class="project-bar-ident project-bar-ident-demander">项目方</span>{{end}}
+                    </div>
+                    <span class="project-bar-date">{{$p.CreatedAt.Format "01-02"}}</span>
                 </div>
-                <p class="text-xs text-gray-500 line-clamp-2 mb-2 leading-relaxed">{{if $p.Intro}}{{$p.Intro}}{{else}}—{{end}}</p>
-                {{if eq $p.User.Identity "funder"}}
-                <div class="flex flex-wrap gap-2 text-xs text-blue-600 mb-2">
-                    {{if $p.AmountWan}}<span class="bg-blue-50 px-2 py-0.5 rounded">{{printf "%.0f" (derefFloat $p.AmountWan)}}万</span>{{end}}
-                    <span class="bg-green-50 text-green-700 px-2 py-0.5 rounded">{{FormatProjectRate $p}}</span>
-                    {{if $p.PeriodCount}}<span class="bg-amber-50 text-amber-700 px-2 py-0.5 rounded">{{$p.PeriodCount}}期</span>{{end}}
+                <h3 class="project-bar-title">{{$p.Name}}</h3>
+                <p class="project-bar-intro">{{if $p.Intro}}{{$p.Intro}}{{else}}—{{end}}</p>
+                <div class="project-bar-meta">
+                    {{$region := FormatRegionsForUser $p.Regions $p.User.Identity}}
+                    {{if $region}}<span class="project-bar-loc"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>{{$region}}</span>{{end}}
+                    {{if eq $p.User.Identity "funder"}}
+                    {{if $p.AmountWan}}<span class="text-xs bg-blue-50 text-blue-600 px-2 py-0.5 rounded">{{printf "%.0f" (derefFloat $p.AmountWan)}}万</span>{{end}}
+                    <span class="text-xs bg-green-50 text-green-700 px-2 py-0.5 rounded">{{FormatProjectRate $p}}</span>
+                    {{if $p.PeriodCount}}<span class="text-xs bg-amber-50 text-amber-700 px-2 py-0.5 rounded">{{$p.PeriodCount}}期</span>{{end}}
+                    {{else}}
+                    {{if $p.BudgetAmountWan}}<span class="project-bar-budget">预算 {{printf "%.0f" (derefFloat $p.BudgetAmountWan)}}万</span>{{end}}
+                    {{end}}
+                    <span class="project-bar-author">{{if $p.User.RealName}}{{MaskName $p.User.RealName}}{{else if $p.User.Nickname}}{{MaskName $p.User.Nickname}}{{else}}{{MaskPhone $p.User.Phone}}{{end}}</span>
                 </div>
-                {{else}}
-                <div class="text-xs text-gray-500 mb-2">{{FormatRegionsForUser $p.Regions $p.User.Identity}}</div>
-                {{end}}
-                <div class="flex items-center justify-between text-xs text-gray-400 pt-2 border-t border-blue-50">
-                    <span class="font-medium text-gray-500">{{if $p.User.RealName}}{{MaskName $p.User.RealName}}{{else if $p.User.Nickname}}{{MaskName $p.User.Nickname}}{{else}}{{MaskPhone $p.User.Phone}}{{end}}</span>
-                </div>
+            </div>
+            <div class="project-bar-chevron">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
             </div>
         </a>
         {{end}}
@@ -263,6 +277,7 @@ function categoryTheme(cat){
   if(!cat)return{stripe:'stripe-default',cover:'cover-default',photo:photos+'business.jpg'};
   if(cat.indexOf('新能源')>=0)return{stripe:'stripe-energy',cover:'cover-energy',photo:photos+'solar-panels.jpg'};
   if(cat.indexOf('企业')>=0)return{stripe:'stripe-finance',cover:'cover-finance',photo:photos+'finance.jpg'};
+  if(cat.indexOf('政信')>=0)return{stripe:'stripe-govt',cover:'cover-govt',photo:photos+'city-skyline.jpg'};
   if(cat.indexOf('租赁')>=0)return{stripe:'stripe-lease',cover:'cover-lease',photo:photos+'industrial.jpg'};
   if(cat.indexOf('电站')>=0)return{stripe:'stripe-enterprise',cover:'cover-enterprise',photo:photos+'power-grid.jpg'};
   if(cat.indexOf('其他')>=0)return{stripe:'stripe-other',cover:'cover-other',photo:photos+'business.jpg'};
@@ -278,18 +293,22 @@ function loadMore(){
     var grid=document.getElementById('projectGrid');items.forEach(function(p){
       var theme=categoryTheme(p.category);
       var a=document.createElement('a');a.href='/projects/'+p.id;
-      a.className='project-card-enhanced group rounded-xl shadow-sm border border-gray-200/80 block overflow-hidden reveal revealed bg-white';
+      a.className='project-bar group reveal revealed';
+      var pin='<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>';
+      var loc=p.region?('<span class="project-bar-loc">'+pin+p.region+'</span>'):'';
+      var ident=p.is_funder?'<span class="project-bar-ident project-bar-ident-funder">资金方</span>':'<span class="project-bar-ident project-bar-ident-demander">项目方</span>';
       var tags='';
-      if(p.is_funder){if(p.amount)tags+='<span class="bg-blue-50 px-2 py-0.5 rounded">'+p.amount+'</span> ';if(p.rate)tags+='<span class="bg-green-50 text-green-700 px-2 py-0.5 rounded">'+p.rate+'</span> ';if(p.period)tags+='<span class="bg-amber-50 text-amber-700 px-2 py-0.5 rounded">'+p.period+'</span>';}
-      else tags='<div class="text-xs text-gray-500 mb-2">'+(p.region||'')+'</div>';
-      a.innerHTML='<div class="project-card-stripe '+theme.stripe+'"></div>'
-        +'<div class="project-card-cover '+theme.cover+'" style="--hue:'+(p.hue||0)+'"><img src="'+(p.photo||theme.photo)+'" alt="" loading="lazy"><span class="project-cover-tint"></span><span class="project-cover-tag"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>'+(p.category||'项目')+'</span><h3 class="project-cover-title">'+(p.name||'')+'</h3></div>'
-        +'<div class="p-4">'
-        +'<div class="flex items-center justify-between mb-2"><span class="text-xs px-2 py-0.5 rounded-full font-medium bg-blue-100 text-blue-700">'+p.category+'</span><span class="text-xs text-gray-400">'+p.date+'</span></div>'
-        +'<p class="text-xs text-gray-500 line-clamp-2 mb-2 leading-relaxed">'+(p.intro||'—')+'</p>'
-        +(p.is_funder?'<div class="flex flex-wrap gap-2 text-xs text-blue-600 mb-2">'+tags+'</div>':tags)
-        +'<div class="flex items-center justify-between text-xs text-gray-400 pt-2 border-t border-blue-50"><span class="font-medium text-gray-500">'+p.nickname+'</span></div>'
-        +'</div>';
+      if(p.is_funder){if(p.amount)tags+='<span class="text-xs bg-blue-50 text-blue-600 px-2 py-0.5 rounded">'+p.amount+'</span>';if(p.rate)tags+='<span class="text-xs bg-green-50 text-green-700 px-2 py-0.5 rounded">'+p.rate+'</span>';if(p.period)tags+='<span class="text-xs bg-amber-50 text-amber-700 px-2 py-0.5 rounded">'+p.period+'</span>';}
+      else if(p.budget)tags='<span class="project-bar-budget">预算 '+p.budget+'</span>';
+      a.innerHTML='<span class="project-bar-stripe '+theme.stripe+'"></span>'
+        +'<div class="project-bar-thumb"><img src="'+(p.photo||theme.photo)+'" alt="" loading="lazy"><span class="project-bar-tag"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>'+(p.category||'项目')+'</span></div>'
+        +'<div class="project-bar-body">'
+        +'<div class="project-bar-head"><div class="flex items-center gap-1.5 min-w-0"><span class="project-bar-cat">'+(p.category||'')+'</span>'+ident+'</div><span class="project-bar-date">'+p.date+'</span></div>'
+        +'<h3 class="project-bar-title">'+(p.name||'')+'</h3>'
+        +'<p class="project-bar-intro">'+(p.intro||'—')+'</p>'
+        +'<div class="project-bar-meta">'+loc+tags+'<span class="project-bar-author">'+p.nickname+'</span></div>'
+        +'</div>'
+        +'<div class="project-bar-chevron"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg></div>';
       grid.appendChild(a)});
     if(!d.has_more){document.getElementById('loadMore').classList.add('hidden');document.getElementById('noMore').classList.remove('hidden')}
   })

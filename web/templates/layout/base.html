@@ -68,6 +68,14 @@
         @media(min-width:768px){.category-tab{font-size:12px;padding:10px 6px}}
         @media(min-width:1024px){.category-tab{font-size:13px;padding:11px 8px}}
         .category-tab:hover{color:#fff;background:rgba(255,255,255,.1)}
+        /* 各一级分类专属悬停背景色（第1项为“全部”） */
+        .category-nav-bar .category-nav-item:nth-child(2) .category-tab:hover{background:linear-gradient(135deg,rgba(16,185,129,.45),rgba(16,185,129,.22));box-shadow:inset 0 0 0 1px rgba(110,231,183,.35)}
+        .category-nav-bar .category-nav-item:nth-child(3) .category-tab:hover{background:linear-gradient(135deg,rgba(245,158,11,.45),rgba(245,158,11,.22));box-shadow:inset 0 0 0 1px rgba(252,211,77,.35)}
+        .category-nav-bar .category-nav-item:nth-child(4) .category-tab:hover{background:linear-gradient(135deg,rgba(244,63,94,.45),rgba(244,63,94,.22));box-shadow:inset 0 0 0 1px rgba(253,164,175,.35)}
+        .category-nav-bar .category-nav-item:nth-child(5) .category-tab:hover{background:linear-gradient(135deg,rgba(249,115,22,.45),rgba(249,115,22,.22));box-shadow:inset 0 0 0 1px rgba(253,186,116,.35)}
+        .category-nav-bar .category-nav-item:nth-child(6) .category-tab:hover{background:linear-gradient(135deg,rgba(139,92,246,.45),rgba(139,92,246,.22));box-shadow:inset 0 0 0 1px rgba(196,181,253,.35)}
+        .category-nav-bar .category-nav-item:nth-child(7) .category-tab:hover{background:linear-gradient(135deg,rgba(99,102,241,.45),rgba(99,102,241,.22));box-shadow:inset 0 0 0 1px rgba(165,180,252,.35)}
+        .category-nav-bar .category-nav-item:nth-child(8) .category-tab:hover{background:linear-gradient(135deg,rgba(100,116,139,.45),rgba(100,116,139,.22));box-shadow:inset 0 0 0 1px rgba(203,213,225,.35)}
         .category-tab-active{
             color:#fff!important;
             background:linear-gradient(135deg,#38bdf8 0%,#2563eb 55%,#4f46e5 100%)!important;
@@ -221,8 +229,8 @@
                         <a href="/my" class="text-sm font-medium text-blue-600 hover:text-blue-800 transition-colors">用户中心</a>
                         <a href="/logout" class="text-sm font-medium text-red-500 hover:text-red-600 transition-colors">退出</a>
                         {{else}}
-                        <a href="/login" class="text-sm font-medium text-blue-600 hover:text-blue-800 transition-colors">登录</a>
-                        <a href="/register" class="text-sm font-medium bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-4 py-1.5 rounded-full hover:from-blue-700 hover:to-indigo-700 hover:shadow-lg hover:shadow-blue-500/25 transition-all">注册</a>
+                        <a href="/login" class="text-sm font-medium text-blue-600 border border-blue-300 px-4 py-1.5 rounded-full hover:bg-blue-50 hover:border-blue-400 transition-all">登录</a>
+                        <a href="/register" class="text-sm font-medium bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 text-white px-4 py-1.5 rounded-full hover:shadow-lg hover:shadow-violet-500/30 transition-all">注册</a>
                         {{end}}
                     </div>
                 </div>
@@ -233,8 +241,8 @@
                     <a href="/my" class="flex items-center min-h-[44px] text-sm font-medium text-blue-600 px-1">用户中心</a>
                     <a href="/logout" class="flex items-center min-h-[44px] text-sm font-medium text-red-500 px-1">退出</a>
                     {{else}}
-                    <a href="/login" class="flex items-center min-h-[44px] text-sm font-medium text-blue-600 px-1">登录</a>
-                    <a href="/register" class="flex items-center min-h-[44px] text-sm font-medium text-blue-600 px-1">注册</a>
+                    <a href="/login" class="flex items-center justify-center min-h-[44px] text-sm font-medium text-blue-600 border border-blue-300 rounded-lg hover:bg-blue-50 transition-all">登录</a>
+                    <a href="/register" class="flex items-center justify-center min-h-[44px] text-sm font-medium text-white bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 rounded-lg mt-1 shadow-sm">注册</a>
                     {{end}}
                 </div>
             </div>
@@ -348,6 +356,7 @@
                 <h4 class="font-semibold text-blue-100 mb-2">快速链接</h4>
                 <div class="flex flex-wrap gap-x-5 gap-y-1.5 text-blue-200/85">
                     <a href="/" class="footer-link hover:text-white transition-colors">首页广场</a>
+                    <a href="/about" class="footer-link hover:text-white transition-colors">关于我们</a>
                     <a href="/login" class="footer-link hover:text-white transition-colors">用户登录</a>
                     <a href="/register" class="footer-link hover:text-white transition-colors">立即注册</a>
                 </div>

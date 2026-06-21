@@ -16,6 +16,12 @@ func UserRegisterPage(c *gin.Context) {
 	})
 }
 
+func AboutPage(c *gin.Context) {
+	renderPage(c, "layout/base.html", "关于我们", "about-content", gin.H{
+		"csrf_token": c.GetString("csrf_token"),
+	})
+}
+
 func AdminLoginPage(c *gin.Context) {
 	renderPage(c, "layout/admin.html", "管理员登录", "adminlogin-content", gin.H{
 		"csrf_token": c.GetString("csrf_token"),
