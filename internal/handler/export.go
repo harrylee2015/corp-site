@@ -57,7 +57,7 @@ func ExportExcel(c *gin.Context) {
 		if post.User.Nickname != "" {
 			nickname = post.User.Nickname
 		} else {
-			nickname = MaskPhone(post.User.Phone)
+			nickname = post.User.Phone
 		}
 		categoryName := post.Category.Name
 
@@ -165,7 +165,7 @@ func ExportUsersExcel(c *gin.Context) {
 		f.SetCellValue(sheet, cell, h)
 	}
 
-	identityMap := map[string]string{"demander": "需求方", "supplier": "设备供应商", "funder": "资金方"}
+	identityMap := map[string]string{"demander": "项目方", "supplier": "设备供应商", "funder": "资金方"}
 	verifyMap := map[string]string{"none": "未认证", "approved": "已认证", "pending": "审核中", "rejected": "未通过"}
 	statusMap := map[string]string{"active": "正常", "disabled": "已禁用"}
 
@@ -237,7 +237,7 @@ func ExportPreview(c *gin.Context) {
 	rows := make([]previewRow, len(posts))
 	for i, p := range posts {
 		contact := p.Contact
-		phone := MaskPhone(p.ContactPhone)
+		phone := p.ContactPhone
 		if phone == "" {
 			phone = ""
 		}

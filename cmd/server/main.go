@@ -77,6 +77,7 @@ func main() {
 		"FormatRegionsForUser": handler.FormatRegionsForUser,
 		"ProjectPhoto":        handler.ProjectPhoto,
 		"ProjectHue":          handler.ProjectHue,
+		"CategoryIDByName":    handler.CategoryIDByName,
 	})
 
 	t, err := loadTemplates("web/templates", r.FuncMap)
@@ -108,6 +109,7 @@ func main() {
 		pub.GET("/posts/:id", handler.PostDetail)
 		pub.GET("/login", handler.UserLoginPage)
 		pub.GET("/register", handler.UserRegisterPage)
+		pub.GET("/about", handler.AboutPage)
 		pub.POST("/api/sms/send", handler.SendSMS(cfg))
 		pub.POST("/api/auth/register", handler.Register(cfg))
 		pub.POST("/api/auth/login", handler.Login(cfg, loginLimiter))

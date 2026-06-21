@@ -11,7 +11,7 @@ var energySubNames = []string{
 }
 
 var canonicalParentNames = []string{
-	"新能源项目", "企业类项目", "电站出售方", "电站收购方", "租赁公司", "其他类",
+	"新能源项目", "企业类项目", "政信类项目", "电站出售方", "电站收购方", "租赁公司", "其他类",
 }
 
 var legacyToNewPath = map[string]string{
@@ -37,6 +37,8 @@ func SeedCategories() {
 		migrateFromLegacy(!hasAnyCategory())
 		return
 	}
+
+	ensureCanonicalTree()
 
 	if cleaned := cleanupLegacyCategories(); cleaned > 0 {
 		fmt.Printf("[DB] removed %d legacy categories\n", cleaned)
@@ -183,17 +185,20 @@ func buildValidCategoryIDSet() map[uint]struct{} {
 	return result
 }
 
-func createCategoryTree() {
-	groups := []categoryGroup{
+func canonicalGroups() []categoryGroup {
+	return []categoryGroup{
 		{name: "新能源项目", order: 1, subs: energySubNames},
 		{name: "企业类项目", order: 2, subs: []string{"央国企设备租赁", "上市公司设备租赁", "中小微企业设备租赁"}},
-		{name: "电站出售方", order: 3, subs: energySubNames},
-		{name: "电站收购方", order: 4, subs: energySubNames},
-		{name: "租赁公司", order: 5, subs: []string{"金租", "商租", "外资"}},
-		{name: "其他类", order: 6, subs: nil},
+		{name: "政信类项目", order: 3, subs: []string{"地级市平台公司", "区县级平台公司"}},
+		{name: "电站出售方", order: 4, subs: energySubNames},
+		{name: "电站收购方", order: 5, subs: energySubNames},
+		{name: "租赁公司", order: 6, subs: []string{"金租", "商租", "外资"}},
+		{name: "其他类", order: 7, subs: nil},
 	}
+}
 
-	for _, g := range groups {
+func createCategoryTree() {
+	for _, g := range canonicalGroups() {
 		parent := model.Category{Name: g.name, SortOrder: g.order}
 		db.Create(&parent)
 		for i, sub := range g.subs {
@@ -203,6 +208,34 @@ func createCategoryTree() {
 				SortOrder: i + 1,
 			}
 			db.Create(&child)
+		}
+	}
+}
+
+// ensureCanonicalTree adds any missing canonical parents/children and normalizes
+// their sort order, so existing (already-initialized) databases pick up new
+// categories without a destructive migration.
+func ensureCanonicalTree() {
+	for _, g := range canonicalGroups() {
+		var parent model.Category
+		err := db.Where("name = ? AND parent_id IS NULL", g.name).First(&parent).Error
+		if err != nil {
+			parent = model.Category{Name: g.name, SortOrder: g.order}
+			db.Create(&parent)
+			fmt.Printf("[DB] added category %s\n", g.name)
+		} else if parent.SortOrder != g.order {
+			db.Model(&parent).Update("sort_order", g.order)
+		}
+		for i, sub := range g.subs {
+			var child model.Category
+			if db.Where("name = ? AND parent_id = ?", sub, parent.ID).First(&child).Error != nil {
+				db.Create(&model.Category{
+					ParentID:  &parent.ID,
+					Name:      sub,
+					SortOrder: i + 1,
+				})
+				fmt.Printf("[DB] added category %s/%s\n", g.name, sub)
+			}
 		}
 	}
 }

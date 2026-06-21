@@ -182,7 +182,13 @@ func buildPublicProjectQuery(db *gorm.DB, categoryID, keyword string) *gorm.DB {
 	query := db.Model(&model.Project{}).Where("status = ?", "approved").
 		Preload("Category.Parent").Preload("User")
 	if categoryID != "" {
-		query = query.Where("category_id = ?", categoryID)
+		var childIDs []uint
+		db.Model(&model.Category{}).Where("parent_id = ?", categoryID).Pluck("id", &childIDs)
+		if len(childIDs) > 0 {
+			query = query.Where("category_id IN ?", childIDs)
+		} else {
+			query = query.Where("category_id = ?", categoryID)
+		}
 	}
 	if keyword != "" {
 		for _, word := range strings.Fields(keyword) {
@@ -261,12 +267,15 @@ var subCategoryPhotoPool = map[string][]string{
 	"金租":       {"finance.jpg", "office-building.jpg", "business.jpg"},
 	"商租":       {"business-team.jpg", "business-meeting.jpg", "city-skyline.jpg"},
 	"外资":       {"office-building.jpg", "city-skyline.jpg", "business-team.jpg"},
+	"地级市平台公司":  {"city-skyline.jpg", "office-building.jpg", "city-night.jpg"},
+	"区县级平台公司":  {"office-building.jpg", "city-night.jpg", "business.jpg"},
 }
 
 // 一级分类 -> 图片池（无二级时回退）
 var categoryPhotoPool = map[string][]string{
 	"新能源项目": {"solar-panels.jpg", "wind-farm.jpg", "power-grid.jpg", "solar-field-2.jpg", "battery-storage.jpg", "hydro-station.jpg", "ev-charging.jpg"},
 	"企业类项目": {"finance.jpg", "business.jpg", "office-building.jpg", "business-meeting.jpg", "business-team.jpg"},
+	"政信类项目": {"city-skyline.jpg", "office-building.jpg", "city-night.jpg", "business.jpg"},
 	"租赁公司":  {"industrial.jpg", "heavy-machinery.jpg", "construction.jpg", "forklift.jpg", "warehouse.jpg"},
 	"电站出售方": {"power-grid.jpg", "solar-panels.jpg", "substation.jpg", "power-lines.jpg", "industrial.jpg"},
 	"电站收购方": {"power-grid.jpg", "solar-panels.jpg", "substation.jpg", "power-lines.jpg", "industrial.jpg"},

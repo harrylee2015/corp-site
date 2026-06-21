@@ -19,6 +19,15 @@ type CategoryNavItem struct {
 	Children []CategoryNavChild
 }
 
+// CategoryIDByName returns the ID of a top-level category by name, or 0 if not found.
+func CategoryIDByName(name string) uint {
+	var cat model.Category
+	if err := database.DB().Where("parent_id IS NULL AND name = ?", name).First(&cat).Error; err != nil {
+		return 0
+	}
+	return cat.ID
+}
+
 func LoadCategoryNav() []CategoryNavItem {
 	var parents []model.Category
 	database.DB().Where("parent_id IS NULL AND name IN ?", database.CanonicalParentNames()).
@@ -97,6 +106,8 @@ func catColorClass(parentName string) string {
 		return "bg-emerald-100 text-emerald-700"
 	case "企业类项目":
 		return "bg-sky-100 text-sky-700"
+	case "政信类项目":
+		return "bg-rose-100 text-rose-700"
 	case "电站出售方":
 		return "bg-orange-100 text-orange-700"
 	case "电站收购方":

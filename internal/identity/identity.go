@@ -7,16 +7,14 @@ const (
 )
 
 var Labels = map[string]string{
-	Demander: "需求方",
-	Supplier: "设备供应商",
+	Demander: "项目方",
 	Funder:   "资金方",
 }
 
 // ParentCategories 各身份可选的一级分类（行业）
 var ParentCategories = map[string][]string{
-	Demander: {"新能源项目", "企业类项目", "其他类"},
-	Supplier: {"新能源项目", "企业类项目", "电站出售方", "其他类"},
-	Funder:   {"租赁公司", "企业类项目", "电站收购方", "其他类"},
+	Demander: {"新能源项目", "企业类项目", "政信类项目", "其他类"},
+	Funder:   {"租赁公司", "其他类"},
 }
 
 func Label(id string) string {
