@@ -5,26 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{.Title}}</title>
     <link rel="icon" type="image/svg+xml" href="/static/img/favicon.svg">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/static/css/theme.css">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-    tailwind.config = {
-        theme: {
-            extend: {
-                fontFamily: { sans: ['"Noto Sans SC"', 'system-ui', 'sans-serif'] },
-                colors: {
-                    brand: { DEFAULT: '#2563eb', light: '#3b82f6', dark: '#1d4ed8' },
-                    energy: { DEFAULT: '#10b981', light: '#34d399' },
-                    finance: { DEFAULT: '#f59e0b', light: '#fbbf24' },
-                    lease: { DEFAULT: '#8b5cf6', light: '#a78bfa' }
-                }
-            }
-        }
-    }
-    </script>
+    <link rel="stylesheet" href="/static/css/tailwind.css?v=1">
+    <link rel="stylesheet" href="/static/css/theme.css?v=2">
     <style>
         @keyframes nav-shimmer{0%{background-position:200% center}100%{background-position:-200% center}}
         .category-nav-wrap{
