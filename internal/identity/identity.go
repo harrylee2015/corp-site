@@ -13,7 +13,7 @@ var Labels = map[string]string{
 
 // ParentCategories 各身份可选的一级分类（行业）
 var ParentCategories = map[string][]string{
-	Demander: {"新能源项目", "企业类项目", "政信类项目", "其他类"},
+	Demander: {"新能源项目", "企业类项目", "政信类项目", "电站出售方", "电站收购方", "其他类"},
 	Funder:   {"租赁公司", "其他类"},
 }
 
